@@ -18,7 +18,7 @@ export function WordDisplay({ word, category }: WordDisplayProps) {
         today&apos;s word
       </span>
       <h1 className="mt-2 font-serif text-6xl font-black tracking-tight text-text md:text-7xl">
-        {word.toUpperCase()}
+        {word?.toUpperCase() ?? ''}
       </h1>
       {category && (
         <span className="mt-2 inline-block rounded-full bg-surface px-3 py-1 text-xs font-medium text-text-muted">

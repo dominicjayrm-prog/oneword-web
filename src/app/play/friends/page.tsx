@@ -131,7 +131,7 @@ export default function FriendsPage() {
       {word && userDescription && (friendsDescriptions as Array<{user_id: string; username: string; description: string}>).length > 0 && (
         <div className="mt-6">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-            Today&apos;s Word: {word.word.toUpperCase()}
+            Today&apos;s Word: {word.word?.toUpperCase()}
           </h2>
           <div className="mt-3 flex flex-col gap-2">
             {(friendsDescriptions as Array<{user_id: string; username: string; description: string}>).map((fd) => (
