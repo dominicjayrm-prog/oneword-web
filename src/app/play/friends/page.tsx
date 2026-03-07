@@ -9,8 +9,10 @@ import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export default function FriendsPage() {
-  const { user } = useAuth();
-  const { word, userDescription, fetchUserDescription } = useWord();
+  const { user, profile } = useAuth();
+  const { word, userDescription, fetchUserDescription } = useWord(
+    profile?.language || 'en'
+  );
   const { friends, friendsDescriptions, loading, fetchFriends, fetchFriendsDescriptions } =
     useFriends(user?.id);
   const [showAddModal, setShowAddModal] = useState(false);

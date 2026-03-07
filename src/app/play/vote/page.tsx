@@ -10,8 +10,10 @@ import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export default function VotePage() {
-  const { user } = useAuth();
-  const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord();
+  const { user, profile } = useAuth();
+  const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord(
+    profile?.language || 'en'
+  );
   const { pair, loading: voteLoading, votesCount, noMorePairs, fetchPair, submitVote } = useVoting(
     word?.id,
     user?.id

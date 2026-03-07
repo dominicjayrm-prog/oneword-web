@@ -14,8 +14,10 @@ import { cn } from '@/lib/utils';
 type Tab = 'global' | 'friends';
 
 export default function ResultsPage() {
-  const { user } = useAuth();
-  const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord();
+  const { user, profile } = useAuth();
+  const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord(
+    profile?.language || 'en'
+  );
   const { entries, loading: lbLoading, fetchLeaderboard } = useLeaderboard(word?.id);
   const { friendsDescriptions, fetchFriendsDescriptions } = useFriends(user?.id);
   const [tab, setTab] = useState<Tab>('global');
