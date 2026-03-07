@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 
 const demoPills: Record<string, string[]> = {
@@ -13,6 +15,34 @@ export function Hero() {
   const t = useTranslations('hero');
   const locale = useLocale();
   const words = demoPills[locale] || demoPills.en;
+  const [todayWord, setTodayWord] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchTodayWord() {
+      const supabase = createClient();
+      const lang = locale === 'es' ? 'es' : 'en';
+
+      const { data } = await supabase.rpc('get_today_word', { p_language: lang });
+      if (data) {
+        const row = Array.isArray(data) ? data[0] : data;
+        if (row?.word) {
+          setTodayWord(row.word);
+          return;
+        }
+      }
+
+      // Fallback: query daily_words table directly
+      const today = new Date().toISOString().split('T')[0];
+      const { data: fb } = await supabase
+        .from('daily_words')
+        .select('word')
+        .eq('date', today)
+        .eq('language', lang)
+        .single();
+      if (fb?.word) setTodayWord(fb.word);
+    }
+    fetchTodayWord();
+  }, [locale]);
 
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20">
@@ -49,7 +79,7 @@ export function Hero() {
             {t('demo_label')}
           </span>
           <h2 className="mt-2 font-serif text-5xl font-black tracking-tight text-text md:text-6xl">
-            OCEAN
+            {todayWord ? todayWord.toUpperCase() : '...'}
           </h2>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             {words.map((word, i) => (

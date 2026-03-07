@@ -103,7 +103,7 @@ export function LiveLeaderboard() {
               <span className="text-primary">{word}</span>
             </h2>
             <p className="mt-3 text-text-muted-light">
-              {descCount} {descCount === 1 ? 'description' : 'descriptions'} {locale === 'es' ? 'y contando' : 'and counting'}
+              {t('descriptions_count', { count: descCount })}
             </p>
           </>
         ) : (
@@ -135,7 +135,7 @@ export function LiveLeaderboard() {
                   <p className="text-sm text-text-muted-light">@{entry.username}</p>
                 </div>
                 <span className="font-mono text-sm text-text-muted-light shrink-0">
-                  {entry.vote_count} {locale === 'es' ? 'votos' : 'votes'}
+                  {t('votes', { count: entry.vote_count })}
                 </span>
               </motion.div>
             ))
