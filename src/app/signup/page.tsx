@@ -1,10 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
+import { getTranslations } from '@/lib/i18n';
+
+function detectLanguage(): 'en' | 'es' {
+  if (typeof navigator === 'undefined') return 'en';
+  const lang = navigator.language || (navigator as { userLanguage?: string }).userLanguage || 'en';
+  if (lang.startsWith('es')) return 'es';
+  return 'en';
+}
 
 export default function SignupPage() {
   const [username, setUsername] = useState('');
@@ -15,6 +23,12 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const t = getTranslations(language);
+
+  // Auto-detect browser language on mount
+  useEffect(() => {
+    setLanguage(detectLanguage());
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,7 +51,7 @@ export default function SignupPage() {
 
     // If email confirmation is required, user won't have a session yet
     if (data.user && !data.session) {
-      setError('Check your email to confirm your account, then log in.');
+      setError(t.checkEmail);
       setLoading(false);
       return;
     }
@@ -71,9 +85,9 @@ export default function SignupPage() {
           <span className="text-primary">word</span>
         </Link>
 
-        <h1 className="text-center font-serif text-2xl font-bold text-text">Create your account</h1>
+        <h1 className="text-center font-serif text-2xl font-bold text-text">{t.createAccount}</h1>
         <p className="mt-2 text-center text-sm text-text-muted">
-          Join thousands of players worldwide
+          {t.joinPlayers}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
@@ -84,7 +98,7 @@ export default function SignupPage() {
           )}
           <input
             type="text"
-            placeholder="Username"
+            placeholder={t.username}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -92,7 +106,7 @@ export default function SignupPage() {
           />
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t.email}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -100,7 +114,7 @@ export default function SignupPage() {
           />
           <input
             type="password"
-            placeholder="Password (6+ characters)"
+            placeholder={t.passwordPlaceholder}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -116,14 +130,14 @@ export default function SignupPage() {
             <option value="es">&#127466;&#127480; Espa&ntilde;ol</option>
           </select>
           <Button type="submit" variant="primary" size="lg" disabled={loading}>
-            {loading ? 'Creating account...' : 'Sign up'}
+            {loading ? t.creatingAccount : t.signUp}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-text-muted">
-          Already have an account?{' '}
+          {t.alreadyHaveAccount}{' '}
           <Link href="/login" className="font-medium text-primary hover:underline">
-            Log in
+            {t.logIn}
           </Link>
         </p>
       </div>

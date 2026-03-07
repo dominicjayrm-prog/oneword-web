@@ -3,15 +3,18 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { getTranslations } from '@/lib/i18n';
 
 interface VotePairProps {
   optionA: { id: string; description: string };
   optionB: { id: string; description: string };
   onVote: (winnerId: string, loserId: string) => void;
+  language?: string;
 }
 
-export function VotePair({ optionA, optionB, onVote }: VotePairProps) {
+export function VotePair({ optionA, optionB, onVote, language }: VotePairProps) {
   const [selected, setSelected] = useState<string | null>(null);
+  const t = getTranslations(language);
 
   function handleVote(winnerId: string, loserId: string) {
     if (selected) return;
@@ -49,7 +52,7 @@ export function VotePair({ optionA, optionB, onVote }: VotePairProps) {
               animate={{ opacity: 1, y: 0 }}
               className="mt-3 inline-block text-sm font-bold text-primary"
             >
-              YOUR PICK &#10003;
+              {t.yourPick}
             </motion.span>
           )}
         </motion.button>

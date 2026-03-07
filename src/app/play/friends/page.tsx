@@ -7,12 +7,13 @@ import { useFriends } from '@/lib/hooks/useFriends';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { getTranslations } from '@/lib/i18n';
 
 export default function FriendsPage() {
   const { user, profile } = useAuth();
-  const { word, userDescription, fetchUserDescription } = useWord(
-    profile?.language || 'en'
-  );
+  const lang = profile?.language || 'en';
+  const t = getTranslations(lang);
+  const { word, userDescription, fetchUserDescription } = useWord(lang);
   const { friends, friendsDescriptions, loading, fetchFriends, fetchFriendsDescriptions } =
     useFriends(user?.id);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -28,7 +29,6 @@ export default function FriendsPage() {
         fetchUserDescription(user.id);
         fetchFriendsDescriptions(word.id);
       }
-      // Fetch pending requests
       fetchPending();
     }
   }, [user, word]);
@@ -96,9 +96,9 @@ export default function FriendsPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl font-bold text-text">Friends</h1>
+        <h1 className="font-serif text-2xl font-bold text-text">{t.friendsTitle}</h1>
         <Button variant="primary" size="sm" onClick={() => setShowAddModal(true)}>
-          Add Friend
+          {t.addFriend}
         </Button>
       </div>
 
@@ -106,7 +106,7 @@ export default function FriendsPage() {
       {pendingRequests.length > 0 && (
         <div className="mt-6">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-            Pending Requests
+            {t.pendingRequests}
           </h2>
           <div className="mt-3 flex flex-col gap-2">
             {pendingRequests.map((req) => (
@@ -117,10 +117,10 @@ export default function FriendsPage() {
                 <span className="font-medium text-text">@{req.username}</span>
                 <div className="flex gap-2">
                   <Button variant="primary" size="sm" onClick={() => handleAccept(req.id)}>
-                    Accept
+                    {t.accept}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => handleDecline(req.id)}>
-                    Decline
+                    {t.decline}
                   </Button>
                 </div>
               </div>
@@ -133,7 +133,7 @@ export default function FriendsPage() {
       {word && userDescription && friendsDescriptions.length > 0 && (
         <div className="mt-6">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-            Today&apos;s Word: {word.word?.toUpperCase()}
+            {t.todaysWordLabel(word.word?.toUpperCase())}
           </h2>
           <div className="mt-3 flex flex-col gap-2">
             {friendsDescriptions.map((fd) => (
@@ -153,14 +153,14 @@ export default function FriendsPage() {
 
       {word && !userDescription && (
         <p className="mt-6 text-center text-text-muted">
-          Play today&apos;s word to see your friends&apos; descriptions!
+          {t.playToSee}
         </p>
       )}
 
       {/* Friends list */}
       <div className="mt-6">
         <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-          Your Friends
+          {t.yourFriends}
         </h2>
         <div className="mt-3 flex flex-col gap-2">
           {friends.length > 0 ? (
@@ -184,7 +184,7 @@ export default function FriendsPage() {
             ))
           ) : (
             <p className="py-4 text-center text-text-muted">
-              No friends yet. Add some to compete!
+              {t.noFriendsYet}
             </p>
           )}
         </div>
@@ -194,10 +194,10 @@ export default function FriendsPage() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
           <div className="w-full max-w-sm rounded-2xl bg-bg p-6">
-            <h2 className="font-serif text-xl font-bold text-text">Add Friend</h2>
+            <h2 className="font-serif text-xl font-bold text-text">{t.addFriendTitle}</h2>
             <input
               type="text"
-              placeholder="Enter username"
+              placeholder={t.enterUsername}
               value={searchUsername}
               onChange={(e) => setSearchUsername(e.target.value)}
               className="mt-4 w-full rounded-xl border border-border bg-white px-4 py-3 text-text outline-none focus:border-primary"
@@ -209,10 +209,10 @@ export default function FriendsPage() {
                 disabled={searchLoading}
                 className="flex-1"
               >
-                {searchLoading ? 'Sending...' : 'Send Request'}
+                {searchLoading ? t.sending : t.sendRequest}
               </Button>
               <Button variant="ghost" onClick={() => setShowAddModal(false)}>
-                Cancel
+                {t.cancel}
               </Button>
             </div>
           </div>

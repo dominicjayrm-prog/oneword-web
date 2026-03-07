@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
+import { getTranslations } from '@/lib/i18n';
 
 interface DescriptionInputProps {
   onSubmit: (description: string) => Promise<void>;
+  language?: string;
 }
 
-export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
+export function DescriptionInput({ onSubmit, language }: DescriptionInputProps) {
   const [input, setInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const t = getTranslations(language);
 
   const words = input.trim().split(/\s+/).filter(Boolean);
   const wordCount = input.trim() === '' ? 0 : words.length;
@@ -45,7 +48,7 @@ export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
       <textarea
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Type your five words..."
+        placeholder={t.placeholder}
         rows={2}
         className="w-full resize-none rounded-2xl border border-border bg-white px-5 py-4 text-center text-lg text-text outline-none focus:border-primary"
       />
@@ -56,7 +59,7 @@ export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
           wordCount === 5 ? 'text-primary' : 'text-text-muted'
         }`}
       >
-        {wordCount}/5 words {wordCount === 5 ? '\u2713' : ''}
+        {t.wordCount(wordCount)} {wordCount === 5 ? '\u2713' : ''}
       </p>
 
       {/* Submit */}
@@ -67,7 +70,7 @@ export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
           disabled={wordCount !== 5 || submitting}
           onClick={handleSubmit}
         >
-          {submitting ? 'Locking in...' : 'Lock it in'}
+          {submitting ? t.lockingIn : t.lockItIn}
         </Button>
       </div>
     </div>

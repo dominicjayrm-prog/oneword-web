@@ -2,22 +2,24 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { getTranslations } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-
-const navLinks = [
-  { href: '/play', label: 'Today' },
-  { href: '/play/vote', label: 'Vote' },
-  { href: '/play/results', label: 'Results' },
-  { href: '/play/friends', label: 'Friends' },
-];
 
 export default function PlayLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, profile, loading } = useAuth();
+  const t = getTranslations(profile?.language);
+
+  const navLinks = useMemo(() => [
+    { href: '/play', label: t.navToday },
+    { href: '/play/vote', label: t.navVote },
+    { href: '/play/results', label: t.navResults },
+    { href: '/play/friends', label: t.navFriends },
+  ], [t]);
 
   useEffect(() => {
     if (!loading && !user) {

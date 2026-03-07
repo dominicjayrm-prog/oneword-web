@@ -9,15 +9,16 @@ import { WordDisplay } from '@/components/game/WordDisplay';
 import { LeaderboardItem } from '@/components/game/LeaderboardItem';
 import { ShareCard } from '@/components/game/ShareCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { getTranslations } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 type Tab = 'global' | 'friends';
 
 export default function ResultsPage() {
   const { user, profile } = useAuth();
-  const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord(
-    profile?.language || 'en'
-  );
+  const lang = profile?.language || 'en';
+  const t = getTranslations(lang);
+  const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord(lang);
   const { entries, loading: lbLoading, fetchLeaderboard } = useLeaderboard(word?.id);
   const { friendsDescriptions, fetchFriendsDescriptions } = useFriends(user?.id);
   const [tab, setTab] = useState<Tab>('global');
@@ -45,7 +46,7 @@ export default function ResultsPage() {
 
   return (
     <div className="flex flex-col items-center">
-      <WordDisplay word={word.word} category={word.category} />
+      <WordDisplay word={word.word} category={word.category} language={lang} />
 
       {/* Share card */}
       {userDescription && userRank && (
@@ -55,22 +56,23 @@ export default function ResultsPage() {
             description={userDescription.description}
             rank={userRank}
             totalPlayers={entries.length}
+            language={lang}
           />
         </div>
       )}
 
       {/* Tab toggle */}
       <div className="mt-8 flex w-full rounded-xl bg-surface p-1">
-        {(['global', 'friends'] as const).map((t) => (
+        {(['global', 'friends'] as const).map((tabKey) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={tabKey}
+            onClick={() => setTab(tabKey)}
             className={cn(
               'flex-1 rounded-lg py-2 text-sm font-medium transition-all cursor-pointer',
-              tab === t ? 'bg-white text-text shadow-sm' : 'text-text-muted'
+              tab === tabKey ? 'bg-white text-text shadow-sm' : 'text-text-muted'
             )}
           >
-            {t === 'global' ? '\uD83C\uDF0D Global' : '\uD83D\uDC65 Friends'}
+            {tabKey === 'global' ? t.global : t.friends}
           </button>
         ))}
       </div>
@@ -92,7 +94,7 @@ export default function ResultsPage() {
               />
             ))
           ) : (
-            <p className="py-8 text-center text-text-muted">No results yet. Check back later!</p>
+            <p className="py-8 text-center text-text-muted">{t.noResultsYet}</p>
           )
         ) : friendsDescriptions.length > 0 ? (
           friendsDescriptions.map((entry, i) => (
@@ -107,7 +109,7 @@ export default function ResultsPage() {
           ))
         ) : (
           <p className="py-8 text-center text-text-muted">
-            No friends&apos; results yet.
+            {t.noFriendsResults}
           </p>
         )}
       </div>
