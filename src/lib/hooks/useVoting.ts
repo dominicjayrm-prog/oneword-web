@@ -12,6 +12,27 @@ interface VotePairData {
   option_b_user_id: string;
 }
 
+function normalizePair(data: Record<string, unknown>): VotePairData | null {
+  // Handle flat format: { option_a_id, option_a_description, ... }
+  if (data.option_a_id) {
+    return data as unknown as VotePairData;
+  }
+  // Handle nested format: { option_a: { id, description, user_id }, option_b: { ... } }
+  const a = data.option_a as Record<string, string> | undefined;
+  const b = data.option_b as Record<string, string> | undefined;
+  if (a?.id && b?.id) {
+    return {
+      option_a_id: a.id,
+      option_a_description: a.description,
+      option_a_user_id: a.user_id,
+      option_b_id: b.id,
+      option_b_description: b.description,
+      option_b_user_id: b.user_id,
+    };
+  }
+  return null;
+}
+
 export function useVoting(wordId: string | undefined, voterId: string | undefined) {
   const [pair, setPair] = useState<VotePairData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,8 +47,13 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       p_word_id: wordId,
       p_voter_id: voterId,
     });
-    if (data && data.option_a_id) {
-      setPair(data);
+    if (data) {
+      const normalized = normalizePair(data);
+      if (normalized) {
+        setPair(normalized);
+      } else {
+        setNoMorePairs(true);
+      }
     } else {
       setNoMorePairs(true);
     }

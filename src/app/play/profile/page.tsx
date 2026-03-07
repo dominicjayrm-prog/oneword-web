@@ -37,7 +37,7 @@ export default function ProfilePage() {
   async function handleDeleteAccount() {
     if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
     if (user) {
-      await supabase.from('profiles').delete().eq('id', user.id);
+      await supabase.rpc('delete_own_account');
       await signOut();
       router.push('/');
     }

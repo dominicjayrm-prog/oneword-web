@@ -32,6 +32,7 @@ export interface Description {
   description: string;
   vote_count: number;
   elo_rating: number;
+  matchup_count: number;
   rank: number | null;
   language: string;
   created_at: string;
