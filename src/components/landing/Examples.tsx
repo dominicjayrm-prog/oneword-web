@@ -35,7 +35,7 @@ export function Examples() {
               </h3>
               <div className="hidden h-8 w-px bg-border sm:block" />
               <div className="flex-1">
-                <p className="font-serif text-lg italic text-text">&ldquo;{ex.desc}&rdquo;</p>
+                <p className="text-lg font-medium text-text">&ldquo;{ex.desc}&rdquo;</p>
                 <span className="mt-1 inline-block text-xs font-semibold uppercase tracking-widest text-primary">
                   &#129351; Winning description
                 </span>
