@@ -9,9 +9,9 @@ export function Footer() {
           <span className="text-primary">word</span>
         </Link>
         <div className="flex gap-6 text-sm text-text-muted">
-          <a href="#" className="hover:text-text transition-colors">Privacy</a>
-          <a href="#" className="hover:text-text transition-colors">Terms</a>
-          <a href="#" className="hover:text-text transition-colors">Contact</a>
+          <Link href="/privacy" className="hover:text-text transition-colors">Privacy</Link>
+          <Link href="/terms" className="hover:text-text transition-colors">Terms</Link>
+          <a href="mailto:hello@oneword.game" className="hover:text-text transition-colors">Contact</a>
           <a href="#" className="hover:text-text transition-colors">Twitter</a>
         </div>
       </div>
