@@ -1,11 +1,14 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { Button } from './Button';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 export function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const t = useTranslations('nav');
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-bg/85 backdrop-blur-xl">
@@ -17,13 +20,14 @@ export function Nav() {
 
         <div className="hidden items-center gap-6 md:flex">
           <a href="#how-it-works" className="text-sm text-text-muted hover:text-text transition-colors">
-            How it works
+            {t('how_it_works')}
           </a>
+          <LanguageSwitcher />
           <Button variant="dark" size="sm" as="a" href="#">
-            Download
+            {t('download')}
           </Button>
           <Button variant="primary" size="sm" as="a" href="/play">
-            Play Now
+            {t('play_now')}
           </Button>
         </div>
 
@@ -49,13 +53,14 @@ export function Nav() {
             className="text-sm text-text-muted hover:text-text"
             onClick={() => setMobileOpen(false)}
           >
-            How it works
+            {t('how_it_works')}
           </a>
+          <LanguageSwitcher />
           <Button variant="dark" size="sm" as="a" href="#">
-            Download
+            {t('download')}
           </Button>
           <Button variant="primary" size="sm" as="a" href="/play">
-            Play Now
+            {t('play_now')}
           </Button>
         </div>
       )}

@@ -1,37 +1,31 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
-const steps = [
-  {
-    num: '01',
-    title: 'See the word',
-    desc: "Every day at midnight, a new word drops. The same word for everyone on earth. Could be simple. Could be abstract. Could be spicy.",
-    color: 'bg-primary/10 text-primary',
-  },
-  {
-    num: '02',
-    title: 'Describe it in 5',
-    desc: "Exactly five words. Not four. Not six. Be clever. Be funny. Be poetic. The constraint is what makes it a game — anyone can be witty in a paragraph.",
-    color: 'bg-blue/10 text-blue',
-  },
-  {
-    num: '03',
-    title: 'The world votes',
-    desc: "Your description goes head-to-head against others. Tap to vote. The best descriptions rise. See where you ranked. Share your result. Come back tomorrow.",
-    color: 'bg-gold/10 text-gold',
-  },
+const stepColors = [
+  'bg-primary/10 text-primary',
+  'bg-blue/10 text-blue',
+  'bg-gold/10 text-gold',
 ];
 
 export function HowItWorks() {
+  const t = useTranslations('how');
+
+  const steps = [
+    { num: t('step1_num'), title: t('step1_title'), desc: t('step1_desc'), color: stepColors[0] },
+    { num: t('step2_num'), title: t('step2_title'), desc: t('step2_desc'), color: stepColors[1] },
+    { num: t('step3_num'), title: t('step3_title'), desc: t('step3_desc'), color: stepColors[2] },
+  ];
+
   return (
     <section id="how-it-works" className="mx-auto max-w-3xl px-6 py-24">
       <div className="text-center">
         <span className="text-xs font-semibold uppercase tracking-widest text-primary">
-          How it works
+          {t('label')}
         </span>
         <h2 className="mt-3 font-serif text-4xl font-bold text-text md:text-5xl">
-          Three steps. Thirty seconds.
+          {t('title')}
         </h2>
       </div>
 

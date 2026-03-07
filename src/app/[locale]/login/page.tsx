@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 
 export default function LoginPage() {
+  const t = useTranslations('auth');
+  const locale = useLocale();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -36,9 +39,9 @@ export default function LoginPage() {
           <span className="text-primary">word</span>
         </Link>
 
-        <h1 className="text-center font-serif text-2xl font-bold text-text">Welcome back</h1>
+        <h1 className="text-center font-serif text-2xl font-bold text-text">{t('login_title')}</h1>
         <p className="mt-2 text-center text-sm text-text-muted">
-          Log in to play today&apos;s word
+          {t('login_subtitle')}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
@@ -49,7 +52,7 @@ export default function LoginPage() {
           )}
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t('login_email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -57,21 +60,21 @@ export default function LoginPage() {
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder={t('login_password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             className="rounded-xl border border-border bg-white px-4 py-3 text-text outline-none focus:border-primary"
           />
           <Button type="submit" variant="primary" size="lg" disabled={loading}>
-            {loading ? 'Logging in...' : 'Log in'}
+            {loading ? t('login_loading') : t('login_button')}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-text-muted">
-          Don&apos;t have an account?{' '}
+          {t('login_no_account')}{' '}
           <Link href="/signup" className="font-medium text-primary hover:underline">
-            Sign up
+            {t('login_signup_link')}
           </Link>
         </p>
       </div>

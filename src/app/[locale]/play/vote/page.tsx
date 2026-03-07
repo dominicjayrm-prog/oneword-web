@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useWord } from '@/lib/hooks/useWord';
 import { useVoting } from '@/lib/hooks/useVoting';
@@ -8,12 +9,13 @@ import { WordDisplay } from '@/components/game/WordDisplay';
 import { VotePair } from '@/components/game/VotePair';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { getTranslations } from '@/lib/i18n';
 
 export default function VotePage() {
   const { user, profile } = useAuth();
-  const lang = profile?.language || 'en';
-  const t = getTranslations(lang);
+  const locale = useLocale();
+  const lang = profile?.language || locale;
+  const t = useTranslations('vote');
+  const tGame = useTranslations('game');
   const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord(lang);
   const { pair, loading: voteLoading, votesCount, noMorePairs, fetchPair, submitVote } = useVoting(
     word?.id,
@@ -23,9 +25,7 @@ export default function VotePage() {
 
   useEffect(() => {
     if (user && word) {
-      fetchUserDescription(user.id).then(() => {
-        // After fetch, check
-      });
+      fetchUserDescription(user.id);
     }
   }, [user, word]);
 
@@ -49,10 +49,10 @@ export default function VotePage() {
   if (hasPlayed === false) {
     return (
       <div className="flex flex-col items-center text-center">
-        <WordDisplay word={word.word} category={word.category} language={lang} />
-        <p className="mt-8 text-lg text-text-muted">{t.playFirst}</p>
-        <Button variant="primary" size="lg" as="a" href="/play" className="mt-4">
-          {t.playNow}
+        <WordDisplay word={word.word} category={word.category} />
+        <p className="mt-8 text-lg text-text-muted">{t('play_first')}</p>
+        <Button variant="primary" size="lg" as="a" href={`/${locale}/play`} className="mt-4">
+          {t('play_now')}
         </Button>
       </div>
     );
@@ -61,19 +61,19 @@ export default function VotePage() {
   if (noMorePairs) {
     return (
       <div className="flex flex-col items-center text-center">
-        <WordDisplay word={word.word} category={word.category} language={lang} />
+        <WordDisplay word={word.word} category={word.category} />
         {votesCount > 0 ? (
           <>
             <p className="mt-8 text-2xl font-bold text-text">
-              {t.allDone(votesCount)}
+              {t('all_done', { count: votesCount })}
             </p>
-            <Button variant="primary" size="lg" as="a" href="/play/results" className="mt-4">
-              {t.seeResults}
+            <Button variant="primary" size="lg" as="a" href={`/${locale}/play/results`} className="mt-4">
+              {tGame('see_results')}
             </Button>
           </>
         ) : (
           <p className="mt-8 text-lg text-text-muted">
-            {t.notEnoughDescs}
+            {t('not_enough')}
           </p>
         )}
       </div>
@@ -82,11 +82,11 @@ export default function VotePage() {
 
   return (
     <div className="flex flex-col items-center">
-      <WordDisplay word={word.word} category={word.category} language={lang} />
+      <WordDisplay word={word.word} category={word.category} />
 
       {votesCount > 0 && (
         <p className="mt-4 text-sm text-text-muted">
-          {t.voteNumber(votesCount + 1)}
+          {t('vote_number', { count: votesCount + 1 })}
         </p>
       )}
 
@@ -99,7 +99,6 @@ export default function VotePage() {
             optionA={{ id: pair.option_a_id, description: pair.option_a_description }}
             optionB={{ id: pair.option_b_id, description: pair.option_b_description }}
             onVote={submitVote}
-            language={lang}
           />
         )}
       </div>

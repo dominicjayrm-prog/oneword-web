@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useWord } from '@/lib/hooks/useWord';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
@@ -9,15 +10,15 @@ import { WordDisplay } from '@/components/game/WordDisplay';
 import { LeaderboardItem } from '@/components/game/LeaderboardItem';
 import { ShareCard } from '@/components/game/ShareCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { getTranslations } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 type Tab = 'global' | 'friends';
 
 export default function ResultsPage() {
   const { user, profile } = useAuth();
-  const lang = profile?.language || 'en';
-  const t = getTranslations(lang);
+  const locale = useLocale();
+  const lang = profile?.language || locale;
+  const t = useTranslations('results');
   const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord(lang);
   const { entries, loading: lbLoading, fetchLeaderboard } = useLeaderboard(word?.id);
   const { friendsDescriptions, fetchFriendsDescriptions } = useFriends(user?.id);
@@ -46,7 +47,7 @@ export default function ResultsPage() {
 
   return (
     <div className="flex flex-col items-center">
-      <WordDisplay word={word.word} category={word.category} language={lang} />
+      <WordDisplay word={word.word} category={word.category} />
 
       {/* Share card */}
       {userDescription && userRank && (
@@ -56,7 +57,6 @@ export default function ResultsPage() {
             description={userDescription.description}
             rank={userRank}
             totalPlayers={entries.length}
-            language={lang}
           />
         </div>
       )}
@@ -72,7 +72,7 @@ export default function ResultsPage() {
               tab === tabKey ? 'bg-white text-text shadow-sm' : 'text-text-muted'
             )}
           >
-            {tabKey === 'global' ? t.global : t.friends}
+            {tabKey === 'global' ? t('global') : t('friends')}
           </button>
         ))}
       </div>
@@ -94,7 +94,7 @@ export default function ResultsPage() {
               />
             ))
           ) : (
-            <p className="py-8 text-center text-text-muted">{t.noResultsYet}</p>
+            <p className="py-8 text-center text-text-muted">{t('no_results')}</p>
           )
         ) : friendsDescriptions.length > 0 ? (
           friendsDescriptions.map((entry, i) => (
@@ -109,7 +109,7 @@ export default function ResultsPage() {
           ))
         ) : (
           <p className="py-8 text-center text-text-muted">
-            {t.noFriendsResults}
+            {t('no_friends_results')}
           </p>
         )}
       </div>
