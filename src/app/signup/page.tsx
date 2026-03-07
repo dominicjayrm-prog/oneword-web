@@ -35,13 +35,30 @@ export default function SignupPage() {
       return;
     }
 
+    // If email confirmation is required, user won't have a session yet
+    if (data.user && !data.session) {
+      setError('Check your email to confirm your account, then log in.');
+      setLoading(false);
+      return;
+    }
+
     if (data.user) {
-      // Create profile
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        username,
-        language,
-      });
+      // handle_new_user trigger auto-creates the profile from auth metadata.
+      // Wait briefly then verify the profile exists (fallback if trigger is slow).
+      await new Promise((r) => setTimeout(r, 500));
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', data.user.id)
+        .single();
+      if (!profile) {
+        // Fallback: manually create profile if trigger didn't fire
+        await supabase.from('profiles').insert({
+          id: data.user.id,
+          username,
+          language,
+        });
+      }
       router.push('/play');
     }
   }
