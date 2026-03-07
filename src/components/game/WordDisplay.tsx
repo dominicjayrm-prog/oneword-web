@@ -1,16 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { getTranslations } from '@/lib/i18n';
+import { useTranslations } from 'next-intl';
 
 interface WordDisplayProps {
   word: string;
   category?: string;
-  language?: string;
 }
 
-export function WordDisplay({ word, category, language }: WordDisplayProps) {
-  const t = getTranslations(language);
+export function WordDisplay({ word, category }: WordDisplayProps) {
+  const t = useTranslations('game');
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -18,7 +17,7 @@ export function WordDisplay({ word, category, language }: WordDisplayProps) {
       className="text-center"
     >
       <span className="text-xs font-semibold uppercase tracking-widest text-text-muted">
-        {t.todaysWord}
+        {t('todays_word')}
       </span>
       <h1 className="mt-2 font-serif text-6xl font-black tracking-tight text-text md:text-7xl">
         {word?.toUpperCase() ?? ''}

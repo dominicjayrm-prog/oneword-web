@@ -1,24 +1,25 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { getTranslations } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 export default function PlayLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const locale = useLocale();
   const { user, profile, loading } = useAuth();
-  const t = getTranslations(profile?.language);
+  const t = useTranslations('play_nav');
 
   const navLinks = useMemo(() => [
-    { href: '/play', label: t.navToday },
-    { href: '/play/vote', label: t.navVote },
-    { href: '/play/results', label: t.navResults },
-    { href: '/play/friends', label: t.navFriends },
+    { href: '/play' as const, label: t('today') },
+    { href: '/play/vote' as const, label: t('vote') },
+    { href: '/play/results' as const, label: t('results') },
+    { href: '/play/friends' as const, label: t('friends') },
   ], [t]);
 
   useEffect(() => {
@@ -35,9 +36,11 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
     );
   }
 
+  // Build locale-prefixed paths for comparison
+  const localePrefix = `/${locale}`;
+
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Top nav */}
       <nav className="sticky top-0 z-50 border-b border-border bg-bg/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
           <Link href="/" className="font-serif text-xl font-bold">
@@ -45,7 +48,6 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
             <span className="text-primary">word</span>
           </Link>
 
-          {/* Desktop nav links */}
           <div className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => (
               <Link
@@ -53,7 +55,7 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
                 href={link.href}
                 className={cn(
                   'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-                  pathname === link.href
+                  pathname === `${localePrefix}${link.href}`
                     ? 'bg-primary-light text-primary'
                     : 'text-text-muted hover:text-text'
                 )}
@@ -63,7 +65,6 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
             ))}
           </div>
 
-          {/* Profile */}
           {profile && (
             <Link
               href="/play/profile"
@@ -78,12 +79,10 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
         </div>
       </nav>
 
-      {/* Main content */}
       <main className="flex-1">
         <div className="mx-auto max-w-lg px-4 py-8">{children}</div>
       </main>
 
-      {/* Mobile bottom nav */}
       <nav className="sticky bottom-0 border-t border-border bg-bg/95 backdrop-blur-xl md:hidden">
         <div className="flex items-center justify-around py-2">
           {navLinks.map((link) => (
@@ -92,7 +91,7 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
               href={link.href}
               className={cn(
                 'flex flex-col items-center gap-0.5 px-3 py-1 text-xs font-medium transition-colors',
-                pathname === link.href ? 'text-primary' : 'text-text-muted'
+                pathname === `${localePrefix}${link.href}` ? 'text-primary' : 'text-text-muted'
               )}
             >
               {link.label}

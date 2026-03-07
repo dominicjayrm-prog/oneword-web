@@ -2,18 +2,17 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
-import { getTranslations } from '@/lib/i18n';
 
 interface DescriptionInputProps {
   onSubmit: (description: string) => Promise<void>;
-  language?: string;
 }
 
-export function DescriptionInput({ onSubmit, language }: DescriptionInputProps) {
+export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
   const [input, setInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const t = getTranslations(language);
+  const t = useTranslations('game');
 
   const words = input.trim().split(/\s+/).filter(Boolean);
   const wordCount = input.trim() === '' ? 0 : words.length;
@@ -27,7 +26,6 @@ export function DescriptionInput({ onSubmit, language }: DescriptionInputProps) 
 
   return (
     <div className="mt-8">
-      {/* Word pills */}
       <div className="mb-4 flex min-h-[48px] flex-wrap justify-center gap-2">
         <AnimatePresence>
           {words.map((word, i) => (
@@ -44,25 +42,22 @@ export function DescriptionInput({ onSubmit, language }: DescriptionInputProps) 
         </AnimatePresence>
       </div>
 
-      {/* Input */}
       <textarea
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder={t.placeholder}
+        placeholder={t('placeholder')}
         rows={2}
         className="w-full resize-none rounded-2xl border border-border bg-white px-5 py-4 text-center text-lg text-text outline-none focus:border-primary"
       />
 
-      {/* Counter */}
       <p
         className={`mt-2 text-center font-mono text-sm ${
           wordCount === 5 ? 'text-primary' : 'text-text-muted'
         }`}
       >
-        {t.wordCount(wordCount)} {wordCount === 5 ? '\u2713' : ''}
+        {t('word_count', { count: wordCount })} {wordCount === 5 ? '\u2713' : ''}
       </p>
 
-      {/* Submit */}
       <div className="mt-4 flex justify-center">
         <Button
           variant="primary"
@@ -70,7 +65,7 @@ export function DescriptionInput({ onSubmit, language }: DescriptionInputProps) 
           disabled={wordCount !== 5 || submitting}
           onClick={handleSubmit}
         >
-          {submitting ? t.lockingIn : t.lockItIn}
+          {submitting ? t('locking_in') : t('lock_it_in')}
         </Button>
       </div>
     </div>

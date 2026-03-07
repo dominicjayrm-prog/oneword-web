@@ -1,22 +1,36 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations, useLocale } from 'next-intl';
 
-const examples = [
-  { word: 'MONDAY', desc: 'Weekly funeral everyone attends alive' },
-  { word: 'WIFI', desc: 'Invisible oxygen for our souls' },
-  { word: 'EX', desc: 'Human lesson with an expiry' },
-  { word: 'SILENCE', desc: 'Loudest sound nobody can hear' },
-  { word: 'TAXES', desc: "Government's subscription to your labor" },
-];
+const examplesByLocale: Record<string, { word: string; desc: string }[]> = {
+  en: [
+    { word: 'MONDAY', desc: 'Weekly funeral everyone attends alive' },
+    { word: 'WIFI', desc: 'Invisible oxygen for our souls' },
+    { word: 'EX', desc: 'Human lesson with an expiry' },
+    { word: 'SILENCE', desc: 'Loudest sound nobody can hear' },
+    { word: 'TAXES', desc: "Government's subscription to your labor" },
+  ],
+  es: [
+    { word: 'LUNES', desc: 'Funeral semanal al que sobrevivimos' },
+    { word: 'WIFI', desc: 'Ox\u00edgeno invisible para nuestras almas' },
+    { word: 'CELOS', desc: 'Veneno que bebes esperando resultados' },
+    { word: 'SILENCIO', desc: 'El ruido m\u00e1s fuerte invisible' },
+    { word: 'CAF\u00c9', desc: 'Droga legal que todos disfrutan' },
+  ],
+};
 
 export function Examples() {
+  const t = useTranslations('examples');
+  const locale = useLocale();
+  const examples = examplesByLocale[locale] || examplesByLocale.en;
+
   return (
     <section className="bg-surface py-24">
       <div className="mx-auto max-w-4xl px-6">
         <div className="text-center">
           <h2 className="font-serif text-4xl font-bold text-text md:text-5xl">
-            Real words. Real descriptions.
+            {t('title')}
           </h2>
         </div>
 
@@ -37,7 +51,7 @@ export function Examples() {
               <div className="flex-1">
                 <p className="text-lg font-medium text-text">&ldquo;{ex.desc}&rdquo;</p>
                 <span className="mt-1 inline-block text-xs font-semibold uppercase tracking-widest text-primary">
-                  &#129351; Winning description
+                  {t('winner_label')}
                 </span>
               </div>
             </motion.div>

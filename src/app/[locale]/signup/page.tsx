@@ -1,34 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter, Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
-import { getTranslations } from '@/lib/i18n';
-
-function detectLanguage(): 'en' | 'es' {
-  if (typeof navigator === 'undefined') return 'en';
-  const lang = navigator.language || (navigator as { userLanguage?: string }).userLanguage || 'en';
-  if (lang.startsWith('es')) return 'es';
-  return 'en';
-}
 
 export default function SignupPage() {
+  const t = useTranslations('auth');
+  const locale = useLocale();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState(locale === 'es' ? 'es' : 'en');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
-  const t = getTranslations(language);
-
-  // Auto-detect browser language on mount
-  useEffect(() => {
-    setLanguage(detectLanguage());
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,16 +37,13 @@ export default function SignupPage() {
       return;
     }
 
-    // If email confirmation is required, user won't have a session yet
     if (data.user && !data.session) {
-      setError(t.checkEmail);
+      setError(t('signup_check_email'));
       setLoading(false);
       return;
     }
 
     if (data.user) {
-      // handle_new_user trigger auto-creates the profile from auth metadata.
-      // Wait briefly then verify the profile exists (fallback if trigger is slow).
       await new Promise((r) => setTimeout(r, 500));
       const { data: profile } = await supabase
         .from('profiles')
@@ -66,7 +51,6 @@ export default function SignupPage() {
         .eq('id', data.user.id)
         .single();
       if (!profile) {
-        // Fallback: manually create profile if trigger didn't fire
         await supabase.from('profiles').insert({
           id: data.user.id,
           username,
@@ -85,9 +69,9 @@ export default function SignupPage() {
           <span className="text-primary">word</span>
         </Link>
 
-        <h1 className="text-center font-serif text-2xl font-bold text-text">{t.createAccount}</h1>
+        <h1 className="text-center font-serif text-2xl font-bold text-text">{t('signup_title')}</h1>
         <p className="mt-2 text-center text-sm text-text-muted">
-          {t.joinPlayers}
+          {t('signup_subtitle')}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
@@ -98,7 +82,7 @@ export default function SignupPage() {
           )}
           <input
             type="text"
-            placeholder={t.username}
+            placeholder={t('signup_username')}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -106,7 +90,7 @@ export default function SignupPage() {
           />
           <input
             type="email"
-            placeholder={t.email}
+            placeholder={t('signup_email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -114,7 +98,7 @@ export default function SignupPage() {
           />
           <input
             type="password"
-            placeholder={t.passwordPlaceholder}
+            placeholder={t('signup_password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -126,25 +110,25 @@ export default function SignupPage() {
             onChange={(e) => setLanguage(e.target.value)}
             className="rounded-xl border border-border bg-white px-4 py-3 text-text outline-none focus:border-primary"
           >
-            <option value="en">&#127468;&#127463; English</option>
-            <option value="es">&#127466;&#127480; Espa&ntilde;ol</option>
+            <option value="en">&#127468;&#127463; {t('language_en')}</option>
+            <option value="es">&#127466;&#127480; {t('language_es')}</option>
           </select>
           <Button type="submit" variant="primary" size="lg" disabled={loading}>
-            {loading ? t.creatingAccount : t.signUp}
+            {loading ? t('signup_loading') : t('signup_button')}
           </Button>
         </form>
 
         <p className="mt-4 text-center text-xs text-text-muted">
-          By signing up, you agree to our{' '}
-          <Link href="/terms" className="text-primary hover:underline">Terms of Use</Link>{' '}
-          and{' '}
-          <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+          {t('signup_terms')}{' '}
+          <Link href="/terms" className="text-primary hover:underline">{t('signup_terms_link')}</Link>{' '}
+          {t('signup_and')}{' '}
+          <Link href="/privacy" className="text-primary hover:underline">{t('signup_privacy_link')}</Link>.
         </p>
 
         <p className="mt-6 text-center text-sm text-text-muted">
-          {t.alreadyHaveAccount}{' '}
+          {t('signup_has_account')}{' '}
           <Link href="/login" className="font-medium text-primary hover:underline">
-            {t.logIn}
+            {t('signup_login_link')}
           </Link>
         </p>
       </div>

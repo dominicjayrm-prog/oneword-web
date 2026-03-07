@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useWord } from '@/lib/hooks/useWord';
 import { WordDisplay } from '@/components/game/WordDisplay';
@@ -9,12 +10,12 @@ import { DescriptionInput } from '@/components/game/DescriptionInput';
 import { StreakBadge } from '@/components/game/StreakBadge';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { getTranslations } from '@/lib/i18n';
 
 export default function PlayPage() {
   const { user, profile } = useAuth();
-  const lang = profile?.language || 'en';
-  const t = getTranslations(lang);
+  const locale = useLocale();
+  const lang = profile?.language || locale;
+  const t = useTranslations('game');
   const { word, userDescription, loading, error, fetchUserDescription, submitDescription } = useWord(lang);
   const [lockedIn, setLockedIn] = useState(false);
 
@@ -39,8 +40,8 @@ export default function PlayPage() {
   if (error || !word) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="font-serif text-2xl text-text">{error || t.noWordAvailable}</p>
-        <p className="text-text-muted">{t.checkBackLater}</p>
+        <p className="font-serif text-2xl text-text">{error || t('no_word')}</p>
+        <p className="text-text-muted">{t('check_back')}</p>
       </div>
     );
   }
@@ -53,18 +54,17 @@ export default function PlayPage() {
 
   return (
     <div className="flex flex-col items-center">
-      {/* User info */}
       {profile && (
         <div className="mb-6 flex flex-col items-center gap-2">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-white">
             {profile.username?.[0]?.toUpperCase() || '?'}
           </div>
           <p className="font-medium text-text">{profile.username}</p>
-          <StreakBadge streak={profile.current_streak} language={lang} />
+          <StreakBadge streak={profile.current_streak} />
         </div>
       )}
 
-      <WordDisplay word={word.word} category={word.category} language={lang} />
+      <WordDisplay word={word.word} category={word.category} />
 
       {lockedIn && userDescription ? (
         <motion.div
@@ -74,23 +74,23 @@ export default function PlayPage() {
         >
           <div className="rounded-2xl border border-green/30 bg-green/5 p-6">
             <span className="inline-flex items-center gap-1 rounded-full bg-green/10 px-3 py-1 text-sm font-bold text-green">
-              {t.lockedIn}
+              {t('locked_in')}
             </span>
             <p className="mt-4 font-serif text-xl italic text-text">
               &ldquo;{userDescription.description}&rdquo;
             </p>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button variant="primary" as="a" href="/play/vote">
-              {t.voteOnOthers}
+            <Button variant="primary" as="a" href={`/${locale}/play/vote`}>
+              {t('vote_on_others')}
             </Button>
-            <Button variant="outline" as="a" href="/play/results">
-              {t.seeResults}
+            <Button variant="outline" as="a" href={`/${locale}/play/results`}>
+              {t('see_results')}
             </Button>
           </div>
         </motion.div>
       ) : (
-        <DescriptionInput onSubmit={handleSubmit} language={lang} />
+        <DescriptionInput onSubmit={handleSubmit} />
       )}
     </div>
   );

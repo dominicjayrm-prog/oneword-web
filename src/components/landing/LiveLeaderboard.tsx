@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations, useLocale } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { getRankEmoji } from '@/lib/utils';
@@ -14,45 +15,42 @@ interface LeaderboardEntry {
 }
 
 export function LiveLeaderboard() {
+  const t = useTranslations('live');
+  const locale = useLocale();
   const [word, setWord] = useState<string | null>(null);
-  const [wordId, setWordId] = useState<string | null>(null);
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [descCount, setDescCount] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
       const supabase = createClient();
+      const lang = locale === 'es' ? 'es' : 'en';
 
-      // Fetch today's word (handle both object and array responses)
       let wordRow: { id: string; word: string } | null = null;
-      const { data: wordData } = await supabase.rpc('get_today_word', { p_language: 'en' });
+      const { data: wordData } = await supabase.rpc('get_today_word', { p_language: lang });
       if (wordData) {
         const row = Array.isArray(wordData) ? wordData[0] : wordData;
         if (row && row.id && row.word) wordRow = row;
       }
-      // Fallback: query table directly
       if (!wordRow) {
         const today = new Date().toISOString().split('T')[0];
         const { data: fb } = await supabase
           .from('daily_words')
           .select('*')
           .eq('date', today)
-          .eq('language', 'en')
+          .eq('language', lang)
           .single();
         if (fb && fb.id && fb.word) wordRow = fb;
       }
       if (wordRow) {
         setWord(wordRow.word);
-        setWordId(wordRow.id);
 
-        // Fetch description count
         const { count } = await supabase
           .from('descriptions')
           .select('*', { count: 'exact', head: true })
           .eq('word_id', wordRow.id);
         if (count !== null) setDescCount(count);
 
-        // Fetch leaderboard
         let leaderboardEntries: LeaderboardEntry[] = [];
         const { data: lb } = await supabase.rpc('get_leaderboard', {
           p_word_id: wordRow.id,
@@ -66,7 +64,6 @@ export function LiveLeaderboard() {
             elo_rating: (row.elo_rating ?? 0) as number,
           }));
         }
-        // Fallback if descriptions are empty
         if (!leaderboardEntries.some((e) => e.description)) {
           const { data: fallback } = await supabase
             .from('descriptions')
@@ -90,28 +87,28 @@ export function LiveLeaderboard() {
       }
     }
     fetchData();
-  }, []);
+  }, [locale]);
 
   return (
     <section className="bg-gradient-to-br from-bg-dark to-[#2D1B69] py-24">
       <div className="mx-auto max-w-3xl px-6 text-center">
         <span className="text-xs font-semibold uppercase tracking-widest text-primary">
-          Today&apos;s results
+          {t('label')}
         </span>
 
         {word ? (
           <>
             <h2 className="mt-3 font-serif text-4xl font-bold text-white md:text-5xl">
-              Today&apos;s word:{' '}
+              {t('title')}{' '}
               <span className="text-primary">{word}</span>
             </h2>
             <p className="mt-3 text-text-muted-light">
-              {descCount} description{descCount !== 1 ? 's' : ''} and counting
+              {descCount} {descCount === 1 ? 'description' : 'descriptions'} {locale === 'es' ? 'y contando' : 'and counting'}
             </p>
           </>
         ) : (
           <h2 className="mt-3 font-serif text-4xl font-bold text-white md:text-5xl">
-            Loading today&apos;s word...
+            {t('loading')}
           </h2>
         )}
 
@@ -138,17 +135,17 @@ export function LiveLeaderboard() {
                   <p className="text-sm text-text-muted-light">@{entry.username}</p>
                 </div>
                 <span className="font-mono text-sm text-text-muted-light shrink-0">
-                  {entry.vote_count} votes
+                  {entry.vote_count} {locale === 'es' ? 'votos' : 'votes'}
                 </span>
               </motion.div>
             ))
           ) : word ? (
             <div className="py-12 text-center">
               <p className="text-lg text-text-muted-light">
-                Today&apos;s word is waiting for its first descriptions. Be the first!
+                {t('empty_title')}
               </p>
               <Button variant="primary" size="lg" as="a" href="/play" className="mt-6">
-                Play Now
+                {t('play_now')}
               </Button>
             </div>
           ) : null}
@@ -156,9 +153,9 @@ export function LiveLeaderboard() {
 
         {entries.length > 0 && (
           <p className="mt-8 text-lg text-text-muted-light">
-            Think you can do better?{' '}
+            {t('think_better')}{' '}
             <a href="/play" className="font-semibold text-primary hover:underline">
-              Play now
+              {t('play_now')}
             </a>
           </p>
         )}

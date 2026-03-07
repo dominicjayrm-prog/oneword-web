@@ -1,14 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useRouter } from '@/i18n/navigation';
 
 export default function ProfilePage() {
   const { user, profile, loading, signOut, refreshProfile } = useAuth();
+  const locale = useLocale();
+  const t = useTranslations('profile');
   const [language, setLanguage] = useState(profile?.language || 'en');
   const router = useRouter();
   const supabase = createClient();
@@ -35,7 +38,7 @@ export default function ProfilePage() {
   }
 
   async function handleDeleteAccount() {
-    if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+    if (!confirm(t('delete_confirm'))) return;
     if (user) {
       await supabase.rpc('delete_own_account');
       await signOut();
@@ -44,11 +47,11 @@ export default function ProfilePage() {
   }
 
   const stats = [
-    { label: 'Current Streak', value: profile.current_streak, emoji: '\uD83D\uDD25' },
-    { label: 'Best Streak', value: profile.longest_streak, emoji: '\u2B50' },
-    { label: 'Total Plays', value: profile.total_plays, emoji: '\uD83C\uDFAE' },
-    { label: 'Votes Received', value: profile.total_votes_received, emoji: '\uD83D\uDDF3\uFE0F' },
-    { label: 'Best Rank', value: profile.best_rank ?? '-', emoji: '\uD83C\uDFC6' },
+    { label: t('current_streak'), value: profile.current_streak, emoji: '\uD83D\uDD25' },
+    { label: t('best_streak'), value: profile.longest_streak, emoji: '\u2B50' },
+    { label: t('total_plays'), value: profile.total_plays, emoji: '\uD83C\uDFAE' },
+    { label: t('votes_received'), value: profile.total_votes_received, emoji: '\uD83D\uDDF3\uFE0F' },
+    { label: t('best_rank'), value: profile.best_rank ?? '-', emoji: '\uD83C\uDFC6' },
   ];
 
   return (
@@ -60,7 +63,7 @@ export default function ProfilePage() {
         </div>
         <h1 className="mt-4 font-serif text-2xl font-bold text-text">@{profile.username}</h1>
         <p className="text-sm text-text-muted">
-          Member since {new Date(profile.created_at).toLocaleDateString()}
+          {t('member_since', { date: new Date(profile.created_at).toLocaleDateString() })}
         </p>
       </div>
 
@@ -81,7 +84,7 @@ export default function ProfilePage() {
       {/* Language switcher */}
       <div className="mt-8">
         <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
-          Language
+          {t('language')}
         </h2>
         <select
           value={language}
@@ -96,13 +99,13 @@ export default function ProfilePage() {
       {/* Actions */}
       <div className="mt-8 flex flex-col gap-3">
         <Button variant="outline" onClick={handleLogout}>
-          Log out
+          {t('log_out')}
         </Button>
         <button
           onClick={handleDeleteAccount}
           className="text-sm text-text-muted hover:text-primary transition-colors cursor-pointer"
         >
-          Delete account
+          {t('delete_account')}
         </button>
       </div>
     </div>
