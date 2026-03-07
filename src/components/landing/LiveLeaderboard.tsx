@@ -53,11 +53,40 @@ export function LiveLeaderboard() {
         if (count !== null) setDescCount(count);
 
         // Fetch leaderboard
+        let leaderboardEntries: LeaderboardEntry[] = [];
         const { data: lb } = await supabase.rpc('get_leaderboard', {
           p_word_id: wordRow.id,
           p_limit: 5,
         });
-        if (lb) setEntries(lb);
+        if (lb && Array.isArray(lb) && lb.length > 0) {
+          leaderboardEntries = lb.map((row: Record<string, unknown>) => ({
+            description: (row.description || row.description_text || '') as string,
+            username: (row.username || row.display_name || '') as string,
+            vote_count: (row.vote_count ?? row.votes ?? row.total_votes ?? 0) as number,
+            elo_rating: (row.elo_rating ?? 0) as number,
+          }));
+        }
+        // Fallback if descriptions are empty
+        if (!leaderboardEntries.some((e) => e.description)) {
+          const { data: fallback } = await supabase
+            .from('descriptions')
+            .select('description, vote_count, elo_rating, profiles!inner(username)')
+            .eq('word_id', wordRow.id)
+            .order('elo_rating', { ascending: false })
+            .limit(5);
+          if (fallback) {
+            leaderboardEntries = fallback.map((row: Record<string, unknown>) => {
+              const profile = row.profiles as Record<string, unknown> | undefined;
+              return {
+                description: row.description as string,
+                username: (profile?.username || '') as string,
+                vote_count: (row.vote_count ?? 0) as number,
+                elo_rating: (row.elo_rating ?? 0) as number,
+              };
+            });
+          }
+        }
+        setEntries(leaderboardEntries);
       }
     }
     fetchData();
@@ -74,7 +103,7 @@ export function LiveLeaderboard() {
           <>
             <h2 className="mt-3 font-serif text-4xl font-bold text-white md:text-5xl">
               Today&apos;s word:{' '}
-              <span className="italic text-primary">{word}</span>
+              <span className="text-primary">{word}</span>
             </h2>
             <p className="mt-3 text-text-muted-light">
               {descCount} description{descCount !== 1 ? 's' : ''} and counting
