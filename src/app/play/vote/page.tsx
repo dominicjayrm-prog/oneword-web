@@ -8,10 +8,13 @@ import { WordDisplay } from '@/components/game/WordDisplay';
 import { VotePair } from '@/components/game/VotePair';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { getTranslations } from '@/lib/i18n';
 
 export default function VotePage() {
-  const { user } = useAuth();
-  const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord();
+  const { user, profile } = useAuth();
+  const lang = profile?.language || 'en';
+  const t = getTranslations(lang);
+  const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord(lang);
   const { pair, loading: voteLoading, votesCount, noMorePairs, fetchPair, submitVote } = useVoting(
     word?.id,
     user?.id
@@ -31,7 +34,6 @@ export default function VotePage() {
       setHasPlayed(true);
       fetchPair();
     } else if (!wordLoading && word) {
-      // Check if user has played
       setHasPlayed(!!userDescription);
     }
   }, [userDescription, wordLoading, word]);
@@ -47,10 +49,10 @@ export default function VotePage() {
   if (hasPlayed === false) {
     return (
       <div className="flex flex-col items-center text-center">
-        <WordDisplay word={word.word} category={word.category} />
-        <p className="mt-8 text-lg text-text-muted">Play today&apos;s word first before voting</p>
+        <WordDisplay word={word.word} category={word.category} language={lang} />
+        <p className="mt-8 text-lg text-text-muted">{t.playFirst}</p>
         <Button variant="primary" size="lg" as="a" href="/play" className="mt-4">
-          Play Now
+          {t.playNow}
         </Button>
       </div>
     );
@@ -59,19 +61,19 @@ export default function VotePage() {
   if (noMorePairs) {
     return (
       <div className="flex flex-col items-center text-center">
-        <WordDisplay word={word.word} category={word.category} />
+        <WordDisplay word={word.word} category={word.category} language={lang} />
         {votesCount > 0 ? (
           <>
             <p className="mt-8 text-2xl font-bold text-text">
-              All done! You voted on {votesCount} pairs &#127881;
+              {t.allDone(votesCount)}
             </p>
             <Button variant="primary" size="lg" as="a" href="/play/results" className="mt-4">
-              See Results
+              {t.seeResults}
             </Button>
           </>
         ) : (
           <p className="mt-8 text-lg text-text-muted">
-            Not enough descriptions yet. Check back later!
+            {t.notEnoughDescs}
           </p>
         )}
       </div>
@@ -80,11 +82,11 @@ export default function VotePage() {
 
   return (
     <div className="flex flex-col items-center">
-      <WordDisplay word={word.word} category={word.category} />
+      <WordDisplay word={word.word} category={word.category} language={lang} />
 
       {votesCount > 0 && (
         <p className="mt-4 text-sm text-text-muted">
-          Vote {votesCount + 1}
+          {t.voteNumber(votesCount + 1)}
         </p>
       )}
 
@@ -97,6 +99,7 @@ export default function VotePage() {
             optionA={{ id: pair.option_a_id, description: pair.option_a_description }}
             optionB={{ id: pair.option_b_id, description: pair.option_b_description }}
             onVote={submitVote}
+            language={lang}
           />
         )}
       </div>

@@ -24,10 +24,25 @@ function normalizeFriend(row: Record<string, unknown>): FriendProfile {
   };
 }
 
+function extractUsername(row: Record<string, unknown>): string {
+  // Check direct fields
+  if (row.username) return row.username as string;
+  if (row.display_name) return row.display_name as string;
+  if (row.friend_username) return row.friend_username as string;
+  if (row.profile_username) return row.profile_username as string;
+  // Check nested profile object
+  const profile = row.profile || row.profiles;
+  if (profile && typeof profile === 'object') {
+    const p = profile as Record<string, unknown>;
+    if (p.username) return p.username as string;
+  }
+  return '';
+}
+
 function normalizeFriendDesc(row: Record<string, unknown>): FriendDescription {
   return {
-    user_id: (row.user_id || '') as string,
-    username: (row.username || row.display_name || '') as string,
+    user_id: (row.user_id || row.friend_id || '') as string,
+    username: extractUsername(row),
     description: (row.description || row.description_text || '') as string,
     vote_count: (row.vote_count ?? row.votes ?? 0) as number,
   };
@@ -95,6 +110,33 @@ export function useFriends(userId: string | undefined) {
     if (data && Array.isArray(data) && data.length > 0) {
       const normalized = data.map((r: Record<string, unknown>) => normalizeFriendDesc(r));
       if (normalized.some((d) => d.description)) {
+        // Enrich missing usernames from friends list or profiles table
+        const missingUsernames = normalized.filter((d) => !d.username && d.user_id);
+        if (missingUsernames.length > 0) {
+          // Try from friends list first
+          for (const entry of normalized) {
+            if (!entry.username && entry.user_id) {
+              const friend = friends.find((f) => f.id === entry.user_id);
+              if (friend) entry.username = friend.username;
+            }
+          }
+          // If still missing, query profiles
+          const stillMissing = normalized.filter((d) => !d.username && d.user_id);
+          if (stillMissing.length > 0) {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('id, username')
+              .in('id', stillMissing.map((d) => d.user_id));
+            if (profiles) {
+              for (const entry of normalized) {
+                if (!entry.username) {
+                  const p = (profiles as Array<{id: string; username: string}>).find((pr) => pr.id === entry.user_id);
+                  if (p) entry.username = p.username;
+                }
+              }
+            }
+          }
+        }
         setFriendsDescriptions(normalized);
         return;
       }
