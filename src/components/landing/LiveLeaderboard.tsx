@@ -23,22 +23,38 @@ export function LiveLeaderboard() {
     async function fetchData() {
       const supabase = createClient();
 
-      // Fetch today's word
+      // Fetch today's word (handle both object and array responses)
+      let wordRow: { id: string; word: string } | null = null;
       const { data: wordData } = await supabase.rpc('get_today_word', { p_language: 'en' });
       if (wordData) {
-        setWord(wordData.word);
-        setWordId(wordData.id);
+        const row = Array.isArray(wordData) ? wordData[0] : wordData;
+        if (row && row.id && row.word) wordRow = row;
+      }
+      // Fallback: query table directly
+      if (!wordRow) {
+        const today = new Date().toISOString().split('T')[0];
+        const { data: fb } = await supabase
+          .from('daily_words')
+          .select('*')
+          .eq('date', today)
+          .eq('language', 'en')
+          .single();
+        if (fb && fb.id && fb.word) wordRow = fb;
+      }
+      if (wordRow) {
+        setWord(wordRow.word);
+        setWordId(wordRow.id);
 
         // Fetch description count
         const { count } = await supabase
           .from('descriptions')
           .select('*', { count: 'exact', head: true })
-          .eq('word_id', wordData.id);
+          .eq('word_id', wordRow.id);
         if (count !== null) setDescCount(count);
 
         // Fetch leaderboard
         const { data: lb } = await supabase.rpc('get_leaderboard', {
-          p_word_id: wordData.id,
+          p_word_id: wordRow.id,
           p_limit: 5,
         });
         if (lb) setEntries(lb);

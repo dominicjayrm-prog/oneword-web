@@ -12,7 +12,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export default function PlayPage() {
   const { user, profile } = useAuth();
-  const { word, userDescription, loading, fetchUserDescription, submitDescription } = useWord(
+  const { word, userDescription, loading, error, fetchUserDescription, submitDescription } = useWord(
     profile?.language || 'en'
   );
   const [lockedIn, setLockedIn] = useState(false);
@@ -27,10 +27,19 @@ export default function PlayPage() {
     if (userDescription) setLockedIn(true);
   }, [userDescription]);
 
-  if (loading || !word) {
+  if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error || !word) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+        <p className="font-serif text-2xl text-text">{error || 'No word available for today'}</p>
+        <p className="text-text-muted">Check back later or contact support.</p>
       </div>
     );
   }
