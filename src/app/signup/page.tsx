@@ -134,6 +134,13 @@ export default function SignupPage() {
           </Button>
         </form>
 
+        <p className="mt-4 text-center text-xs text-text-muted">
+          By signing up, you agree to our{' '}
+          <Link href="/terms" className="text-primary hover:underline">Terms of Use</Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+        </p>
+
         <p className="mt-6 text-center text-sm text-text-muted">
           {t.alreadyHaveAccount}{' '}
           <Link href="/login" className="font-medium text-primary hover:underline">
