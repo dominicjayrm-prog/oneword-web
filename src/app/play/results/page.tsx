@@ -92,10 +92,10 @@ export default function ResultsPage() {
           ) : (
             <p className="py-8 text-center text-text-muted">No results yet. Check back later!</p>
           )
-        ) : (friendsDescriptions as Array<{id?: string; description: string; username: string; vote_count: number; user_id: string}>).length > 0 ? (
-          (friendsDescriptions as Array<{id?: string; description: string; username: string; vote_count: number; user_id: string}>).map((entry, i) => (
+        ) : friendsDescriptions.length > 0 ? (
+          friendsDescriptions.map((entry, i) => (
             <LeaderboardItem
-              key={entry.id || i}
+              key={entry.user_id || i}
               rank={i + 1}
               description={entry.description}
               username={entry.username}

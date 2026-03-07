@@ -128,13 +128,13 @@ export default function FriendsPage() {
       )}
 
       {/* Friends' descriptions for today */}
-      {word && userDescription && (friendsDescriptions as Array<{user_id: string; username: string; description: string}>).length > 0 && (
+      {word && userDescription && friendsDescriptions.length > 0 && (
         <div className="mt-6">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-text-muted">
             Today&apos;s Word: {word.word?.toUpperCase()}
           </h2>
           <div className="mt-3 flex flex-col gap-2">
-            {(friendsDescriptions as Array<{user_id: string; username: string; description: string}>).map((fd) => (
+            {friendsDescriptions.map((fd) => (
               <div
                 key={fd.user_id}
                 className="rounded-xl border border-border bg-white p-4"
@@ -161,8 +161,8 @@ export default function FriendsPage() {
           Your Friends
         </h2>
         <div className="mt-3 flex flex-col gap-2">
-          {(friends as Array<{id: string; username: string; current_streak: number}>).length > 0 ? (
-            (friends as Array<{id: string; username: string; current_streak: number}>).map((friend) => (
+          {friends.length > 0 ? (
+            friends.map((friend) => (
               <div
                 key={friend.id}
                 className="flex items-center justify-between rounded-xl border border-border bg-white p-4"
