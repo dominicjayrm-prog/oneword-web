@@ -14,7 +14,7 @@ export function useWord(language = 'en') {
     async function fetchWord() {
       setLoading(true);
       const { data } = await supabase.rpc('get_today_word', { p_language: language });
-      if (data) {
+      if (data && data.id && data.word) {
         setWord(data);
       }
       setLoading(false);
