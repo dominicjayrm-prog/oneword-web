@@ -27,6 +27,9 @@
     "cta_appstore": "App Store",
     "cta_web": "Jugar en Web"
   },
+  "video": {
+    "label": "Míralo en acción"
+  },
   "how": {
     "label": "C\u00f3mo funciona",
     "title": "Tres pasos. Treinta segundos.",
