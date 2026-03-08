@@ -17,6 +17,10 @@ function normalizeEntry(row: Record<string, unknown>): LeaderboardEntry {
   };
 }
 
+function sortByVotes(entries: LeaderboardEntry[]): LeaderboardEntry[] {
+  return [...entries].sort((a, b) => b.vote_count - a.vote_count);
+}
+
 export function useLeaderboard(wordId: string | undefined) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -36,18 +40,18 @@ export function useLeaderboard(wordId: string | undefined) {
       const normalized = data.map((row: Record<string, unknown>) => normalizeEntry(row));
       // Check if descriptions came through
       if (normalized.some((e) => e.description)) {
-        setEntries(normalized);
+        setEntries(sortByVotes(normalized));
         setLoading(false);
         return;
       }
     }
 
-    // Fallback: query tables directly
+    // Fallback: query tables directly, sorted by vote_count
     const { data: fallback } = await supabase
       .from('descriptions')
       .select('id, user_id, description, vote_count, elo_rating, rank, profiles!inner(username, avatar_url)')
       .eq('word_id', wordId)
-      .order('elo_rating', { ascending: false })
+      .order('vote_count', { ascending: false })
       .limit(limit);
 
     if (fallback) {
@@ -64,7 +68,7 @@ export function useLeaderboard(wordId: string | undefined) {
           avatar_url: (profile?.avatar_url || null) as string | null,
         };
       });
-      setEntries(mapped);
+      setEntries(sortByVotes(mapped));
     }
 
     setLoading(false);
