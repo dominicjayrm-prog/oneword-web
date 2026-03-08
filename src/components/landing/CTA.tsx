@@ -19,6 +19,8 @@ export function CTA() {
       >
         <h2 className="font-serif text-4xl font-bold text-text md:text-6xl">
           {t('title')}
+          <br />
+          <span className="italic text-primary">{t('tagline')}</span>
         </h2>
         <p className="mt-6 text-lg text-text-muted">
           {t('subtitle')}

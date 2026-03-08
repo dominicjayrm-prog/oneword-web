@@ -1,24 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
-
-const demoWords: Record<string, string> = {
-  en: 'OCEAN',
-  es: 'OC\u00C9ANO',
-};
-
-const demoPills: Record<string, string[]> = {
-  en: ['Where', 'fish', 'pay', 'no', 'rent'],
-  es: ['Piscina', 'infinita', 'sin', 'cloro', 'gratis'],
-};
 
 export function Hero() {
   const t = useTranslations('hero');
-  const locale = useLocale();
-  const words = demoPills[locale] || demoPills.en;
-  const exampleWord = demoWords[locale] || demoWords.en;
+  const demoPills = t.raw('demo_pills') as string[];
 
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20">
@@ -38,7 +26,7 @@ export function Hero() {
         <h1 className="font-serif font-black leading-[1.05] text-text" style={{ fontSize: 'clamp(48px, 8vw, 86px)' }}>
           {t('title_line1')}
           <br />
-          <span className="text-primary">{t('title_line2')}</span> {t('title_line3')}
+          {t('title_line2')} <span className="text-primary">{t('title_highlight')}</span>
         </h1>
 
         <p className="mt-6 max-w-[480px] text-[19px] leading-relaxed text-text-muted">
@@ -55,10 +43,10 @@ export function Hero() {
             {t('demo_label')}
           </span>
           <h2 className="mt-2 font-serif text-5xl font-black tracking-tight text-text md:text-6xl">
-            {exampleWord}
+            {t('demo_word')}
           </h2>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
-            {words.map((word, i) => (
+            {demoPills.map((word: string, i: number) => (
               <motion.span
                 key={word}
                 initial={{ opacity: 0, scale: 0.5 }}
