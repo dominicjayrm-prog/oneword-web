@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 interface VotePairData {
@@ -33,30 +33,57 @@ function normalizePair(data: Record<string, unknown>): VotePairData | null {
   return null;
 }
 
+function pairKey(pair: VotePairData): string {
+  // Normalize key so (A,B) and (B,A) are the same
+  const ids = [pair.option_a_id, pair.option_b_id].sort();
+  return `${ids[0]}:${ids[1]}`;
+}
+
 export function useVoting(wordId: string | undefined, voterId: string | undefined) {
   const [pair, setPair] = useState<VotePairData | null>(null);
   const [loading, setLoading] = useState(false);
   const [votesCount, setVotesCount] = useState(0);
   const [noMorePairs, setNoMorePairs] = useState(false);
+  const seenPairs = useRef<Set<string>>(new Set());
   const supabase = createClient();
 
   const fetchPair = useCallback(async () => {
     if (!wordId || !voterId) return;
     setLoading(true);
-    const { data } = await supabase.rpc('get_vote_pair', {
-      p_word_id: wordId,
-      p_voter_id: voterId,
-    });
-    if (data) {
-      const normalized = normalizePair(data);
-      if (normalized) {
-        setPair(normalized);
-      } else {
+
+    // Retry up to 5 times to find a pair we haven't seen
+    const MAX_RETRIES = 5;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      const { data } = await supabase.rpc('get_vote_pair', {
+        p_word_id: wordId,
+        p_voter_id: voterId,
+      });
+
+      if (!data) {
         setNoMorePairs(true);
+        setLoading(false);
+        return;
       }
-    } else {
-      setNoMorePairs(true);
+
+      const normalized = normalizePair(data);
+      if (!normalized) {
+        setNoMorePairs(true);
+        setLoading(false);
+        return;
+      }
+
+      const key = pairKey(normalized);
+      if (!seenPairs.current.has(key)) {
+        seenPairs.current.add(key);
+        setPair(normalized);
+        setLoading(false);
+        return;
+      }
+      // Pair already seen — loop and try again
     }
+
+    // If we exhausted retries, all returned pairs are duplicates
+    setNoMorePairs(true);
     setLoading(false);
   }, [wordId, voterId]);
 
