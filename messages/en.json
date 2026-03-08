@@ -1,9 +1,9 @@
 {
   "meta": {
-    "title": "OneWord — One word. Five words to describe it.",
-    "description": "A daily word game where everyone gets the same word and describes it in exactly 5 words. The community votes. The wittiest wins. Play free on iOS and web.",
-    "og_title": "OneWord — Can you describe it in 5 words?",
-    "og_description": "A daily word game for creative minds. One word. Five words to describe it. The world votes.",
+    "title": "OneWord — Say it in five.",
+    "description": "A daily word game where the whole world gets the same word and describes it in exactly 5 words. The community votes. The most creative wins. Play free on iOS and web.",
+    "og_title": "OneWord — Say it in five.",
+    "og_description": "The daily game for creative minds. One word. Five words to describe it. The world votes.",
     "privacy_title": "Privacy Policy — OneWord",
     "privacy_description": "How OneWord handles your data. What we collect, what we don't, and your rights.",
     "terms_title": "Terms of Use — OneWord",
@@ -17,12 +17,14 @@
     "signup": "Sign Up"
   },
   "hero": {
-    "badge": "A new daily game for creative minds",
+    "badge": "The daily game for creative minds",
     "title_line1": "One word.",
-    "title_line2": "Five words",
-    "title_line3": "to describe it.",
-    "subtitle": "Every day, the whole world gets the same word. You describe it in exactly 5 words. The community votes. The wittiest rise to the top.",
-    "demo_label": "example word",
+    "title_line2": "Say it in",
+    "title_highlight": "five.",
+    "subtitle": "Every day, the whole world gets the same word. Describe it in exactly five words. The community votes. The most creative wins.",
+    "demo_label": "today's word",
+    "demo_word": "OCEAN",
+    "demo_pills": ["Where", "fish", "pay", "no", "rent"],
     "demo_counter": "5/5 words \u2713",
     "cta_appstore": "App Store",
     "cta_web": "Play on Web"
@@ -75,6 +77,7 @@
   },
   "cta": {
     "title": "Today's word is waiting.",
+    "tagline": "Say it in five.",
     "subtitle": "Join thousands of players describing the world in exactly five words.",
     "download_ios": "Download for iOS",
     "play_browser": "Play in browser"
