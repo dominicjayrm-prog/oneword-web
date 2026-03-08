@@ -17,7 +17,7 @@ export default async function Home() {
       <Nav />
       <main>
         <Hero />
-        <section className="bg-[#0A0A12] py-16 md:py-20">
+        <section className="bg-[#0A0A12] py-16 md:py-20 overflow-hidden">
           <div className="max-w-screen-sm mx-auto px-6 text-center">
             <span className="text-xs tracking-[4px] uppercase text-[#FF6B4A] font-semibold mb-6 block">
               {t('label')}
