@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { Nav } from '@/components/ui/Nav';
 import { Footer } from '@/components/ui/Footer';
 import { Hero } from '@/components/landing/Hero';
@@ -8,7 +9,9 @@ import { Features } from '@/components/landing/Features';
 import { Examples } from '@/components/landing/Examples';
 import { CTA } from '@/components/landing/CTA';
 
-export default function Home() {
+export default async function Home() {
+  const t = await getTranslations('video');
+
   return (
     <>
       <Nav />
@@ -17,7 +20,7 @@ export default function Home() {
         <section className="bg-[#0A0A12] py-16 md:py-20">
           <div className="max-w-screen-sm mx-auto px-6 text-center">
             <span className="text-xs tracking-[4px] uppercase text-[#FF6B4A] font-semibold mb-6 block">
-              See it in action
+              {t('label')}
             </span>
             <PromoVideo />
           </div>
