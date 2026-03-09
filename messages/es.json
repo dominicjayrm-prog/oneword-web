@@ -136,6 +136,7 @@
     "word_count": "{count}/5 palabras",
     "lock_it_in": "Confirmar",
     "locking_in": "Confirmando...",
+    "submit_error": "Algo salió mal. Inténtalo de nuevo.",
     "locked_in": "Confirmado \u2713",
     "vote_on_others": "Votar por otros",
     "see_results": "Ver resultados",
