@@ -43,20 +43,20 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     const pathname = request.nextUrl.pathname;
-    const playMatch = pathname.match(/^\/(en|es)\/play/);
-    if (!user && playMatch) {
-      const locale = playMatch[1];
+    const isPlay = pathname.match(/^\/(es)\/play/) || pathname.match(/^\/play/);
+    if (!user && isPlay) {
+      const locale = pathname.startsWith('/es') ? 'es' : 'en';
       const url = request.nextUrl.clone();
-      url.pathname = `/${locale}/login`;
+      url.pathname = locale === 'en' ? '/login' : `/${locale}/login`;
       return NextResponse.redirect(url);
     }
   } catch {
     const pathname = request.nextUrl.pathname;
-    const playMatch = pathname.match(/^\/(en|es)\/play/);
-    if (playMatch) {
-      const locale = playMatch[1];
+    const isPlay = pathname.match(/^\/(es)\/play/) || pathname.match(/^\/play/);
+    if (isPlay) {
+      const locale = pathname.startsWith('/es') ? 'es' : 'en';
       const url = request.nextUrl.clone();
-      url.pathname = `/${locale}/login`;
+      url.pathname = locale === 'en' ? '/login' : `/${locale}/login`;
       return NextResponse.redirect(url);
     }
   }

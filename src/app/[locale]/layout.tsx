@@ -47,11 +47,11 @@ export async function generateMetadata({
       description: t('og_description'),
     },
     alternates: {
-      canonical: `https://oneword.game/${locale}`,
+      canonical: locale === 'en' ? 'https://oneword.game' : `https://oneword.game/es`,
       languages: {
-        en: 'https://oneword.game/en',
+        en: 'https://oneword.game',
         es: 'https://oneword.game/es',
-        'x-default': 'https://oneword.game/en',
+        'x-default': 'https://oneword.game',
       },
     },
   };
