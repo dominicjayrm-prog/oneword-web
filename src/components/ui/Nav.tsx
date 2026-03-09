@@ -11,7 +11,7 @@ export function Nav() {
   const t = useTranslations('nav');
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-bg/85 backdrop-blur-xl">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-bg backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/" className="font-serif text-2xl font-bold">
           <span className="text-text">one</span>
