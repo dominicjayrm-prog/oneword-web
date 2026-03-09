@@ -9,7 +9,6 @@ import { LiveLeaderboard } from '@/components/landing/LiveLeaderboard';
 import { Features } from '@/components/landing/Features';
 import { Examples } from '@/components/landing/Examples';
 import { CTA } from '@/components/landing/CTA';
-import EmailCapture from '@/components/landing/EmailCapture';
 
 export default async function Home() {
   const t = await getTranslations('video');
@@ -31,7 +30,6 @@ export default async function Home() {
         <HowItWorks />
         <LiveLeaderboard />
         <Features />
-        <EmailCapture />
         <Examples />
         <CTA />
       </main>

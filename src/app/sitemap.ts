@@ -11,17 +11,21 @@ const pages = [
   '/signup',
 ];
 
+function localeUrl(locale: string, page: string) {
+  return locale === 'en' ? `${BASE_URL}${page || '/'}` : `${BASE_URL}/${locale}${page}`;
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];
 
   for (const page of pages) {
     for (const locale of locales) {
       entries.push({
-        url: `${BASE_URL}/${locale}${page}`,
+        url: localeUrl(locale, page),
         lastModified: new Date(),
         alternates: {
           languages: Object.fromEntries(
-            locales.map((l) => [l, `${BASE_URL}/${l}${page}`])
+            locales.map((l) => [l, localeUrl(l, page)])
           ),
         },
       });

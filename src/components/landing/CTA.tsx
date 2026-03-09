@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
@@ -12,14 +12,6 @@ export function CTA() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
-  const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
-
-  useEffect(() => {
-    fetch('/api/subscriber-count')
-      .then((r) => r.json())
-      .then((data) => setSubscriberCount(data.count))
-      .catch(() => {});
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +46,6 @@ export function CTA() {
       }
     } else {
       setStatus('success');
-      if (subscriberCount !== null) setSubscriberCount(subscriberCount + 1);
     }
   };
 
@@ -118,14 +109,6 @@ export function CTA() {
         {isSuccess && !errorMsg && (
           <p className="mt-3 text-sm font-medium text-[#2ECC71]">
             {te('success_message')}
-          </p>
-        )}
-
-        {subscriberCount !== null && (
-          <p className="mt-5 text-sm text-text-muted">
-            {subscriberCount === 0
-              ? te('counter_zero')
-              : te('counter', { count: subscriberCount })}
           </p>
         )}
       </motion.div>
