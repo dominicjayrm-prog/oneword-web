@@ -82,6 +82,22 @@
     "download_ios": "Download for iOS",
     "play_browser": "Play in browser"
   },
+  "email_capture": {
+    "label": "BE THE FIRST TO PLAY",
+    "title": "Get notified when we launch.",
+    "subtitle": "Drop your email. We'll tell you the moment OneWord is live. No spam, just one email.",
+    "placeholder": "your@email.com",
+    "button": "Notify Me",
+    "button_loading": "Joining...",
+    "button_success": "You're in! \u2713",
+    "counter": "Join {count} others waiting to play",
+    "counter_zero": "Be the first to join the waitlist",
+    "success_message": "We'll email you on launch day.",
+    "error_empty": "Enter your email address",
+    "error_invalid": "That doesn't look like an email",
+    "already_subscribed": "You're already on the list! \ud83c\udf89",
+    "error_generic": "Something went wrong. Try again."
+  },
   "footer": {
     "privacy": "Privacy",
     "terms": "Terms",

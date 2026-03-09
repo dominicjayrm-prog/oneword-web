@@ -82,6 +82,22 @@
     "download_ios": "Descargar para iOS",
     "play_browser": "Jugar en navegador"
   },
+  "email_capture": {
+    "label": "S\u00c9 EL PRIMERO EN JUGAR",
+    "title": "Te avisamos cuando lancemos.",
+    "subtitle": "Deja tu correo. Te avisaremos en cuanto OneWord est\u00e9 disponible. Sin spam, solo un email.",
+    "placeholder": "tu@correo.com",
+    "button": "Av\u00edsame",
+    "button_loading": "Uni\u00e9ndose...",
+    "button_success": "\u00a1Est\u00e1s dentro! \u2713",
+    "counter": "\u00danete a otros {count} esperando para jugar",
+    "counter_zero": "S\u00e9 el primero en unirte a la lista",
+    "success_message": "Te enviaremos un email el d\u00eda del lanzamiento.",
+    "error_empty": "Introduce tu correo",
+    "error_invalid": "Eso no parece un correo",
+    "already_subscribed": "\u00a1Ya est\u00e1s en la lista! \ud83c\udf89",
+    "error_generic": "Algo sali\u00f3 mal. Int\u00e9ntalo de nuevo."
+  },
   "footer": {
     "privacy": "Privacidad",
     "terms": "T\u00e9rminos",
