@@ -1,8 +1,9 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { Nav } from '@/components/ui/Nav';
 import { Footer } from '@/components/ui/Footer';
 import { Hero } from '@/components/landing/Hero';
 import PromoVideo from '@/components/landing/PromoVideo';
+import PromoVideoES from '@/components/landing/PromoVideoES';
 import { HowItWorks } from '@/components/landing/HowItWorks';
 import { LiveLeaderboard } from '@/components/landing/LiveLeaderboard';
 import { Features } from '@/components/landing/Features';
@@ -11,6 +12,7 @@ import { CTA } from '@/components/landing/CTA';
 
 export default async function Home() {
   const t = await getTranslations('video');
+  const locale = await getLocale();
 
   return (
     <>
@@ -22,7 +24,7 @@ export default async function Home() {
             <span className="text-xs tracking-[4px] uppercase text-[#FF6B4A] font-semibold mb-6 block">
               {t('label')}
             </span>
-            <PromoVideo />
+            {locale === 'es' ? <PromoVideoES /> : <PromoVideo />}
           </div>
         </section>
         <HowItWorks />
