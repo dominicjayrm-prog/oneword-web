@@ -1,14 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useTranslations, useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 
-export function CTA() {
-  const t = useTranslations('cta');
-  const te = useTranslations('email_capture');
+export default function EmailCapture() {
   const locale = useLocale();
+  const t = useTranslations('email_capture');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -26,11 +24,11 @@ export function CTA() {
     setErrorMsg('');
 
     if (!email.trim()) {
-      setErrorMsg(te('error_empty'));
+      setErrorMsg(t('error_empty'));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setErrorMsg(te('error_invalid'));
+      setErrorMsg(t('error_invalid'));
       return;
     }
 
@@ -40,17 +38,17 @@ export function CTA() {
     const { error } = await supabase.from('email_subscribers').insert({
       email: email.toLowerCase().trim(),
       language: locale,
-      source: 'website_cta',
+      source: 'website',
       referrer: typeof window !== 'undefined' ? document.referrer || null : null,
     });
 
     if (error) {
       if (error.code === '23505') {
         setStatus('success');
-        setErrorMsg(te('already_subscribed'));
+        setErrorMsg(t('already_subscribed'));
       } else {
         setStatus('error');
-        setErrorMsg(te('error_generic'));
+        setErrorMsg(t('error_generic'));
       }
     } else {
       setStatus('success');
@@ -61,22 +59,19 @@ export function CTA() {
   const isSuccess = status === 'success';
 
   return (
-    <section className="relative overflow-hidden py-24">
-      <div className="pointer-events-none absolute bottom-0 left-1/2 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-primary/[0.06] blur-3xl" />
+    <section className="relative py-20 bg-bg">
+      <div className="pointer-events-none absolute top-0 left-1/2 h-[200px] w-[600px] -translate-x-1/2 rounded-full bg-primary/[0.04] blur-3xl" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="relative mx-auto max-w-xl px-6 text-center"
-      >
-        <h2 className="font-serif text-4xl font-bold text-text md:text-6xl">
+      <div className="relative mx-auto max-w-[520px] px-6 text-center">
+        <span className="mb-4 block text-xs font-semibold uppercase tracking-[4px] text-primary">
+          {t('label')}
+        </span>
+
+        <h2 className="font-serif text-3xl font-bold text-text md:text-4xl">
           {t('title')}
-          <br />
-          <span className="italic text-primary">{t('tagline')}</span>
         </h2>
-        <p className="mt-6 text-lg text-text-muted">
+
+        <p className="mt-4 text-base leading-relaxed text-text-muted">
           {t('subtitle')}
         </p>
 
@@ -88,7 +83,7 @@ export function CTA() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder={te('placeholder')}
+            placeholder={t('placeholder')}
             disabled={isSuccess}
             className="h-[52px] flex-1 rounded-[14px] border border-border bg-white px-5 text-base text-text outline-none transition-colors placeholder:text-text-muted/50 focus:border-primary disabled:opacity-60"
           />
@@ -102,10 +97,10 @@ export function CTA() {
             }`}
           >
             {isSuccess
-              ? te('button_success')
+              ? t('button_success')
               : status === 'loading'
-                ? te('button_loading')
-                : te('button')}
+                ? t('button_loading')
+                : t('button')}
           </button>
         </form>
 
@@ -117,18 +112,18 @@ export function CTA() {
 
         {isSuccess && !errorMsg && (
           <p className="mt-3 text-sm font-medium text-[#2ECC71]">
-            {te('success_message')}
+            {t('success_message')}
           </p>
         )}
 
         {subscriberCount !== null && (
           <p className="mt-5 text-sm text-text-muted">
             {subscriberCount === 0
-              ? te('counter_zero')
-              : te('counter', { count: subscriberCount })}
+              ? t('counter_zero')
+              : t('counter', { count: subscriberCount })}
           </p>
         )}
-      </motion.div>
+      </div>
     </section>
   );
 }
