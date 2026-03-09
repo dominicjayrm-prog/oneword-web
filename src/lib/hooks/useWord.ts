@@ -81,7 +81,10 @@ export function useWord(language = 'en') {
       })
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase insert error:', error.code, error.message, error.details, error.hint);
+      throw new Error(error.message);
+    }
     setUserDescription(data);
     return data;
   }

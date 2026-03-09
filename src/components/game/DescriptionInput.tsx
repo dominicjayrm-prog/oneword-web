@@ -12,6 +12,7 @@ interface DescriptionInputProps {
 export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
   const [input, setInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const t = useTranslations('game');
 
   const words = input.trim().split(/\s+/).filter(Boolean);
@@ -20,8 +21,15 @@ export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
   async function handleSubmit() {
     if (wordCount !== 5) return;
     setSubmitting(true);
-    await onSubmit(words.join(' '));
-    setSubmitting(false);
+    setErrorMsg(null);
+    try {
+      await onSubmit(words.join(' '));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('Submit failed:', err);
+      setErrorMsg(message || t('submit_error'));
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -68,6 +76,12 @@ export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
           {submitting ? t('locking_in') : t('lock_it_in')}
         </Button>
       </div>
+
+      {errorMsg && (
+        <p className="mt-3 text-center text-sm font-medium text-red-500">
+          {errorMsg}
+        </p>
+      )}
     </div>
   );
 }

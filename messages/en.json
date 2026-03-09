@@ -136,6 +136,7 @@
     "word_count": "{count}/5 words",
     "lock_it_in": "Lock it in",
     "locking_in": "Locking in...",
+    "submit_error": "Something went wrong. Try again.",
     "locked_in": "Locked in \u2713",
     "vote_on_others": "Vote on Others",
     "see_results": "See Results",
