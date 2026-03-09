@@ -47,29 +47,64 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
   const seenPairs = useRef<Set<string>>(new Set());
   const supabase = createClient();
 
+  const fetchPairFallback = useCallback(async (): Promise<VotePairData | null> => {
+    if (!wordId || !voterId) return null;
+
+    // Fetch descriptions for this word, excluding the current user's
+    const { data: descriptions, error } = await supabase
+      .from('descriptions')
+      .select('id, description, user_id')
+      .eq('word_id', wordId)
+      .neq('user_id', voterId);
+
+    if (error) {
+      console.error('Fallback descriptions query error:', error.code, error.message);
+      return null;
+    }
+
+    if (!descriptions || descriptions.length < 2) return null;
+
+    // Pick two random descriptions
+    const shuffled = descriptions.sort(() => Math.random() - 0.5);
+    return {
+      option_a_id: shuffled[0].id,
+      option_a_description: shuffled[0].description,
+      option_a_user_id: shuffled[0].user_id,
+      option_b_id: shuffled[1].id,
+      option_b_description: shuffled[1].description,
+      option_b_user_id: shuffled[1].user_id,
+    };
+  }, [wordId, voterId]);
+
   const fetchPair = useCallback(async () => {
     if (!wordId || !voterId) return;
     setLoading(true);
 
     // Retry up to 5 times to find a pair we haven't seen
     const MAX_RETRIES = 5;
+    let rpcFailed = false;
+
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      const { data } = await supabase.rpc('get_vote_pair', {
+      const { data, error } = await supabase.rpc('get_vote_pair', {
         p_word_id: wordId,
         p_voter_id: voterId,
       });
 
+      if (error) {
+        console.error('get_vote_pair RPC error:', error.code, error.message, error.details, error.hint);
+        rpcFailed = true;
+        break;
+      }
+
       if (!data) {
-        setNoMorePairs(true);
-        setLoading(false);
-        return;
+        break;
       }
 
       const normalized = normalizePair(data);
       if (!normalized) {
-        setNoMorePairs(true);
-        setLoading(false);
-        return;
+        console.error('get_vote_pair returned unrecognized format:', data);
+        rpcFailed = true;
+        break;
       }
 
       const key = pairKey(normalized);
@@ -82,19 +117,47 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       // Pair already seen — loop and try again
     }
 
-    // If we exhausted retries, all returned pairs are duplicates
+    // RPC failed or returned no data — try direct query fallback
+    if (rpcFailed) {
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        const fallbackPair = await fetchPairFallback();
+        if (!fallbackPair) break;
+
+        const key = pairKey(fallbackPair);
+        if (!seenPairs.current.has(key)) {
+          seenPairs.current.add(key);
+          setPair(fallbackPair);
+          setLoading(false);
+          return;
+        }
+      }
+    }
+
     setNoMorePairs(true);
     setLoading(false);
-  }, [wordId, voterId]);
+  }, [wordId, voterId, fetchPairFallback]);
 
   async function submitVote(winnerId: string, loserId: string) {
     if (!wordId || !voterId) return;
-    await supabase.rpc('submit_vote', {
+    const { error } = await supabase.rpc('submit_vote', {
       p_voter_id: voterId,
       p_word_id: wordId,
       p_winner_id: winnerId,
       p_loser_id: loserId,
     });
+    if (error) {
+      console.error('submit_vote RPC error:', error.code, error.message, error.details, error.hint);
+      // Fallback: insert vote directly
+      const { error: insertError } = await supabase.from('votes').insert({
+        voter_id: voterId,
+        word_id: wordId,
+        winner_id: winnerId,
+        loser_id: loserId,
+      });
+      if (insertError) {
+        console.error('Fallback vote insert error:', insertError.code, insertError.message);
+      }
+    }
     setVotesCount((c) => c + 1);
     setPair(null);
     await fetchPair();
