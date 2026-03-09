@@ -77,7 +77,6 @@ export function useWord(language = 'en') {
         user_id: userId,
         word_id: word.id,
         description,
-        language,
       })
       .select()
       .single();
