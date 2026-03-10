@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 interface FriendProfile {
@@ -52,6 +52,7 @@ export function useFriends(userId: string | undefined) {
   const [friends, setFriends] = useState<FriendProfile[]>([]);
   const [friendsDescriptions, setFriendsDescriptions] = useState<FriendDescription[]>([]);
   const [loading, setLoading] = useState(false);
+  const friendsRef = useRef<FriendProfile[]>([]);
   const supabase = createClient();
 
   const fetchFriends = useCallback(async () => {
@@ -64,6 +65,7 @@ export function useFriends(userId: string | undefined) {
       const normalized = data.map((r: Record<string, unknown>) => normalizeFriend(r));
       if (normalized.some((f) => f.username)) {
         setFriends(normalized);
+        friendsRef.current = normalized;
         setLoading(false);
         return;
       }
@@ -96,6 +98,7 @@ export function useFriends(userId: string | undefined) {
       }
     }
     setFriends(friendsList);
+    friendsRef.current = friendsList;
     setLoading(false);
   }, [userId]);
 
@@ -116,7 +119,7 @@ export function useFriends(userId: string | undefined) {
           // Try from friends list first
           for (const entry of normalized) {
             if (!entry.username && entry.user_id) {
-              const friend = friends.find((f) => f.id === entry.user_id);
+              const friend = friendsRef.current.find((f) => f.id === entry.user_id);
               if (friend) entry.username = friend.username;
             }
           }
@@ -142,8 +145,8 @@ export function useFriends(userId: string | undefined) {
       }
     }
 
-    // Fallback: get friend IDs then query descriptions
-    const friendIds = friends.map((f) => f.id);
+    // Fallback: get friend IDs then query descriptions (use ref for freshest data)
+    const friendIds = friendsRef.current.map((f) => f.id);
     if (friendIds.length === 0) return;
 
     const { data: descs } = await supabase
@@ -164,7 +167,7 @@ export function useFriends(userId: string | undefined) {
       });
       setFriendsDescriptions(mapped);
     }
-  }, [userId, friends]);
+  }, [userId]);
 
   return { friends, friendsDescriptions, loading, fetchFriends, fetchFriendsDescriptions };
 }

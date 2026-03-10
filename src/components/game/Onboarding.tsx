@@ -81,7 +81,7 @@ function VoteStep() {
                 animate={{ opacity: 1 }}
                 className="mt-2 inline-block text-sm font-bold text-primary"
               >
-                YOUR PICK ✓
+                {t('your_pick')}
               </motion.span>
             )}
           </motion.button>

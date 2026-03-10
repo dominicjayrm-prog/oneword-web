@@ -41,13 +41,13 @@ export default function ResultsPage() {
   useEffect(() => {
     if (userDescription !== null) {
       setHasPlayed(true);
-    } else if (!wordLoading && word && user) {
+    } else if (!wordLoading && word && user && hasPlayed === null) {
       const timer = setTimeout(() => {
-        if (!userDescription) setHasPlayed(false);
+        setHasPlayed((current) => current === null ? false : current);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [userDescription, wordLoading, word, user]);
+  }, [userDescription, wordLoading, word, user, hasPlayed]);
 
   if (wordLoading) {
     return (

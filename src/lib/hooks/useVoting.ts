@@ -61,8 +61,9 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
   const seenPairs = useRef<Set<string>>(new Set());
   const supabase = createClient();
 
-  // Restore vote count from localStorage
+  // Reset seen pairs and restore vote count when word changes
   useEffect(() => {
+    seenPairs.current = new Set();
     if (!wordId) return;
     const key = getStorageKey(wordId);
     const stored = localStorage.getItem(key);
@@ -180,8 +181,11 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       }
     }
 
-    const newCount = votesCount + 1;
-    setVotesCount(newCount);
+    let newCount = 0;
+    setVotesCount((prev) => {
+      newCount = prev + 1;
+      return newCount;
+    });
 
     if (wordId) {
       localStorage.setItem(getStorageKey(wordId), newCount.toString());

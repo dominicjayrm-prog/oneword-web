@@ -35,13 +35,14 @@ export default function VotePage() {
     if (userDescription !== null) {
       setHasPlayed(true);
       if (!batchExhausted) fetchPair();
-    } else if (!wordLoading && word && user) {
+    } else if (!wordLoading && word && user && hasPlayed === null) {
+      // Delay briefly to allow fetchUserDescription to complete
       const timer = setTimeout(() => {
-        if (!userDescription) setHasPlayed(false);
+        setHasPlayed((current) => current === null ? false : current);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [userDescription, wordLoading, word, user, batchExhausted]);
+  }, [userDescription, wordLoading, word, user, batchExhausted, hasPlayed]);
 
   if (wordLoading) {
     return (

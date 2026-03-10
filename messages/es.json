@@ -48,7 +48,7 @@
   "live": {
     "label": "Resultados de hoy",
     "title": "La palabra de hoy:",
-    "descriptions_count": "{count} descripci\u00f3n{count, plural, one {} other {es}} y contando",
+    "descriptions_count": "{count, plural, one {# descripción} other {# descripciones}} y contando",
     "think_better": "\u00bfCrees que puedes hacerlo mejor?",
     "play_now": "Juega ahora",
     "empty_title": "\u00a1La palabra de hoy espera sus primeras descripciones. S\u00e9 el primero!",
@@ -268,7 +268,8 @@
     "votes": "Votos",
     "back": "Atr\u00e1s",
     "next": "Siguiente",
-    "lets_play": "\u00a1A jugar!"
+    "lets_play": "¡A jugar!",
+    "your_pick": "TU ELECCIÓN ✓"
   },
   "report": {
     "title": "Reportar Descripci\u00f3n",
