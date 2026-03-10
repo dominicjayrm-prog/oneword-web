@@ -10,6 +10,7 @@ interface LeaderboardItemProps {
   username: string;
   voteCount: number;
   isCurrentUser?: boolean;
+  badgeEmoji?: string;
 }
 
 export function LeaderboardItem({
@@ -18,6 +19,7 @@ export function LeaderboardItem({
   username,
   voteCount,
   isCurrentUser,
+  badgeEmoji,
 }: LeaderboardItemProps) {
   const t = useTranslations('results');
   return (
@@ -42,7 +44,7 @@ export function LeaderboardItem({
           &ldquo;{description}&rdquo;
         </p>
         <p className="text-sm text-text-muted">
-          @{username}
+          @{username} {badgeEmoji || ''}
           {isCurrentUser && (
             <span className="ml-2 text-xs font-bold text-primary">{t('you_label')}</span>
           )}

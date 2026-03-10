@@ -30,7 +30,7 @@
     "cta_web": "Jugar en Web"
   },
   "video": {
-    "label": "Míralo en acción"
+    "label": "M\u00edralo en acci\u00f3n"
   },
   "how": {
     "label": "C\u00f3mo funciona",
@@ -113,6 +113,7 @@
     "login_loading": "Iniciando sesi\u00f3n...",
     "login_no_account": "\u00bfNo tienes cuenta?",
     "login_signup_link": "Reg\u00edstrate",
+    "login_forgot_password": "\u00bfOlvidaste tu contrase\u00f1a?",
     "signup_title": "Crea tu cuenta",
     "signup_subtitle": "\u00danete a miles de jugadores en todo el mundo",
     "signup_username": "Nombre de usuario",
@@ -136,21 +137,24 @@
     "word_count": "{count}/5 palabras",
     "lock_it_in": "Confirmar",
     "locking_in": "Confirmando...",
-    "submit_error": "Algo salió mal. Inténtalo de nuevo.",
+    "submit_error": "Algo sali\u00f3 mal. Int\u00e9ntalo de nuevo.",
     "locked_in": "Confirmado \u2713",
     "vote_on_others": "Votar por otros",
     "see_results": "Ver resultados",
     "no_word": "No hay palabra disponible hoy",
     "check_back": "Vuelve m\u00e1s tarde o contacta soporte.",
     "day_streak": "{count} d\u00eda{count, plural, one {} other {s}} de racha",
-    "your_pick": "TU ELECCI\u00d3N \u2713"
+    "your_pick": "TU ELECCI\u00d3N \u2713",
+    "next_word_in": "Siguiente palabra en"
   },
   "vote": {
     "play_first": "Juega la palabra del d\u00eda antes de votar",
     "play_now": "Jugar ahora",
     "all_done": "\u00a1Listo! Votaste en {count} pares \ud83c\udf89",
     "not_enough": "\u00a1A\u00fan no hay suficientes descripciones. Vuelve m\u00e1s tarde!",
-    "vote_number": "Voto {count}"
+    "vote_number": "Voto {count}",
+    "great_work": "\u00a1Buen trabajo! \ud83c\udf89",
+    "voted_count": "Votaste en {count} pares. \u00a1Vuelve m\u00e1s tarde para m\u00e1s!"
   },
   "results": {
     "global": "\ud83c\udf0d Global",
@@ -161,7 +165,11 @@
     "out_of": "de {count} jugadores",
     "share_result": "Compartir resultado",
     "share_text": "OneWord - {word}\n\n\u201c{desc}\u201d\n\n\u00a1Qued\u00e9 #{rank} de {total} jugadores!\n\nJuega en oneword.game",
-    "you_label": "T\u00da"
+    "you_label": "T\u00da",
+    "play_first": "Juega la palabra del d\u00eda para ver resultados",
+    "play_now": "Jugar ahora",
+    "votes_label": "votos",
+    "streak_label": "racha"
   },
   "friends_page": {
     "title": "Amigos",
@@ -174,14 +182,20 @@
     "your_friends": "Tus amigos",
     "no_friends": "\u00a1A\u00fan no tienes amigos. A\u00f1ade algunos para competir!",
     "add_friend_title": "A\u00f1adir amigo",
-    "enter_username": "Nombre de usuario",
+    "enter_username": "Buscar por nombre de usuario...",
+    "search": "Buscar",
     "send_request": "Enviar solicitud",
     "sending": "Enviando...",
     "cancel": "Cancelar",
     "user_not_found": "Usuario no encontrado",
-    "cannot_add_self": "No puedes añadirte a ti mismo",
+    "cannot_add_self": "No puedes a\u00f1adirte a ti mismo",
     "already_friends": "Ya sois amigos o tienes una solicitud pendiente",
-    "add_friend_error": "Algo salió mal. Inténtalo de nuevo."
+    "already_friends_short": "Amigos",
+    "add_friend_error": "Algo sali\u00f3 mal. Int\u00e9ntalo de nuevo.",
+    "add": "A\u00f1adir",
+    "pending": "Pendiente",
+    "remove": "Eliminar",
+    "remove_confirm": "\u00bfEliminar este amigo?"
   },
   "profile": {
     "member_since": "Miembro desde {date}",
@@ -192,10 +206,81 @@
     "best_rank": "Mejor Puesto",
     "language": "Idioma",
     "log_out": "Cerrar sesi\u00f3n",
+    "logout_confirm": "\u00bfEst\u00e1s seguro de que quieres cerrar sesi\u00f3n?",
     "delete_account": "Eliminar cuenta",
     "delete_confirm": "\u00bfEst\u00e1s seguro de que quieres eliminar tu cuenta? Esta acci\u00f3n no se puede deshacer.",
     "delete_error": "No se pudo eliminar la cuenta. Por favor, int\u00e9ntalo de nuevo.",
-    "deleting": "Eliminando..."
+    "deleting": "Eliminando...",
+    "confirm_delete": "Eliminar para siempre",
+    "cancel": "Cancelar",
+    "type_username": "Escribe \"{username}\" para confirmar",
+    "change_avatar": "Cambiar avatar",
+    "highest_tier": "\u00a1Has alcanzado el nivel m\u00e1ximo!",
+    "security": "Seguridad",
+    "reset_password": "Restablecer contrase\u00f1a",
+    "enter_email": "Tu correo electr\u00f3nico",
+    "send_reset": "Enviar",
+    "reset_sent": "\u00a1Email de restablecimiento enviado! Revisa tu bandeja de entrada.",
+    "set_new_password": "Nueva Contrase\u00f1a",
+    "new_password": "Nueva contrase\u00f1a",
+    "confirm_password": "Confirmar contrase\u00f1a",
+    "update_password": "Actualizar Contrase\u00f1a",
+    "password_too_short": "La contrase\u00f1a debe tener al menos 6 caracteres",
+    "passwords_mismatch": "Las contrase\u00f1as no coinciden",
+    "support": "Soporte"
+  },
+  "yesterday": {
+    "yesterdays_winner": "Ganador de ayer",
+    "you_won": "\u00a1GANASTE! \ud83c\udfc6",
+    "votes": "votos",
+    "your_result": "Tu resultado",
+    "out_of": "de {total}",
+    "didnt_play": "No jugaste ayer",
+    "see_today": "Ver la palabra de hoy"
+  },
+  "weekly": {
+    "title": "Resumen Semanal",
+    "perfect_week": "\u00a1Semana Perfecta!",
+    "best_of_week": "Lo Mejor de la Semana",
+    "of": "de",
+    "days_played": "D\u00edas Jugados",
+    "votes_received": "Votos",
+    "streak": "Racha",
+    "avg_rank": "Puesto Medio",
+    "share_week": "Compartir Tu Semana",
+    "continue": "Continuar"
+  },
+  "celebration": {
+    "unlocked": "\u00a1Insignia Desbloqueada!",
+    "highest_tier": "\u00a1Has alcanzado el nivel m\u00e1ximo!",
+    "tap_to_dismiss": "Toca para continuar"
+  },
+  "onboarding": {
+    "step1_title": "Describe",
+    "step1_desc": "Cada d\u00eda recibes una palabra. Descr\u00edbela en exactamente cinco palabras. \u00a1S\u00e9 creativo!",
+    "example_word": "Ejemplo",
+    "step2_title": "Vota",
+    "step2_desc": "Lee dos descripciones y elige la que m\u00e1s te guste. \u00a1Tus votos ayudan a decidir el ganador!",
+    "step3_title": "Compite",
+    "step3_desc": "\u00a1Mira tu puesto en la clasificaci\u00f3n global. Construye tu racha. Gana insignias!",
+    "streaks": "Rachas",
+    "trophies": "Trofeos",
+    "votes": "Votos",
+    "back": "Atr\u00e1s",
+    "next": "Siguiente",
+    "lets_play": "\u00a1A jugar!"
+  },
+  "report": {
+    "title": "Reportar Descripci\u00f3n",
+    "confirm": "\u00bfEst\u00e1s seguro de que quieres reportar esta descripci\u00f3n?",
+    "report": "Reportar",
+    "reporting": "Reportando...",
+    "cancel": "Cancelar",
+    "report_link": "Reportar",
+    "rate_limited": "Demasiados reportes. Por favor espera."
+  },
+  "network": {
+    "offline": "Est\u00e1s sin conexi\u00f3n. Algunas funciones pueden no funcionar."
   },
   "privacy": {
     "title": "Pol\u00edtica de Privacidad",
