@@ -1,3 +1,5 @@
+'use client';
+
 import { useTranslations } from 'next-intl';
 import { getRankEmoji } from '@/lib/utils';
 import { cn } from '@/lib/utils';

@@ -28,7 +28,8 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      setLoading(false);
+      // Force server to pick up the new session cookies before navigating
+      router.refresh();
       router.push('/play');
     }
   }
