@@ -32,6 +32,8 @@ export function ReportDialog({ descriptionId, wordId, reporterId, onClose, onRep
     });
     if (error) {
       console.error('submit_report error:', error.code, error.message);
+      setSubmitting(false);
+      return;
     }
     setSubmitting(false);
     onReported();

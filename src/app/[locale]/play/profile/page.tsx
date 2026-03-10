@@ -92,10 +92,11 @@ export default function ProfilePage() {
     if (!resetEmail.trim()) return;
     if (!checkRateLimit('password_reset')) return;
     const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
-      redirectTo: `${window.location.origin}/play/profile`,
+      redirectTo: `${window.location.origin}/${locale}/play/profile`,
     });
     if (error) {
       console.error('resetPassword error:', error.message);
+      return;
     }
     setResetSent(true);
   }

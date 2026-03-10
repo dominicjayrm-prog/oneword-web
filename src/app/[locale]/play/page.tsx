@@ -73,7 +73,7 @@ export default function PlayPage() {
     const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const storedTimezone = (profile as unknown as Record<string, unknown>).timezone as string | undefined;
     if (deviceTimezone && deviceTimezone !== storedTimezone) {
-      supabase.from('profiles').update({ timezone: deviceTimezone }).eq('id', user.id);
+      supabase.from('profiles').update({ timezone: deviceTimezone }).eq('id', user.id).then();
     }
   }, [user, profile]);
 
