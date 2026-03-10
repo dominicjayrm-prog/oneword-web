@@ -24,6 +24,7 @@ export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
     setErrorMsg(null);
     try {
       await onSubmit(words.join(' '));
+      setSubmitting(false);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       console.error('Submit failed:', err);

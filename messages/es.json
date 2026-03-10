@@ -176,7 +176,11 @@
     "enter_username": "Nombre de usuario",
     "send_request": "Enviar solicitud",
     "sending": "Enviando...",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "user_not_found": "Usuario no encontrado",
+    "cannot_add_self": "No puedes añadirte a ti mismo",
+    "already_friends": "Ya sois amigos o tienes una solicitud pendiente",
+    "add_friend_error": "Algo salió mal. Inténtalo de nuevo."
   },
   "profile": {
     "member_since": "Miembro desde {date}",

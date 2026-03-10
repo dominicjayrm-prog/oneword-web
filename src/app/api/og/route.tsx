@@ -74,7 +74,8 @@ export async function GET() {
         height: 630,
       }
     );
-  } catch {
+  } catch (err) {
+    console.error('OG image generation error:', err);
     return new ImageResponse(
       (
         <div

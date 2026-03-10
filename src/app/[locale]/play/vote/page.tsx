@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useWord } from '@/lib/hooks/useWord';
 import { useVoting } from '@/lib/hooks/useVoting';
@@ -9,11 +9,11 @@ import { WordDisplay } from '@/components/game/WordDisplay';
 import { VotePair } from '@/components/game/VotePair';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { Link } from '@/i18n/navigation';
 
 export default function VotePage() {
   const { user, profile } = useAuth();
-  const locale = useLocale();
-  const lang = profile?.language || locale;
+  const lang = profile?.language || 'en';
   const t = useTranslations('vote');
   const tGame = useTranslations('game');
   const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord(lang);
@@ -51,9 +51,11 @@ export default function VotePage() {
       <div className="flex flex-col items-center text-center">
         <WordDisplay word={word.word} category={word.category} />
         <p className="mt-8 text-lg text-text-muted">{t('play_first')}</p>
-        <Button variant="primary" size="lg" as="a" href={`/${locale}/play`} className="mt-4">
-          {t('play_now')}
-        </Button>
+        <Link href="/play" className="mt-4">
+          <Button variant="primary" size="lg">
+            {t('play_now')}
+          </Button>
+        </Link>
       </div>
     );
   }
@@ -67,9 +69,11 @@ export default function VotePage() {
             <p className="mt-8 text-2xl font-bold text-text">
               {t('all_done', { count: votesCount })}
             </p>
-            <Button variant="primary" size="lg" as="a" href={`/${locale}/play/results`} className="mt-4">
-              {tGame('see_results')}
-            </Button>
+            <Link href="/play/results" className="mt-4">
+              <Button variant="primary" size="lg">
+                {tGame('see_results')}
+              </Button>
+            </Link>
           </>
         ) : (
           <p className="mt-8 text-lg text-text-muted">

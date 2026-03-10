@@ -20,6 +20,7 @@ export default function FriendsPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchUsername, setSearchUsername] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [pendingRequests, setPendingRequests] = useState<Array<{id: string; requester_id: string; username: string}>>([]);
   const supabase = createClient();
 
@@ -36,11 +37,15 @@ export default function FriendsPage() {
 
   async function fetchPending() {
     if (!user) return;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('friendships')
       .select('id, requester_id, profiles!friendships_requester_id_fkey(username)')
       .eq('addressee_id', user.id)
       .eq('status', 'pending');
+    if (error) {
+      console.error('fetchPending error:', error.code, error.message);
+      return;
+    }
     if (data) {
       setPendingRequests(
         data.map((d: Record<string, unknown>) => ({
@@ -53,36 +58,69 @@ export default function FriendsPage() {
   }
 
   async function handleAccept(friendshipId: string) {
-    await supabase
+    const { error } = await supabase
       .from('friendships')
       .update({ status: 'accepted' })
       .eq('id', friendshipId);
+    if (error) {
+      console.error('handleAccept error:', error.code, error.message);
+      return;
+    }
     setPendingRequests((prev) => prev.filter((r) => r.id !== friendshipId));
     fetchFriends();
   }
 
   async function handleDecline(friendshipId: string) {
-    await supabase.from('friendships').delete().eq('id', friendshipId);
+    const { error } = await supabase.from('friendships').delete().eq('id', friendshipId);
+    if (error) {
+      console.error('handleDecline error:', error.code, error.message);
+      return;
+    }
     setPendingRequests((prev) => prev.filter((r) => r.id !== friendshipId));
   }
 
   async function handleAddFriend() {
     if (!user || !searchUsername.trim()) return;
     setSearchLoading(true);
-    const { data: targetUser } = await supabase
+    setSearchError(null);
+
+    if (searchUsername.trim().toLowerCase() === profile?.username?.toLowerCase()) {
+      setSearchError(t('cannot_add_self'));
+      setSearchLoading(false);
+      return;
+    }
+
+    const { data: targetUser, error: findError } = await supabase
       .from('profiles')
       .select('id')
       .eq('username', searchUsername.trim())
       .single();
-    if (targetUser) {
-      await supabase.from('friendships').insert({
-        requester_id: user.id,
-        addressee_id: targetUser.id,
-        status: 'pending',
-      });
-      setShowAddModal(false);
-      setSearchUsername('');
+
+    if (findError || !targetUser) {
+      setSearchError(t('user_not_found'));
+      setSearchLoading(false);
+      return;
     }
+
+    const { error: insertError } = await supabase.from('friendships').insert({
+      requester_id: user.id,
+      addressee_id: targetUser.id,
+      status: 'pending',
+    });
+
+    if (insertError) {
+      console.error('handleAddFriend insert error:', insertError.code, insertError.message);
+      if (insertError.code === '23505') {
+        setSearchError(t('already_friends'));
+      } else {
+        setSearchError(t('add_friend_error'));
+      }
+      setSearchLoading(false);
+      return;
+    }
+
+    setShowAddModal(false);
+    setSearchUsername('');
     setSearchLoading(false);
   }
 
@@ -200,9 +238,12 @@ export default function FriendsPage() {
               type="text"
               placeholder={t('enter_username')}
               value={searchUsername}
-              onChange={(e) => setSearchUsername(e.target.value)}
+              onChange={(e) => { setSearchUsername(e.target.value); setSearchError(null); }}
               className="mt-4 w-full rounded-xl border border-border bg-white px-4 py-3 text-text outline-none focus:border-primary"
             />
+            {searchError && (
+              <p className="mt-2 text-sm font-medium text-red-500">{searchError}</p>
+            )}
             <div className="mt-4 flex gap-2">
               <Button
                 variant="primary"
@@ -212,7 +253,7 @@ export default function FriendsPage() {
               >
                 {searchLoading ? t('sending') : t('send_request')}
               </Button>
-              <Button variant="ghost" onClick={() => setShowAddModal(false)}>
+              <Button variant="ghost" onClick={() => { setShowAddModal(false); setSearchError(null); }}>
                 {t('cancel')}
               </Button>
             </div>

@@ -176,7 +176,11 @@
     "enter_username": "Enter username",
     "send_request": "Send Request",
     "sending": "Sending...",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "user_not_found": "User not found",
+    "cannot_add_self": "You can't add yourself as a friend",
+    "already_friends": "You're already friends or have a pending request",
+    "add_friend_error": "Something went wrong. Try again."
   },
   "profile": {
     "member_since": "Member since {date}",

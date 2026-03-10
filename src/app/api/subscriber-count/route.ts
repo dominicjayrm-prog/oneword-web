@@ -1,11 +1,21 @@
 import { createClient } from '@/lib/supabase/server';
 
 export async function GET() {
-  const supabase = await createClient();
-  const { count } = await supabase
-    .from('email_subscribers')
-    .select('*', { count: 'exact', head: true })
-    .eq('unsubscribed', false);
+  try {
+    const supabase = await createClient();
+    const { count, error } = await supabase
+      .from('email_subscribers')
+      .select('*', { count: 'exact', head: true })
+      .eq('unsubscribed', false);
 
-  return Response.json({ count: count || 0 });
+    if (error) {
+      console.error('subscriber-count error:', error.code, error.message);
+      return Response.json({ count: 0 });
+    }
+
+    return Response.json({ count: count || 0 });
+  } catch (err) {
+    console.error('subscriber-count route error:', err);
+    return Response.json({ count: 0 });
+  }
 }

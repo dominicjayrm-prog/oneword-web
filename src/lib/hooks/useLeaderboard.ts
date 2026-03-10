@@ -31,10 +31,14 @@ export function useLeaderboard(wordId: string | undefined) {
     setLoading(true);
 
     // Try the RPC first
-    const { data } = await supabase.rpc('get_leaderboard', {
+    const { data, error: rpcError } = await supabase.rpc('get_leaderboard', {
       p_word_id: wordId,
       p_limit: limit,
     });
+
+    if (rpcError) {
+      console.error('get_leaderboard RPC error:', rpcError.code, rpcError.message);
+    }
 
     if (data && Array.isArray(data) && data.length > 0) {
       const normalized = data.map((row: Record<string, unknown>) => normalizeEntry(row));
@@ -47,12 +51,16 @@ export function useLeaderboard(wordId: string | undefined) {
     }
 
     // Fallback: query tables directly, sorted by vote_count
-    const { data: fallback } = await supabase
+    const { data: fallback, error: fallbackError } = await supabase
       .from('descriptions')
       .select('id, user_id, description, vote_count, elo_rating, rank, profiles!inner(username, avatar_url)')
       .eq('word_id', wordId)
       .order('vote_count', { ascending: false })
       .limit(limit);
+
+    if (fallbackError) {
+      console.error('Leaderboard fallback error:', fallbackError.code, fallbackError.message);
+    }
 
     if (fallback) {
       const mapped: LeaderboardEntry[] = fallback.map((row: Record<string, unknown>) => {
