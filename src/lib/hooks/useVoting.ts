@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { getGameDate } from '@/lib/gameDate';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 const VOTE_BATCH_SIZE = 15;
@@ -48,38 +47,65 @@ function pairKey(pair: VotePairData): string {
   return `${ids[0]}:${ids[1]}`;
 }
 
-function getStorageKey(wordId: string): string {
-  return `vote_progress_${wordId}_${getGameDate()}`;
-}
-
 export function useVoting(wordId: string | undefined, voterId: string | undefined) {
   const [pair, setPair] = useState<VotePairData | null>(null);
   const [loading, setLoading] = useState(false);
   const [votesCount, setVotesCount] = useState(0);
   const [noMorePairs, setNoMorePairs] = useState(false);
   const [batchExhausted, setBatchExhausted] = useState(false);
+  const [restoring, setRestoring] = useState(true);
   const batchExhaustedRef = useRef(false);
   const seenPairs = useRef<Set<string>>(new Set());
   const supabase = createClient();
 
-  // Reset state and restore vote count when word changes
+  // Restore vote count from database (source of truth, works across devices)
   useEffect(() => {
     seenPairs.current = new Set();
     batchExhaustedRef.current = false;
-    if (!wordId) return;
-    const key = getStorageKey(wordId);
-    const stored = localStorage.getItem(key);
-    if (stored) {
-      const count = parseInt(stored, 10);
-      if (!isNaN(count)) {
+    setBatchExhausted(false);
+    setVotesCount(0);
+    setRestoring(true);
+
+    if (!wordId || !voterId) {
+      setRestoring(false);
+      return;
+    }
+
+    async function restoreFromDB() {
+      // Try RPC first
+      const { data, error } = await supabase.rpc('get_user_vote_count', {
+        p_user_id: voterId!,
+        p_word_id: wordId!,
+      });
+
+      let count = 0;
+      if (!error && typeof data === 'number') {
+        count = data;
+      } else if (error) {
+        // Fallback: count votes directly from the votes table
+        const { count: dbCount, error: countError } = await supabase
+          .from('votes')
+          .select('*', { count: 'exact', head: true })
+          .eq('voter_id', voterId!)
+          .eq('word_id', wordId!);
+
+        if (!countError && dbCount !== null) {
+          count = dbCount;
+        }
+      }
+
+      if (count > 0) {
         setVotesCount(count);
         if (count >= VOTE_BATCH_SIZE) {
           batchExhaustedRef.current = true;
           setBatchExhausted(true);
         }
       }
+      setRestoring(false);
     }
-  }, [wordId]);
+
+    restoreFromDB();
+  }, [wordId, voterId]);
 
   const fetchPairFallback = useCallback(async (): Promise<VotePairData | null> => {
     if (!wordId || !voterId) return null;
@@ -190,10 +216,6 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       return newCount;
     });
 
-    if (wordId) {
-      localStorage.setItem(getStorageKey(wordId), newCount.toString());
-    }
-
     if (newCount >= VOTE_BATCH_SIZE) {
       batchExhaustedRef.current = true;
       setBatchExhausted(true);
@@ -204,5 +226,5 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
     }
   }
 
-  return { pair, loading, votesCount, noMorePairs, batchExhausted, fetchPair, submitVote, VOTE_BATCH_SIZE };
+  return { pair, loading, restoring, votesCount, noMorePairs, batchExhausted, fetchPair, submitVote, VOTE_BATCH_SIZE };
 }

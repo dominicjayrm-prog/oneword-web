@@ -18,7 +18,7 @@ export default function VotePage() {
   const t = useTranslations('vote');
   const tGame = useTranslations('game');
   const { word, userDescription, loading: wordLoading, error: wordError, fetchUserDescription } = useWord(lang);
-  const { pair, loading: voteLoading, votesCount, noMorePairs, batchExhausted, fetchPair, submitVote, VOTE_BATCH_SIZE } = useVoting(
+  const { pair, loading: voteLoading, restoring, votesCount, noMorePairs, batchExhausted, fetchPair, submitVote, VOTE_BATCH_SIZE } = useVoting(
     word?.id,
     user?.id
   );
@@ -34,8 +34,8 @@ export default function VotePage() {
   useEffect(() => {
     if (userDescription !== null) {
       setHasPlayed(true);
-      // fetchPair internally checks batchExhaustedRef, so safe to call always
-      fetchPair();
+      // Only fetch a pair once DB restore is done (so batchExhaustedRef is set)
+      if (!restoring) fetchPair();
     } else if (!wordLoading && word && user && hasPlayed === null) {
       // Delay briefly to allow fetchUserDescription to complete
       const timer = setTimeout(() => {
@@ -43,9 +43,9 @@ export default function VotePage() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [userDescription, wordLoading, word, user, hasPlayed]);
+  }, [userDescription, wordLoading, word, user, hasPlayed, restoring]);
 
-  if (wordLoading) {
+  if (wordLoading || restoring) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <LoadingSpinner size="lg" />
