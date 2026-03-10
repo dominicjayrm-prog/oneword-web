@@ -58,12 +58,15 @@ export function useWord(language = 'en') {
 
   async function fetchUserDescription(userId: string) {
     if (!word) return;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('descriptions')
       .select('*')
       .eq('user_id', userId)
       .eq('word_id', word.id)
       .single();
+    if (error) {
+      console.error('fetchUserDescription error:', error.code, error.message);
+    }
     if (data) {
       setUserDescription(data);
     }

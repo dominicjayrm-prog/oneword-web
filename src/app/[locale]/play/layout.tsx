@@ -37,7 +37,8 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
   }
 
   // Build locale-prefixed paths for comparison
-  const localePrefix = `/${locale}`;
+  // With localePrefix: 'as-needed', English has no prefix
+  const localePrefix = locale === 'en' ? '' : `/${locale}`;
 
   return (
     <div className="flex min-h-screen flex-col">

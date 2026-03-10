@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useWord } from '@/lib/hooks/useWord';
 import { WordDisplay } from '@/components/game/WordDisplay';
@@ -10,11 +10,11 @@ import { DescriptionInput } from '@/components/game/DescriptionInput';
 import { StreakBadge } from '@/components/game/StreakBadge';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { Link } from '@/i18n/navigation';
 
 export default function PlayPage() {
   const { user, profile } = useAuth();
-  const locale = useLocale();
-  const lang = profile?.language || locale;
+  const lang = profile?.language || 'en';
   const t = useTranslations('game');
   const { word, userDescription, loading, error, fetchUserDescription, submitDescription } = useWord(lang);
   const [lockedIn, setLockedIn] = useState(false);
@@ -81,12 +81,16 @@ export default function PlayPage() {
             </p>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button variant="primary" as="a" href={`/${locale}/play/vote`}>
-              {t('vote_on_others')}
-            </Button>
-            <Button variant="outline" as="a" href={`/${locale}/play/results`}>
-              {t('see_results')}
-            </Button>
+            <Link href="/play/vote">
+              <Button variant="primary">
+                {t('vote_on_others')}
+              </Button>
+            </Link>
+            <Link href="/play/results">
+              <Button variant="outline">
+                {t('see_results')}
+              </Button>
+            </Link>
           </div>
         </motion.div>
       ) : (

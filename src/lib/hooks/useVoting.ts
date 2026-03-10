@@ -156,6 +156,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       });
       if (insertError) {
         console.error('Fallback vote insert error:', insertError.code, insertError.message);
+        return; // Don't update state if vote wasn't recorded
       }
     }
     setVotesCount((c) => c + 1);
