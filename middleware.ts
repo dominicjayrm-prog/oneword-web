@@ -38,7 +38,8 @@ export async function middleware(request: NextRequest) {
   );
 
   function redirectToLogin(pathname: string) {
-    const locale = pathname.startsWith('/es') ? 'es' : 'en';
+    const localeMatch = pathname.match(/^\/([a-z]{2})\//);
+    const locale = localeMatch && localeMatch[1] !== 'en' ? localeMatch[1] : 'en';
     const url = request.nextUrl.clone();
     url.pathname = locale === 'en' ? '/login' : `/${locale}/login`;
     const redirectResponse = NextResponse.redirect(url);
@@ -55,13 +56,13 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     const pathname = request.nextUrl.pathname;
-    const isPlay = pathname.match(/^\/(es)\/play/) || pathname.match(/^\/play/);
+    const isPlay = pathname.match(/^\/([a-z]{2}\/)?play/);
     if (!user && isPlay) {
       return redirectToLogin(pathname);
     }
   } catch {
     const pathname = request.nextUrl.pathname;
-    const isPlay = pathname.match(/^\/(es)\/play/) || pathname.match(/^\/play/);
+    const isPlay = pathname.match(/^\/([a-z]{2}\/)?play/);
     if (isPlay) {
       return redirectToLogin(pathname);
     }

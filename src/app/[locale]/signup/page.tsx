@@ -58,6 +58,8 @@ export default function SignupPage() {
         console.error('Profile upsert error:', upsertError.code, upsertError.message);
       }
       setLoading(false);
+      // Force server to pick up the new session cookies before navigating
+      router.refresh();
       router.push('/play');
     } else {
       setLoading(false);
