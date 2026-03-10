@@ -22,7 +22,11 @@ export function ShareCard({ word, description, rank, totalPlayers }: ShareCardPr
         // User cancelled
       }
     } else {
-      await navigator.clipboard.writeText(text);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        // Clipboard API not available or permission denied
+      }
     }
   }
 

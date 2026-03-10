@@ -19,23 +19,34 @@ export default function ResultsPage() {
   const locale = useLocale();
   const lang = profile?.language || locale;
   const t = useTranslations('results');
-  const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord(lang);
+  const tGame = useTranslations('game');
+  const { word, userDescription, loading: wordLoading, error: wordError, fetchUserDescription } = useWord(lang);
   const { entries, loading: lbLoading, fetchLeaderboard } = useLeaderboard(word?.id);
-  const { friendsDescriptions, fetchFriendsDescriptions } = useFriends(user?.id);
+  const { friends, friendsDescriptions, fetchFriends, fetchFriendsDescriptions } = useFriends(user?.id);
   const [tab, setTab] = useState<Tab>('global');
 
   useEffect(() => {
     if (user && word) {
       fetchUserDescription(user.id);
       fetchLeaderboard(100);
-      fetchFriendsDescriptions(word.id);
+      // Fetch friends first, then their descriptions (fallback path needs friends list)
+      fetchFriends().then(() => fetchFriendsDescriptions(word.id));
     }
   }, [user, word]);
 
-  if (wordLoading || !word) {
+  if (wordLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (wordError || !word) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+        <p className="font-serif text-2xl text-text">{wordError || tGame('no_word')}</p>
+        <p className="text-text-muted">{tGame('check_back')}</p>
       </div>
     );
   }
@@ -97,7 +108,7 @@ export default function ResultsPage() {
             <p className="py-8 text-center text-text-muted">{t('no_results')}</p>
           )
         ) : friendsDescriptions.length > 0 ? (
-          friendsDescriptions.map((entry, i) => (
+          [...friendsDescriptions].sort((a, b) => b.vote_count - a.vote_count).map((entry, i) => (
             <LeaderboardItem
               key={entry.user_id || i}
               rank={i + 1}

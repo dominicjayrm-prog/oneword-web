@@ -19,6 +19,7 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return; // Prevent double-submit
     setError('');
     setLoading(true);
 
@@ -27,6 +28,7 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
+      setLoading(false);
       router.push('/play');
     }
   }

@@ -19,7 +19,7 @@ export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
   const wordCount = input.trim() === '' ? 0 : words.length;
 
   async function handleSubmit() {
-    if (wordCount !== 5) return;
+    if (wordCount !== 5 || submitting) return;
     setSubmitting(true);
     setErrorMsg(null);
     try {
@@ -56,6 +56,7 @@ export function DescriptionInput({ onSubmit }: DescriptionInputProps) {
         onChange={(e) => setInput(e.target.value)}
         placeholder={t('placeholder')}
         rows={2}
+        maxLength={200}
         className="w-full resize-none rounded-2xl border border-border bg-white px-5 py-4 text-center text-lg text-text outline-none focus:border-primary"
       />
 

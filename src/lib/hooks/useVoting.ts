@@ -64,8 +64,12 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
 
     if (!descriptions || descriptions.length < 2) return null;
 
-    // Pick two random descriptions
-    const shuffled = descriptions.sort(() => Math.random() - 0.5);
+    // Fisher-Yates shuffle for unbiased random selection
+    const shuffled = [...descriptions];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
     return {
       option_a_id: shuffled[0].id,
       option_a_description: shuffled[0].description,
@@ -117,19 +121,17 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       // Pair already seen — loop and try again
     }
 
-    // RPC failed or returned no data — try direct query fallback
-    if (rpcFailed) {
-      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-        const fallbackPair = await fetchPairFallback();
-        if (!fallbackPair) break;
+    // RPC failed, returned no new data, or only returned seen pairs — try direct query fallback
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      const fallbackPair = await fetchPairFallback();
+      if (!fallbackPair) break;
 
-        const key = pairKey(fallbackPair);
-        if (!seenPairs.current.has(key)) {
-          seenPairs.current.add(key);
-          setPair(fallbackPair);
-          setLoading(false);
-          return;
-        }
+      const key = pairKey(fallbackPair);
+      if (!seenPairs.current.has(key)) {
+        seenPairs.current.add(key);
+        setPair(fallbackPair);
+        setLoading(false);
+        return;
       }
     }
 

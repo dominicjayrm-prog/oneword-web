@@ -26,9 +26,11 @@ export function Nav() {
           <Button variant="dark" size="sm" as="a" href="#">
             {t('download')}
           </Button>
-          <Button variant="primary" size="sm" as="a" href="/play">
-            {t('play_now')}
-          </Button>
+          <Link href="/play">
+            <Button variant="primary" size="sm">
+              {t('play_now')}
+            </Button>
+          </Link>
         </div>
 
         <button
@@ -59,9 +61,11 @@ export function Nav() {
           <Button variant="dark" size="sm" as="a" href="#">
             {t('download')}
           </Button>
-          <Button variant="primary" size="sm" as="a" href="/play">
-            {t('play_now')}
-          </Button>
+          <Link href="/play">
+            <Button variant="primary" size="sm">
+              {t('play_now')}
+            </Button>
+          </Link>
         </div>
       )}
     </nav>

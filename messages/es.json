@@ -192,7 +192,9 @@
     "language": "Idioma",
     "log_out": "Cerrar sesi\u00f3n",
     "delete_account": "Eliminar cuenta",
-    "delete_confirm": "\u00bfEst\u00e1s seguro de que quieres eliminar tu cuenta? Esta acci\u00f3n no se puede deshacer."
+    "delete_confirm": "\u00bfEst\u00e1s seguro de que quieres eliminar tu cuenta? Esta acci\u00f3n no se puede deshacer.",
+    "delete_error": "No se pudo eliminar la cuenta. Por favor, int\u00e9ntalo de nuevo.",
+    "deleting": "Eliminando..."
   },
   "privacy": {
     "title": "Pol\u00edtica de Privacidad",

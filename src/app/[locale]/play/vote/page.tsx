@@ -16,7 +16,7 @@ export default function VotePage() {
   const lang = profile?.language || 'en';
   const t = useTranslations('vote');
   const tGame = useTranslations('game');
-  const { word, userDescription, loading: wordLoading, fetchUserDescription } = useWord(lang);
+  const { word, userDescription, loading: wordLoading, error: wordError, fetchUserDescription } = useWord(lang);
   const { pair, loading: voteLoading, votesCount, noMorePairs, fetchPair, submitVote } = useVoting(
     word?.id,
     user?.id
@@ -33,15 +33,31 @@ export default function VotePage() {
     if (userDescription !== null) {
       setHasPlayed(true);
       fetchPair();
-    } else if (!wordLoading && word) {
-      setHasPlayed(!!userDescription);
+    } else if (!wordLoading && word && user) {
+      // Only set hasPlayed=false after we've had time to fetch the description
+      // fetchUserDescription is triggered in the effect above; wait for it to resolve
+      // If userDescription is still null after word+user are ready, a brief delay
+      // ensures the fetch has completed before showing "play first"
+      const timer = setTimeout(() => {
+        if (!userDescription) setHasPlayed(false);
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [userDescription, wordLoading, word]);
+  }, [userDescription, wordLoading, word, user]);
 
-  if (wordLoading || !word) {
+  if (wordLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (wordError || !word) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+        <p className="font-serif text-2xl text-text">{wordError || tGame('no_word')}</p>
+        <p className="text-text-muted">{tGame('check_back')}</p>
       </div>
     );
   }
