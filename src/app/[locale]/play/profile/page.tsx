@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
@@ -13,6 +13,12 @@ export default function ProfilePage() {
   const locale = useLocale();
   const t = useTranslations('profile');
   const [language, setLanguage] = useState(profile?.language || 'en');
+  const [deleting, setDeleting] = useState(false);
+
+  // Sync language state when profile loads (initial render may have null profile)
+  useEffect(() => {
+    if (profile?.language) setLanguage(profile.language);
+  }, [profile?.language]);
   const router = useRouter();
   const supabase = createClient();
 
@@ -39,11 +45,17 @@ export default function ProfilePage() {
 
   async function handleDeleteAccount() {
     if (!confirm(t('delete_confirm'))) return;
-    if (user) {
-      await supabase.rpc('delete_own_account');
-      await signOut();
-      router.push('/');
+    if (!user) return;
+    setDeleting(true);
+    const { error } = await supabase.rpc('delete_own_account');
+    if (error) {
+      console.error('delete_own_account error:', error.code, error.message);
+      alert(t('delete_error') || 'Failed to delete account. Please try again.');
+      setDeleting(false);
+      return;
     }
+    await signOut();
+    router.push('/');
   }
 
   const stats = [
@@ -103,9 +115,10 @@ export default function ProfilePage() {
         </Button>
         <button
           onClick={handleDeleteAccount}
-          className="text-sm text-text-muted hover:text-primary transition-colors cursor-pointer"
+          disabled={deleting}
+          className="text-sm text-text-muted hover:text-primary transition-colors cursor-pointer disabled:opacity-50"
         >
-          {t('delete_account')}
+          {deleting ? t('deleting') || 'Deleting...' : t('delete_account')}
         </button>
       </div>
     </div>

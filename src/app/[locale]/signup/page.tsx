@@ -20,6 +20,7 @@ export default function SignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return; // Prevent double-submit
     setError('');
     setLoading(true);
 
@@ -44,20 +45,22 @@ export default function SignupPage() {
     }
 
     if (data.user) {
+      // Wait briefly for DB trigger, then upsert to ensure profile exists
       await new Promise((r) => setTimeout(r, 500));
-      const { data: profile } = await supabase
+      const { error: upsertError } = await supabase
         .from('profiles')
-        .select('id')
-        .eq('id', data.user.id)
-        .single();
-      if (!profile) {
-        await supabase.from('profiles').insert({
+        .upsert({
           id: data.user.id,
           username,
           language,
-        });
+        }, { onConflict: 'id' });
+      if (upsertError) {
+        console.error('Profile upsert error:', upsertError.code, upsertError.message);
       }
+      setLoading(false);
       router.push('/play');
+    } else {
+      setLoading(false);
     }
   }
 

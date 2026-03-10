@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -14,11 +14,19 @@ interface VotePairProps {
 export function VotePair({ optionA, optionB, onVote }: VotePairProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const t = useTranslations('game');
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up timeout on unmount to prevent firing onVote after navigation
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   function handleVote(winnerId: string, loserId: string) {
     if (selected) return;
     setSelected(winnerId);
-    setTimeout(() => onVote(winnerId, loserId), 600);
+    timerRef.current = setTimeout(() => onVote(winnerId, loserId), 600);
   }
 
   return (

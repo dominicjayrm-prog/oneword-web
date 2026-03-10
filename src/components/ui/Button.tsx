@@ -19,7 +19,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    'inline-flex items-center justify-center font-medium rounded-full transition-all duration-200 cursor-pointer';
+    'inline-flex items-center justify-center font-medium rounded-full transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
     primary: 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20',

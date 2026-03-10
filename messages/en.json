@@ -160,7 +160,8 @@
     "your_result": "Your result",
     "out_of": "out of {count} players",
     "share_result": "Share Result",
-    "share_text": "OneWord - {word}\n\n\u201c{desc}\u201d\n\nI ranked #{rank} out of {total} players!\n\nPlay at oneword.game"
+    "share_text": "OneWord - {word}\n\n\u201c{desc}\u201d\n\nI ranked #{rank} out of {total} players!\n\nPlay at oneword.game",
+    "you_label": "YOU"
   },
   "friends_page": {
     "title": "Friends",
@@ -192,7 +193,9 @@
     "language": "Language",
     "log_out": "Log out",
     "delete_account": "Delete account",
-    "delete_confirm": "Are you sure you want to delete your account? This cannot be undone."
+    "delete_confirm": "Are you sure you want to delete your account? This cannot be undone.",
+    "delete_error": "Failed to delete account. Please try again.",
+    "deleting": "Deleting..."
   },
   "privacy": {
     "title": "Privacy Policy",

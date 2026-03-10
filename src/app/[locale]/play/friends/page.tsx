@@ -26,11 +26,13 @@ export default function FriendsPage() {
 
   useEffect(() => {
     if (user) {
-      fetchFriends();
-      if (word) {
-        fetchUserDescription(user.id);
-        fetchFriendsDescriptions(word.id);
-      }
+      // Fetch friends first, then descriptions (fallback path needs friends list)
+      fetchFriends().then(() => {
+        if (word) {
+          fetchUserDescription(user.id);
+          fetchFriendsDescriptions(word.id);
+        }
+      });
       fetchPending();
     }
   }, [user, word]);

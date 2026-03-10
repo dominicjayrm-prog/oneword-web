@@ -37,6 +37,18 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  function redirectToLogin(pathname: string) {
+    const locale = pathname.startsWith('/es') ? 'es' : 'en';
+    const url = request.nextUrl.clone();
+    url.pathname = locale === 'en' ? '/login' : `/${locale}/login`;
+    const redirectResponse = NextResponse.redirect(url);
+    // Preserve any refreshed session cookies from the supabase response
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value);
+    });
+    return redirectResponse;
+  }
+
   try {
     const {
       data: { user },
@@ -45,19 +57,13 @@ export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
     const isPlay = pathname.match(/^\/(es)\/play/) || pathname.match(/^\/play/);
     if (!user && isPlay) {
-      const locale = pathname.startsWith('/es') ? 'es' : 'en';
-      const url = request.nextUrl.clone();
-      url.pathname = locale === 'en' ? '/login' : `/${locale}/login`;
-      return NextResponse.redirect(url);
+      return redirectToLogin(pathname);
     }
   } catch {
     const pathname = request.nextUrl.pathname;
     const isPlay = pathname.match(/^\/(es)\/play/) || pathname.match(/^\/play/);
     if (isPlay) {
-      const locale = pathname.startsWith('/es') ? 'es' : 'en';
-      const url = request.nextUrl.clone();
-      url.pathname = locale === 'en' ? '/login' : `/${locale}/login`;
-      return NextResponse.redirect(url);
+      return redirectToLogin(pathname);
     }
   }
 

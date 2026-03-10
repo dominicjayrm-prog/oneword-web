@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
+import { Link } from '@/i18n/navigation';
 import { getRankEmoji } from '@/lib/utils';
 
 interface LeaderboardEntry {
@@ -86,7 +87,9 @@ export function LiveLeaderboard() {
         setEntries(leaderboardEntries);
       }
     }
-    fetchData();
+    fetchData().catch((err) => {
+      console.error('LiveLeaderboard fetch error:', err);
+    });
   }, [locale]);
 
   return (
@@ -144,9 +147,11 @@ export function LiveLeaderboard() {
               <p className="text-lg text-text-muted-light">
                 {t('empty_title')}
               </p>
-              <Button variant="primary" size="lg" as="a" href="/play" className="mt-6">
-                {t('play_now')}
-              </Button>
+              <Link href="/play">
+                <Button variant="primary" size="lg" className="mt-6">
+                  {t('play_now')}
+                </Button>
+              </Link>
             </div>
           ) : null}
         </div>
@@ -154,9 +159,9 @@ export function LiveLeaderboard() {
         {entries.length > 0 && (
           <p className="mt-8 text-lg text-text-muted-light">
             {t('think_better')}{' '}
-            <a href="/play" className="font-semibold text-primary hover:underline">
+            <Link href="/play" className="font-semibold text-primary hover:underline">
               {t('play_now')}
-            </a>
+            </Link>
           </p>
         )}
       </div>

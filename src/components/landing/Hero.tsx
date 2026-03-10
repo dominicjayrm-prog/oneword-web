@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/Button';
 
 export function Hero() {
@@ -72,9 +73,11 @@ export function Hero() {
           <Button variant="dark" size="lg" as="a" href="#">
             &#127822; {t('cta_appstore')}
           </Button>
-          <Button variant="outline" size="lg" as="a" href="/play">
-            &#127760; {t('cta_web')}
-          </Button>
+          <Link href="/play">
+            <Button variant="outline" size="lg">
+              &#127760; {t('cta_web')}
+            </Button>
+          </Link>
         </div>
       </motion.div>
     </section>
