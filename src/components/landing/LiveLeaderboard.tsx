@@ -87,7 +87,9 @@ export function LiveLeaderboard() {
         setEntries(leaderboardEntries);
       }
     }
-    fetchData();
+    fetchData().catch((err) => {
+      console.error('LiveLeaderboard fetch error:', err);
+    });
   }, [locale]);
 
   return (

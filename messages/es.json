@@ -160,7 +160,8 @@
     "your_result": "Tu resultado",
     "out_of": "de {count} jugadores",
     "share_result": "Compartir resultado",
-    "share_text": "OneWord - {word}\n\n\u201c{desc}\u201d\n\n\u00a1Qued\u00e9 #{rank} de {total} jugadores!\n\nJuega en oneword.game"
+    "share_text": "OneWord - {word}\n\n\u201c{desc}\u201d\n\n\u00a1Qued\u00e9 #{rank} de {total} jugadores!\n\nJuega en oneword.game",
+    "you_label": "T\u00da"
   },
   "friends_page": {
     "title": "Amigos",

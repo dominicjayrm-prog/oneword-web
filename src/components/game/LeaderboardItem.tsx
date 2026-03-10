@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { getRankEmoji } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +17,7 @@ export function LeaderboardItem({
   voteCount,
   isCurrentUser,
 }: LeaderboardItemProps) {
+  const t = useTranslations('results');
   return (
     <div
       className={cn(
@@ -40,7 +42,7 @@ export function LeaderboardItem({
         <p className="text-sm text-text-muted">
           @{username}
           {isCurrentUser && (
-            <span className="ml-2 text-xs font-bold text-primary">YOU</span>
+            <span className="ml-2 text-xs font-bold text-primary">{t('you_label')}</span>
           )}
         </p>
       </div>
