@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { getGameDate, hasWordRolledOver } from '@/lib/gameDate';
 import type { DailyWord, Description } from '@/types';
 
 function extractWord(data: unknown): DailyWord | null {
   if (!data) return null;
-  // Handle array response (Supabase RPCs can return arrays)
   const row = Array.isArray(data) ? data[0] : data;
   if (row && typeof row === 'object' && 'id' in row && 'word' in row) {
     return row as DailyWord;
@@ -19,42 +19,65 @@ export function useWord(language = 'en') {
   const [userDescription, setUserDescription] = useState<Description | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const gameDateRef = useRef(getGameDate());
   const supabase = createClient();
 
-  useEffect(() => {
-    async function fetchWord() {
-      setLoading(true);
-      setError(null);
+  const fetchWord = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-      // Try the RPC first
-      const { data, error: rpcError } = await supabase.rpc('get_today_word', { p_language: language });
-      const extracted = extractWord(data);
-      if (extracted) {
-        setWord(extracted);
-        setLoading(false);
-        return;
-      }
-
-      // Fallback: query daily_words table directly
-      const today = new Date().toISOString().split('T')[0];
-      const { data: fallbackData, error: fallbackError } = await supabase
-        .from('daily_words')
-        .select('*')
-        .eq('date', today)
-        .eq('language', language)
-        .single();
-
-      const fallbackWord = extractWord(fallbackData);
-      if (fallbackWord) {
-        setWord(fallbackWord);
-      } else {
-        console.error('Failed to fetch today\'s word:', rpcError, fallbackError);
-        setError('No word available for today');
-      }
+    const { data, error: rpcError } = await supabase.rpc('get_today_word', { p_language: language });
+    const extracted = extractWord(data);
+    if (extracted) {
+      setWord(extracted);
       setLoading(false);
+      gameDateRef.current = getGameDate();
+      return;
     }
-    fetchWord();
+
+    const today = getGameDate();
+    const { data: fallbackData, error: fallbackError } = await supabase
+      .from('daily_words')
+      .select('*')
+      .eq('date', today)
+      .eq('language', language)
+      .single();
+
+    const fallbackWord = extractWord(fallbackData);
+    if (fallbackWord) {
+      setWord(fallbackWord);
+    } else {
+      console.error('Failed to fetch today\'s word:', rpcError, fallbackError);
+      setError('No word available for today');
+    }
+    gameDateRef.current = getGameDate();
+    setLoading(false);
   }, [language]);
+
+  useEffect(() => {
+    fetchWord();
+  }, [fetchWord]);
+
+  // Auto-refresh on rollover: poll every 60s + visibility change
+  useEffect(() => {
+    function checkRollover() {
+      if (hasWordRolledOver(gameDateRef.current)) {
+        setUserDescription(null);
+        fetchWord();
+      }
+    }
+
+    const interval = setInterval(checkRollover, 60_000);
+    function handleVisibility() {
+      if (document.visibilityState === 'visible') checkRollover();
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [fetchWord]);
 
   async function fetchUserDescription(userId: string) {
     if (!word) return;
@@ -72,7 +95,7 @@ export function useWord(language = 'en') {
     }
   }
 
-  async function submitDescription(userId: string, description: string) {
+  async function submitDescription(userId: string, description: string): Promise<{ oldStreak: number } | null> {
     if (!word) return null;
     const { data, error } = await supabase
       .from('descriptions')
@@ -88,8 +111,23 @@ export function useWord(language = 'en') {
       throw new Error(error.message);
     }
     setUserDescription(data);
-    return data;
+
+    // Get current streak before update
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('current_streak')
+      .eq('id', userId)
+      .single();
+    const oldStreak = profileData?.current_streak ?? 0;
+
+    // Call update_streak RPC
+    const { error: streakError } = await supabase.rpc('update_streak', { p_user_id: userId });
+    if (streakError) {
+      console.error('update_streak error:', streakError.code, streakError.message);
+    }
+
+    return { oldStreak };
   }
 
-  return { word, userDescription, loading, error, fetchUserDescription, submitDescription };
+  return { word, userDescription, loading, error, fetchUserDescription, submitDescription, refetch: fetchWord };
 }

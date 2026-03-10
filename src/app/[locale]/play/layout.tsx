@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { NetworkBanner } from '@/components/ui/NetworkBanner';
 import { cn } from '@/lib/utils';
 
 export default function PlayLayout({ children }: { children: React.ReactNode }) {
@@ -36,12 +37,11 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
     );
   }
 
-  // Build locale-prefixed paths for comparison
-  // With localePrefix: 'as-needed', English has no prefix
   const localePrefix = locale === 'en' ? '' : `/${locale}`;
 
   return (
     <div className="flex min-h-screen flex-col">
+      <NetworkBanner />
       <nav className="sticky top-0 z-50 border-b border-border bg-bg/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
           <Link href="/" className="font-serif text-xl font-bold">
@@ -72,7 +72,7 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
               className="flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-sm font-medium text-text hover:bg-border transition-colors"
             >
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
-                {profile.username?.[0]?.toUpperCase() || '?'}
+                {profile.avatar_url || profile.username?.[0]?.toUpperCase() || '?'}
               </div>
               <span className="hidden sm:inline">{profile.username}</span>
             </Link>

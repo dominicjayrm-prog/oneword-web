@@ -10,7 +10,11 @@ import { WordDisplay } from '@/components/game/WordDisplay';
 import { LeaderboardItem } from '@/components/game/LeaderboardItem';
 import { ShareCard } from '@/components/game/ShareCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { Button } from '@/components/ui/Button';
+import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
+
+const LEADERBOARD_LIMIT = 20;
 
 type Tab = 'global' | 'friends';
 
@@ -24,15 +28,26 @@ export default function ResultsPage() {
   const { entries, loading: lbLoading, fetchLeaderboard } = useLeaderboard(word?.id);
   const { friends, friendsDescriptions, fetchFriends, fetchFriendsDescriptions } = useFriends(user?.id);
   const [tab, setTab] = useState<Tab>('global');
+  const [hasPlayed, setHasPlayed] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (user && word) {
       fetchUserDescription(user.id);
-      fetchLeaderboard(100);
-      // Fetch friends first, then their descriptions (fallback path needs friends list)
+      fetchLeaderboard(LEADERBOARD_LIMIT);
       fetchFriends().then(() => fetchFriendsDescriptions(word.id));
     }
   }, [user, word]);
+
+  useEffect(() => {
+    if (userDescription !== null) {
+      setHasPlayed(true);
+    } else if (!wordLoading && word && user) {
+      const timer = setTimeout(() => {
+        if (!userDescription) setHasPlayed(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [userDescription, wordLoading, word, user]);
 
   if (wordLoading) {
     return (
@@ -51,10 +66,21 @@ export default function ResultsPage() {
     );
   }
 
+  // Locked state — must play first
+  if (hasPlayed === false) {
+    return (
+      <div className="flex flex-col items-center text-center">
+        <WordDisplay word={word.word} category={word.category} />
+        <p className="mt-8 text-lg text-text-muted">{t('play_first')}</p>
+        <Link href="/play" className="mt-4">
+          <Button variant="primary" size="lg">{t('play_now')}</Button>
+        </Link>
+      </div>
+    );
+  }
+
   const userEntry = entries.find((e) => e.user_id === user?.id);
-  const userRank = userEntry
-    ? entries.indexOf(userEntry) + 1
-    : null;
+  const userRank = userEntry ? entries.indexOf(userEntry) + 1 : null;
 
   return (
     <div className="flex flex-col items-center">
@@ -68,6 +94,8 @@ export default function ResultsPage() {
             description={userDescription.description}
             rank={userRank}
             totalPlayers={entries.length}
+            streak={profile?.current_streak}
+            votes={userEntry?.vote_count}
           />
         </div>
       )}
@@ -102,6 +130,7 @@ export default function ResultsPage() {
                 username={entry.username}
                 voteCount={entry.vote_count}
                 isCurrentUser={entry.user_id === user?.id}
+                badgeEmoji={(entry as unknown as Record<string, unknown>).streak_badge_emoji as string | undefined}
               />
             ))
           ) : (
