@@ -40,7 +40,7 @@ export function LeaderboardItem({
         {getRankEmoji(rank)}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="font-serif text-base text-text truncate">
+        <p className="font-serif text-base text-text break-words">
           &ldquo;{description}&rdquo;
         </p>
         <p className="text-sm text-text-muted">
