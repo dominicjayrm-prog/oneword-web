@@ -58,12 +58,14 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
   const [votesCount, setVotesCount] = useState(0);
   const [noMorePairs, setNoMorePairs] = useState(false);
   const [batchExhausted, setBatchExhausted] = useState(false);
+  const batchExhaustedRef = useRef(false);
   const seenPairs = useRef<Set<string>>(new Set());
   const supabase = createClient();
 
-  // Reset seen pairs and restore vote count when word changes
+  // Reset state and restore vote count when word changes
   useEffect(() => {
     seenPairs.current = new Set();
+    batchExhaustedRef.current = false;
     if (!wordId) return;
     const key = getStorageKey(wordId);
     const stored = localStorage.getItem(key);
@@ -72,6 +74,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       if (!isNaN(count)) {
         setVotesCount(count);
         if (count >= VOTE_BATCH_SIZE) {
+          batchExhaustedRef.current = true;
           setBatchExhausted(true);
         }
       }
@@ -109,7 +112,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
 
   const fetchPair = useCallback(async () => {
     if (!wordId || !voterId) return;
-    if (batchExhausted) return;
+    if (batchExhaustedRef.current) return;
     setLoading(true);
 
     const MAX_RETRIES = 5;
@@ -155,7 +158,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
 
     setNoMorePairs(true);
     setLoading(false);
-  }, [wordId, voterId, fetchPairFallback, batchExhausted]);
+  }, [wordId, voterId, fetchPairFallback]);
 
   async function submitVote(winnerId: string, loserId: string) {
     if (!wordId || !voterId) return;
@@ -192,6 +195,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
     }
 
     if (newCount >= VOTE_BATCH_SIZE) {
+      batchExhaustedRef.current = true;
       setBatchExhausted(true);
       setPair(null);
     } else {

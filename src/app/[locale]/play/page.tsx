@@ -43,14 +43,15 @@ export default function PlayPage() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const interstitialStartedRef = useRef(false);
 
-  // Onboarding gate
+  // Onboarding gate — only for brand-new users who have never played
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (!localStorage.getItem('hasSeenOnboarding')) {
-        setShowOnboarding(true);
-      }
+    if (typeof window === 'undefined' || !profile) return;
+    // If the user has any plays, they're not new — never show onboarding
+    if ((profile.total_plays ?? 0) > 0) return;
+    if (!localStorage.getItem('hasSeenOnboarding')) {
+      setShowOnboarding(true);
     }
-  }, []);
+  }, [profile]);
 
   function handleOnboardingComplete() {
     localStorage.setItem('hasSeenOnboarding', 'true');
@@ -94,8 +95,10 @@ export default function PlayPage() {
             p_user_id: user!.id,
             p_language: lang,
           });
-          if (data && (Array.isArray(data) ? data[0] : data)?.winner_description) {
-            return (Array.isArray(data) ? data[0] : data) as YesterdayWinnerData;
+          const row = data && (Array.isArray(data) ? data[0] : data);
+          // Only show if user actually played yesterday (has a description)
+          if (row?.winner_description && row?.user_description) {
+            return row as YesterdayWinnerData;
           }
           return null;
         })(),
