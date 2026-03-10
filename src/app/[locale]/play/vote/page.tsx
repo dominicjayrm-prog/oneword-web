@@ -34,7 +34,8 @@ export default function VotePage() {
   useEffect(() => {
     if (userDescription !== null) {
       setHasPlayed(true);
-      if (!batchExhausted) fetchPair();
+      // fetchPair internally checks batchExhaustedRef, so safe to call always
+      fetchPair();
     } else if (!wordLoading && word && user && hasPlayed === null) {
       // Delay briefly to allow fetchUserDescription to complete
       const timer = setTimeout(() => {
@@ -42,7 +43,7 @@ export default function VotePage() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [userDescription, wordLoading, word, user, batchExhausted, hasPlayed]);
+  }, [userDescription, wordLoading, word, user, hasPlayed]);
 
   if (wordLoading) {
     return (
@@ -123,11 +124,9 @@ export default function VotePage() {
     <div className="flex flex-col items-center">
       <WordDisplay word={word.word} category={word.category} />
 
-      {votesCount > 0 && (
-        <p className="mt-4 text-sm text-text-muted">
-          {t('vote_number', { count: votesCount + 1 })} / {VOTE_BATCH_SIZE}
-        </p>
-      )}
+      <p className="mt-4 text-sm text-text-muted">
+        {t('vote_number', { count: votesCount + 1 })} / {VOTE_BATCH_SIZE}
+      </p>
 
       <div className="mt-8 w-full">
         {voteLoading || !pair ? (
