@@ -132,7 +132,7 @@ export function LiveLeaderboard() {
               >
                 <span className="text-2xl">{getRankEmoji(i + 1)}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="font-serif text-lg text-white truncate">
+                  <p className="font-serif text-lg text-white break-words">
                     &ldquo;{entry.description}&rdquo;
                   </p>
                   <p className="text-sm text-text-muted-light">@{entry.username}</p>
