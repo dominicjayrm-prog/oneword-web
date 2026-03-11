@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { checkRateLimit } from '@/lib/rateLimit';
@@ -18,7 +18,15 @@ export function ReportDialog({ descriptionId, wordId, reporterId, onClose, onRep
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const t = useTranslations('report');
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   async function handleReport() {
     if (!checkRateLimit('report')) {
@@ -42,16 +50,22 @@ export function ReportDialog({ descriptionId, wordId, reporterId, onClose, onRep
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-6">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-6"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="report-dialog-title"
+    >
       <div className="w-full max-w-sm rounded-2xl bg-bg p-6 text-center">
         {status === 'success' ? (
           <>
-            <p className="text-2xl">✓</p>
+            <p className="text-2xl" aria-hidden="true">✓</p>
             <p className="mt-2 text-sm font-medium text-green">{t('report_success')}</p>
           </>
         ) : (
           <>
-            <h3 className="font-serif text-xl font-bold text-text">{t('title')}</h3>
+            <h3 id="report-dialog-title" className="font-serif text-xl font-bold text-text">{t('title')}</h3>
             <p className="mt-2 text-sm text-text-muted">{t('confirm')}</p>
             {status === 'error' && (
               <p className="mt-2 text-sm text-red-500">{t('rate_limited')}</p>

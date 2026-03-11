@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
@@ -15,11 +15,11 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (loading) return; // Prevent double-submit
+    if (loading) return;
     setError('');
     setLoading(true);
 
@@ -28,7 +28,6 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      // Force server to pick up the new session cookies before navigating
       router.refresh();
       router.push('/play');
     }
@@ -49,13 +48,14 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
           {error && (
-            <div className="rounded-xl bg-primary-light px-4 py-3 text-sm text-primary">
+            <div role="alert" className="rounded-xl bg-primary-light px-4 py-3 text-sm text-primary">
               {error}
             </div>
           )}
           <input
             type="email"
             placeholder={t('login_email')}
+            aria-label={t('login_email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -64,6 +64,7 @@ export default function LoginPage() {
           <input
             type="password"
             placeholder={t('login_password')}
+            aria-label={t('login_password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

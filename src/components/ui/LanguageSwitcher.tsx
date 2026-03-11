@@ -15,9 +15,10 @@ export function LanguageSwitcher() {
   }
 
   return (
-    <div className="flex items-center gap-1 text-sm">
+    <nav aria-label="Language switcher" className="flex items-center gap-1 text-sm">
       <button
         onClick={() => switchTo('en')}
+        aria-current={locale === 'en' ? 'true' : undefined}
         className={cn(
           'cursor-pointer rounded px-2 py-1 font-medium transition-colors',
           locale === 'en' ? 'text-primary' : 'text-text-muted hover:text-text'
@@ -28,6 +29,7 @@ export function LanguageSwitcher() {
       <span className="text-border">|</span>
       <button
         onClick={() => switchTo('es')}
+        aria-current={locale === 'es' ? 'true' : undefined}
         className={cn(
           'cursor-pointer rounded px-2 py-1 font-medium transition-colors',
           locale === 'es' ? 'text-primary' : 'text-text-muted hover:text-text'
@@ -35,6 +37,6 @@ export function LanguageSwitcher() {
       >
         ES
       </button>
-    </div>
+    </nav>
   );
 }

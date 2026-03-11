@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { NextIntlClientProvider, useMessages } from 'next-intl';
+import { NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { DM_Sans, DM_Mono, Playfair_Display } from 'next/font/google';
@@ -45,15 +45,6 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
-    keywords: [
-      'word game',
-      'daily game',
-      'wordle alternative',
-      'creative writing game',
-      'vocabulary game',
-      'five words',
-      'oneword game',
-    ],
     openGraph: {
       title: t('og_title'),
       description: t('og_description'),
@@ -93,6 +84,9 @@ export default async function LocaleLayout({ children, params }: Props) {
         <meta name="theme-color" content="#FF6B4A" />
       </head>
       <body className="font-sans antialiased">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[999] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white focus:outline-none">
+          Skip to content
+        </a>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AuthProvider>
             <ToastProvider>{children}</ToastProvider>

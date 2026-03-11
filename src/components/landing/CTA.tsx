@@ -80,6 +80,7 @@ export function CTA() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={te('placeholder')}
+            aria-label={te('placeholder')}
             disabled={isSuccess}
             className="h-[52px] flex-1 rounded-[14px] border border-border bg-white px-5 text-base text-text outline-none transition-colors placeholder:text-text-muted/50 focus:border-primary disabled:opacity-60"
           />

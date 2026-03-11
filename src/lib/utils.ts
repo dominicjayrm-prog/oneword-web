@@ -15,7 +15,10 @@ export function getRankEmoji(rank: number): string {
   return `#${rank}`;
 }
 
-export function getOrdinal(n: number): string {
+export function getOrdinal(n: number, locale?: string): string {
+  if (locale === 'es') {
+    return `${n}º`;
+  }
   const s = ['th', 'st', 'nd', 'rd'];
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);

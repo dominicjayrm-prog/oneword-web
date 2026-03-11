@@ -48,6 +48,14 @@ export function StreakCelebration({ badge, streak, locale = 'en', onDismiss }: S
   const isEternal = badge.streak === 365;
   const confettiCount = isEternal ? 50 : 35;
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onDismiss();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onDismiss]);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -55,6 +63,9 @@ export function StreakCelebration({ badge, streak, locale = 'en', onDismiss }: S
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onDismiss}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('unlocked')}
         className="fixed inset-0 z-[200] flex items-center justify-center cursor-pointer"
         style={{
           background: `linear-gradient(to bottom, ${badge.bgGrad[0]}, ${badge.bgGrad[1]})`,

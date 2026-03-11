@@ -132,7 +132,8 @@
     "signup_username_invalid_chars": "Username can only contain letters, numbers, and underscores",
     "signup_check_email": "Check your email to confirm your account, then log in.",
     "language_en": "English",
-    "language_es": "Espa\u00f1ol"
+    "language_es": "Espa\u00f1ol",
+    "language_label": "Language"
   },
   "game": {
     "todays_word": "today's word",
@@ -158,6 +159,7 @@
     "all_done": "All done! You voted on {count} pairs \ud83c\udf89",
     "not_enough": "Not enough descriptions yet. Check back later!",
     "vote_number": "Vote {count}",
+    "vote_progress": "{current} / {total}",
     "great_work": "Great work! \ud83c\udf89",
     "voted_count": "You voted on {count} pairs. Check back later for more!"
   },
@@ -171,6 +173,7 @@
     "share_result": "Share Result",
     "share_text": "OneWord - {word}\n\n\u201c{desc}\u201d\n\nI ranked #{rank} out of {total} players!\n\nPlay at oneword.game",
     "you_label": "YOU",
+    "vote_count_short": "{count}v",
     "play_first": "Play today's word first to see results",
     "play_now": "Play Now",
     "votes_label": "votes",
@@ -212,6 +215,7 @@
     "language": "Language",
     "log_out": "Log out",
     "logout_confirm": "Are you sure you want to log out?",
+    "logout_confirm_yes": "Yes, log out",
     "delete_account": "Delete account",
     "delete_confirm": "Are you sure you want to delete your account? This cannot be undone.",
     "delete_error": "Failed to delete account. Please try again.",
@@ -264,6 +268,13 @@
     "step1_title": "Describe",
     "step1_desc": "Every day you get one word. Describe it in exactly five words. Be creative!",
     "example_word": "Example",
+    "example_word_value": "RAIN",
+    "example_pills": ["Wet", "dogs", "hate", "this", "stuff"],
+    "vote_option_a": "\"Wet dogs hate this stuff\"",
+    "vote_option_b": "\"Sky's way of crying softly\"",
+    "leaderboard_1": "\"Wet dogs hate this stuff\"",
+    "leaderboard_2": "\"Sky's way of crying softly\"",
+    "leaderboard_3": "\"Clouds weeping on my parade\"",
     "step2_title": "Vote",
     "step2_desc": "Read two descriptions and pick the one you like better. Your votes help decide the winner!",
     "step3_title": "Compete",
@@ -371,6 +382,8 @@
     "today": "Today",
     "vote": "Vote",
     "results": "Results",
-    "friends": "Friends"
+    "friends": "Friends",
+    "main_nav": "Main navigation",
+    "mobile_nav": "Mobile navigation"
   }
 }

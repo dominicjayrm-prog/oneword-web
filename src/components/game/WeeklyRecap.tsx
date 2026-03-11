@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { getCurrentBadge } from '@/lib/badges';
@@ -32,6 +33,14 @@ const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
   const t = useTranslations('weekly');
   const badge = getCurrentBadge(data.current_streak);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onDismiss();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onDismiss]);
   const improved = data.average_rank != null && data.previous_week_average_rank != null
     && data.average_rank < data.previous_week_average_rank;
 
@@ -47,6 +56,9 @@ export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto p-4"
       style={{ background: 'linear-gradient(to bottom, #1A1A2E, #2D1B69)' }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="weekly-recap-title"
     >
       <motion.div
         initial={{ scale: 0.9, y: 30 }}
@@ -56,7 +68,7 @@ export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
         <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
           {t('title')}
         </p>
-        <h1 className="mt-2 font-serif text-3xl font-black text-white">
+        <h1 id="weekly-recap-title" className="mt-2 font-serif text-3xl font-black text-white">
           {formatDate(data.week_start)} — {formatDate(data.week_end)}
         </h1>
 
@@ -92,7 +104,7 @@ export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
         {/* Day circles */}
         <div className="mt-8 flex justify-center gap-3">
           {DAY_LABELS.map((label, i) => (
-            <div key={i} className="flex flex-col items-center gap-1">
+            <div key={`${label}-${i}`} className="flex flex-col items-center gap-1">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
                   i < data.days_played

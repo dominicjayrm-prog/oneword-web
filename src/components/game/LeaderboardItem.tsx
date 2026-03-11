@@ -36,7 +36,7 @@ export function LeaderboardItem({
         isCurrentUser && 'ring-2 ring-primary/30'
       )}
     >
-      <span className="text-xl font-bold shrink-0 w-10 text-center">
+      <span className="text-xl font-bold shrink-0 w-10 text-center" aria-label={`#${rank}`}>
         {getRankEmoji(rank)}
       </span>
       <div className="flex-1 min-w-0">
@@ -44,13 +44,13 @@ export function LeaderboardItem({
           &ldquo;{description}&rdquo;
         </p>
         <p className="text-sm text-text-muted">
-          @{username} {badgeEmoji || ''}
+          @{username} {badgeEmoji && <span aria-hidden="true">{badgeEmoji}</span>}
           {isCurrentUser && (
             <span className="ml-2 text-xs font-bold text-primary">{t('you_label')}</span>
           )}
         </p>
       </div>
-      <span className="font-mono text-xs text-text-muted shrink-0">{voteCount}v</span>
+      <span className="font-mono text-xs text-text-muted shrink-0">{t('vote_count_short', { count: voteCount })}</span>
     </div>
   );
 }

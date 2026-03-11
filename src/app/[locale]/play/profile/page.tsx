@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
@@ -27,13 +27,22 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordRecovery, setPasswordRecovery] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile?.language) setLanguage(profile.language);
   }, [profile?.language]);
 
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+
+  const dismissPasswordRecovery = useCallback(() => {
+    setPasswordRecovery(false);
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordError(null);
+  }, []);
 
   // Listen for PASSWORD_RECOVERY event
   useEffect(() => {
@@ -43,7 +52,17 @@ export default function ProfilePage() {
       }
     });
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
+
+  // Escape key for password recovery modal
+  useEffect(() => {
+    if (!passwordRecovery) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') dismissPasswordRecovery();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [passwordRecovery, dismissPasswordRecovery]);
 
   if (loading || !profile) {
     return (
@@ -68,7 +87,6 @@ export default function ProfilePage() {
   }
 
   async function handleLogout() {
-    if (!confirm(t('logout_confirm'))) return;
     await signOut();
     router.push('/');
   }
@@ -80,7 +98,7 @@ export default function ProfilePage() {
     const { error } = await supabase.rpc('delete_own_account');
     if (error) {
       console.error('delete_own_account error:', error.code, error.message);
-      alert(t('delete_error'));
+      setDeleteError(t('delete_error'));
       setDeleting(false);
       return;
     }
@@ -133,12 +151,18 @@ export default function ProfilePage() {
     <div>
       {/* Password recovery modal */}
       {passwordRecovery && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
+          onClick={(e) => { if (e.target === e.currentTarget) dismissPasswordRecovery(); }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="password-recovery-title"
+        >
           <div className="w-full max-w-sm rounded-2xl bg-bg p-6">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif text-xl font-bold text-text">{t('set_new_password')}</h2>
+              <h2 id="password-recovery-title" className="font-serif text-xl font-bold text-text">{t('set_new_password')}</h2>
               <button
-                onClick={() => { setPasswordRecovery(false); setNewPassword(''); setConfirmPassword(''); setPasswordError(null); }}
+                onClick={dismissPasswordRecovery}
                 className="text-text-muted hover:text-text transition-colors cursor-pointer text-xl leading-none"
                 aria-label="Close"
               >
@@ -192,7 +216,7 @@ export default function ProfilePage() {
             key={stat.label}
             className="flex flex-col items-center rounded-2xl border border-border bg-white p-4"
           >
-            <span className="text-2xl">{stat.emoji}</span>
+            <span className="text-2xl" aria-hidden="true">{stat.emoji}</span>
             <span className="mt-1 font-mono text-2xl font-bold text-text">{stat.value}</span>
             <span className="text-xs text-text-muted">{stat.label}</span>
           </div>
@@ -267,9 +291,20 @@ export default function ProfilePage() {
 
       {/* Actions */}
       <div className="mt-8 flex flex-col gap-3">
-        <Button variant="outline" onClick={handleLogout}>
-          {t('log_out')}
-        </Button>
+        {!showLogoutConfirm ? (
+          <Button variant="outline" onClick={() => setShowLogoutConfirm(true)}>
+            {t('log_out')}
+          </Button>
+        ) : (
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1 border-red-300 text-red-600 hover:bg-red-50" onClick={handleLogout}>
+              {t('logout_confirm_yes')}
+            </Button>
+            <Button variant="ghost" className="flex-1" onClick={() => setShowLogoutConfirm(false)}>
+              {t('cancel')}
+            </Button>
+          </div>
+        )}
 
         {!showDeleteConfirm ? (
           <button
@@ -289,6 +324,9 @@ export default function ProfilePage() {
               onChange={(e) => setDeleteUsername(e.target.value)}
               className="mt-2 w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-text outline-none focus:border-red-400"
             />
+            {deleteError && (
+              <p className="mt-2 text-sm font-medium text-red-500">{deleteError}</p>
+            )}
             <div className="mt-3 flex gap-2">
               <Button
                 variant="primary"
@@ -299,7 +337,7 @@ export default function ProfilePage() {
               >
                 {deleting ? t('deleting') : t('confirm_delete')}
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => { setShowDeleteConfirm(false); setDeleteUsername(''); }}>
+              <Button variant="ghost" size="sm" onClick={() => { setShowDeleteConfirm(false); setDeleteUsername(''); setDeleteError(null); }}>
                 {t('cancel')}
               </Button>
             </div>

@@ -1,9 +1,8 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link, useRouter, usePathname } from '@/i18n/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { NetworkBanner } from '@/components/ui/NetworkBanner';
@@ -37,12 +36,10 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
     );
   }
 
-  const localePrefix = locale === 'en' ? '' : `/${locale}`;
-
   return (
     <div className="flex min-h-screen flex-col">
       <NetworkBanner />
-      <nav className="sticky top-0 z-50 border-b border-border bg-bg/85 backdrop-blur-xl">
+      <nav aria-label={t('main_nav') || 'Main navigation'} className="sticky top-0 z-50 border-b border-border bg-bg/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
           <Link href="/" className="font-serif text-xl font-bold">
             <span className="text-text">one</span>
@@ -50,28 +47,33 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
           </Link>
 
           <div className="hidden items-center gap-1 md:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-                  pathname === `${localePrefix}${link.href}`
-                    ? 'bg-primary-light text-primary'
-                    : 'text-text-muted hover:text-text'
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cn(
+                    'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary-light text-primary'
+                      : 'text-text-muted hover:text-text'
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           {profile && (
             <Link
               href="/play/profile"
               className="flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-sm font-medium text-text hover:bg-border transition-colors"
+              aria-label={profile.username}
             >
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white" aria-hidden="true">
                 {profile.avatar_url || profile.username?.[0]?.toUpperCase() || '?'}
               </div>
               <span className="hidden sm:inline">{profile.username}</span>
@@ -80,24 +82,28 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
         </div>
       </nav>
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <div className="mx-auto max-w-lg px-4 py-8">{children}</div>
       </main>
 
-      <nav className="sticky bottom-0 border-t border-border bg-bg/95 backdrop-blur-xl md:hidden">
+      <nav aria-label={t('mobile_nav') || 'Mobile navigation'} className="sticky bottom-0 border-t border-border bg-bg/95 backdrop-blur-xl md:hidden">
         <div className="flex items-center justify-around py-2">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                'flex flex-col items-center gap-0.5 px-3 py-1 text-xs font-medium transition-colors',
-                pathname === `${localePrefix}${link.href}` ? 'text-primary' : 'text-text-muted'
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={isActive ? 'page' : undefined}
+                className={cn(
+                  'flex flex-col items-center gap-0.5 px-3 py-1 text-xs font-medium transition-colors',
+                  isActive ? 'text-primary' : 'text-text-muted'
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
       </nav>
     </div>
