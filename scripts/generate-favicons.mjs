@@ -1,14 +1,14 @@
 import sharp from 'sharp';
 import { writeFileSync } from 'fs';
 
-const svgCircle = (size) => Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">
-  <circle cx="${size/2}" cy="${size/2}" r="${size/2}" fill="#FF6B4A"/>
-  <text x="${size/2}" y="${size * 0.72}" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="${size * 0.69}" fill="white">W</text>
+const svgIcon = (size) => Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">
+  <rect width="${size}" height="${size}" fill="white"/>
+  <text x="${size/2}" y="${size * 0.75}" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="${size * 0.75}" fill="#FF6B4A">W</text>
 </svg>`);
 
 const svgApple = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-  <rect width="180" height="180" rx="40" fill="#FF6B4A"/>
-  <text x="90" y="125" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="120" fill="white">W</text>
+  <rect width="180" height="180" fill="white"/>
+  <text x="90" y="130" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="130" fill="#FF6B4A">W</text>
 </svg>`);
 
 async function generatePng(svg, size, outputPath) {
@@ -19,7 +19,7 @@ async function generatePng(svg, size, outputPath) {
 async function generateIco(sizes) {
   // Generate individual PNGs for ICO
   const pngBuffers = await Promise.all(
-    sizes.map(size => sharp(svgCircle(size)).resize(size, size).png().toBuffer())
+    sizes.map(size => sharp(svgIcon(size)).resize(size, size).png().toBuffer())
   );
 
   // Build ICO file manually
@@ -66,8 +66,8 @@ async function generateIco(sizes) {
 }
 
 async function main() {
-  await generatePng(svgCircle(16), 16, 'public/favicon-16x16.png');
-  await generatePng(svgCircle(32), 32, 'public/favicon-32x32.png');
+  await generatePng(svgIcon(16), 16, 'public/favicon-16x16.png');
+  await generatePng(svgIcon(32), 32, 'public/favicon-32x32.png');
   await generatePng(svgApple, 180, 'public/apple-touch-icon.png');
   await generateIco([16, 32, 48]);
 }
