@@ -113,15 +113,25 @@ export default function FriendsPage() {
     if (!confirm(t('remove_confirm'))) return;
     if (!user) return;
 
-    // Find the friendship ID
-    const { data } = await supabase
+    // Try both directions to find the friendship
+    const { data: d1 } = await supabase
       .from('friendships')
       .select('id')
-      .or(`and(requester_id.eq.${user.id},addressee_id.eq.${friendId}),and(requester_id.eq.${friendId},addressee_id.eq.${user.id})`)
+      .eq('requester_id', user.id)
+      .eq('addressee_id', friendId)
       .eq('status', 'accepted')
-      .single();
-    if (data) {
-      await supabase.from('friendships').delete().eq('id', data.id);
+      .maybeSingle();
+
+    const friendship = d1 ?? (await supabase
+      .from('friendships')
+      .select('id')
+      .eq('requester_id', friendId)
+      .eq('addressee_id', user.id)
+      .eq('status', 'accepted')
+      .maybeSingle()).data;
+
+    if (friendship) {
+      await supabase.from('friendships').delete().eq('id', friendship.id);
       fetchFriends();
     }
   }

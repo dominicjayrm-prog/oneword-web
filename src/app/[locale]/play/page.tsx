@@ -42,6 +42,15 @@ export default function PlayPage() {
   const [celebrationStreak, setCelebrationStreak] = useState(0);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const interstitialStartedRef = useRef(false);
+  const interstitialWordIdRef = useRef<string | null>(null);
+
+  // Reset interstitial ref when word changes (day rollover)
+  useEffect(() => {
+    if (word && word.id !== interstitialWordIdRef.current) {
+      interstitialStartedRef.current = false;
+      interstitialWordIdRef.current = word.id;
+    }
+  }, [word]);
 
   // Onboarding gate — only for brand-new users who have never played
   useEffect(() => {
