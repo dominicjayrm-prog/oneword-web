@@ -38,7 +38,8 @@ export default function ResultsPage() {
       fetchLeaderboard(LEADERBOARD_LIMIT);
       fetchFriends().then(() => fetchFriendsDescriptions(word.id));
     }
-  }, [user, word]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, word, fetchLeaderboard, fetchFriends, fetchFriendsDescriptions]);
 
   useEffect(() => {
     if (userDescription !== null) {

@@ -29,6 +29,7 @@ export default function VotePage() {
     if (user && word) {
       fetchUserDescription(user.id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, word]);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function VotePage() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [userDescription, wordLoading, word, user, hasPlayed, restoring]);
+  }, [userDescription, wordLoading, word, user, hasPlayed, restoring, fetchPair]);
 
   if (wordLoading || restoring) {
     return (

@@ -127,6 +127,9 @@
     "signup_terms_link": "T\u00e9rminos de Uso",
     "signup_and": "y",
     "signup_privacy_link": "Pol\u00edtica de Privacidad",
+    "signup_username_too_short": "El nombre de usuario debe tener al menos 3 caracteres",
+    "signup_username_too_long": "El nombre de usuario debe tener 20 caracteres o menos",
+    "signup_username_invalid_chars": "El nombre de usuario solo puede contener letras, n\u00fameros y guiones bajos",
     "signup_check_email": "Revisa tu correo para confirmar tu cuenta, luego inicia sesi\u00f3n.",
     "language_en": "English",
     "language_es": "Espa\u00f1ol"
@@ -145,7 +148,9 @@
     "check_back": "Vuelve m\u00e1s tarde o contacta soporte.",
     "day_streak": "{count} d\u00eda{count, plural, one {} other {s}} de racha",
     "your_pick": "TU ELECCI\u00d3N \u2713",
-    "next_word_in": "Siguiente palabra en"
+    "next_word_in": "Siguiente palabra en",
+    "share_recap_text": "OneWord Resumen Semanal\n{days} días jugados · racha de {streak} días\n\nJuega en oneword.game",
+    "copied_to_clipboard": "¡Copiado al portapapeles!"
   },
   "vote": {
     "play_first": "Juega la palabra del d\u00eda antes de votar",
@@ -278,6 +283,7 @@
     "reporting": "Reportando...",
     "cancel": "Cancelar",
     "report_link": "Reportar",
+    "report_success": "Reporte enviado. Gracias.",
     "rate_limited": "Demasiados reportes. Por favor espera."
   },
   "network": {

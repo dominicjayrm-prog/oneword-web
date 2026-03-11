@@ -18,17 +18,32 @@ export default function SignupPage() {
   const router = useRouter();
   const supabase = createClient();
 
+  function validateUsername(value: string): string | null {
+    const trimmed = value.trim();
+    if (trimmed.length < 3) return t('signup_username_too_short');
+    if (trimmed.length > 20) return t('signup_username_too_long');
+    if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) return t('signup_username_invalid_chars');
+    return null;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (loading) return; // Prevent double-submit
     setError('');
+
+    const usernameError = validateUsername(username);
+    if (usernameError) {
+      setError(usernameError);
+      return;
+    }
+
     setLoading(true);
 
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { username, language },
+        data: { username: username.trim(), language },
       },
     });
 
@@ -45,20 +60,34 @@ export default function SignupPage() {
     }
 
     if (data.user) {
-      // Wait briefly for DB trigger, then upsert to ensure profile exists
-      await new Promise((r) => setTimeout(r, 500));
-      const { error: upsertError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: data.user.id,
-          username,
-          language,
-        }, { onConflict: 'id' });
-      if (upsertError) {
-        console.error('Profile upsert error:', upsertError.code, upsertError.message);
+      // Poll for profile existence instead of fragile timeout
+      const trimmedUsername = username.trim();
+      let profileReady = false;
+      for (let i = 0; i < 5; i++) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', data.user.id)
+          .maybeSingle();
+        if (profileData) {
+          profileReady = true;
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 300));
+      }
+      if (!profileReady) {
+        const { error: upsertError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            username: trimmedUsername,
+            language,
+          }, { onConflict: 'id' });
+        if (upsertError) {
+          console.error('Profile upsert error:', upsertError.code, upsertError.message);
+        }
       }
       setLoading(false);
-      // Force server to pick up the new session cookies before navigating
       router.refresh();
       router.push('/play');
     } else {
@@ -91,6 +120,9 @@ export default function SignupPage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            minLength={3}
+            maxLength={20}
+            pattern="[a-zA-Z0-9_]+"
             className="rounded-xl border border-border bg-white px-4 py-3 text-text outline-none focus:border-primary"
           />
           <input

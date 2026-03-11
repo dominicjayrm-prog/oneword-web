@@ -52,6 +52,10 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // If no code or exchange failed, redirect to login
-  return NextResponse.redirect(new URL('/login', request.url));
+  // If no code or exchange failed, redirect to login with error context
+  const loginUrl = new URL('/login', request.url);
+  if (code) {
+    loginUrl.searchParams.set('error', 'auth_failed');
+  }
+  return NextResponse.redirect(loginUrl);
 }

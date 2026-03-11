@@ -47,7 +47,8 @@ export default function FriendsPage() {
       });
       fetchPending();
     }
-  }, [user, word]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, word, fetchFriends, fetchFriendsDescriptions]);
 
   async function fetchPending() {
     if (!user) return;

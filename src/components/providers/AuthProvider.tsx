@@ -22,12 +22,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   async function fetchProfile(userId: string) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
-    if (data) setProfile(data);
+    if (error) {
+      console.error('fetchProfile error:', error.code, error.message);
+    }
+    if (data) {
+      setProfile(data);
+    } else {
+      setProfile(null);
+    }
   }
 
   async function refreshProfile() {
@@ -35,20 +42,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      setUser(user);
-      if (user) await fetchProfile(user.id);
-      setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-    });
+    let initialLoadDone = false;
 
+    // Listen for auth changes first to avoid race with getUser
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
+      const sessionUser = session?.user ?? null;
+      setUser(sessionUser);
+      if (sessionUser) {
+        fetchProfile(sessionUser.id).then(() => {
+          if (!initialLoadDone) {
+            initialLoadDone = true;
+            setLoading(false);
+          }
+        });
       } else {
         setProfile(null);
+        if (!initialLoadDone) {
+          initialLoadDone = true;
+          setLoading(false);
+        }
+      }
+    });
+
+    // Fallback: getUser in case onAuthStateChange doesn't fire initially
+    supabase.auth.getUser().then(async ({ data: { user: initialUser } }) => {
+      if (!initialLoadDone) {
+        setUser(initialUser);
+        if (initialUser) await fetchProfile(initialUser.id);
+        initialLoadDone = true;
+        setLoading(false);
+      }
+    }).catch(() => {
+      if (!initialLoadDone) {
+        initialLoadDone = true;
+        setLoading(false);
       }
     });
 

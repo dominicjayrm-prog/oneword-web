@@ -135,7 +135,16 @@ export default function ProfilePage() {
       {passwordRecovery && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
           <div className="w-full max-w-sm rounded-2xl bg-bg p-6">
-            <h2 className="font-serif text-xl font-bold text-text">{t('set_new_password')}</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-xl font-bold text-text">{t('set_new_password')}</h2>
+              <button
+                onClick={() => { setPasswordRecovery(false); setNewPassword(''); setConfirmPassword(''); setPasswordError(null); }}
+                className="text-text-muted hover:text-text transition-colors cursor-pointer text-xl leading-none"
+                aria-label="Close"
+              >
+                &times;
+              </button>
+            </div>
             <input
               type="password"
               placeholder={t('new_password')}

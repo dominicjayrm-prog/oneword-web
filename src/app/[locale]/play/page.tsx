@@ -19,6 +19,7 @@ import { StreakCelebration } from '@/components/game/StreakCelebration';
 import { Onboarding } from '@/components/game/Onboarding';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useToast } from '@/components/providers/ToastProvider';
 import { Link } from '@/i18n/navigation';
 import type { YesterdayWinnerData } from '@/components/game/YesterdayWinner';
 import type { WeeklyRecapData } from '@/components/game/WeeklyRecap';
@@ -30,6 +31,7 @@ export default function PlayPage() {
   const lang = profile?.language || locale;
   const t = useTranslations('game');
   const { word, userDescription, loading, error, fetchUserDescription, submitDescription } = useWord(lang);
+  const { showToast } = useToast();
   const [lockedIn, setLockedIn] = useState(false);
   const supabase = createClient();
 
@@ -156,11 +158,17 @@ export default function PlayPage() {
 
   async function handleShare() {
     if (weeklyData) {
-      const text = `OneWord Weekly Recap\n${weeklyData.days_played}/7 days played\nStreak: ${weeklyData.current_streak}\n\nPlay at oneword.game`;
+      const text = t('share_recap_text', {
+        days: weeklyData.days_played,
+        streak: weeklyData.current_streak,
+      });
       if (navigator.share) {
         try { await navigator.share({ text }); } catch { /* cancelled */ }
       } else {
-        try { await navigator.clipboard.writeText(text); } catch { /* n/a */ }
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast(t('copied_to_clipboard'), 'success');
+        } catch { /* n/a */ }
       }
     }
   }

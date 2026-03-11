@@ -2,9 +2,29 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider, useMessages } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { DM_Sans, DM_Mono, Playfair_Display } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { ToastProvider } from '@/components/providers/ToastProvider';
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+});
+
+const dmMono = DM_Mono({
+  weight: ['400', '500'],
+  subsets: ['latin'],
+  variable: '--font-dm-mono',
+  display: 'swap',
+});
+
+const playfairDisplay = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
+});
 
 type Props = {
   children: React.ReactNode;
@@ -68,15 +88,9 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = (await import(`../../../messages/${locale}.json`)).default;
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={`${dmSans.variable} ${dmMono.variable} ${playfairDisplay.variable}`}>
       <head>
         <meta name="theme-color" content="#FF6B4A" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body className="font-sans antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>

@@ -16,7 +16,7 @@ export function Footer() {
           <Link href="/privacy" className="hover:text-text transition-colors">{t('privacy')}</Link>
           <Link href="/terms" className="hover:text-text transition-colors">{t('terms')}</Link>
           <a href="mailto:hello@oneword.app" className="hover:text-text transition-colors">{t('contact')}</a>
-          <a href="#" className="hover:text-text transition-colors">{t('twitter')}</a>
+          <a href="https://x.com/playoneword" target="_blank" rel="noopener noreferrer" className="hover:text-text transition-colors">{t('twitter')}</a>
         </div>
       </div>
     </footer>
