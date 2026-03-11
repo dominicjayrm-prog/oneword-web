@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { Button } from '@/components/ui/Button';
 
 interface ReportDialogProps {
@@ -19,6 +20,7 @@ export function ReportDialog({ descriptionId, wordId, reporterId, onClose, onRep
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const t = useTranslations('report');
   const supabase = useMemo(() => createClient(), []);
+  const trapRef = useFocusTrap<HTMLDivElement>();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -51,6 +53,7 @@ export function ReportDialog({ descriptionId, wordId, reporterId, onClose, onRep
 
   return (
     <div
+      ref={trapRef}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-6"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       role="dialog"

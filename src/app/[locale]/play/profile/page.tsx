@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { AvatarPicker } from '@/components/game/AvatarPicker';
 import { BadgePill } from '@/components/game/BadgePill';
 import { BadgeProgress } from '@/components/game/BadgeProgress';
+import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useRouter } from '@/i18n/navigation';
@@ -36,6 +37,7 @@ export default function ProfilePage() {
 
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
+  const passwordTrapRef = useFocusTrap<HTMLDivElement>(passwordRecovery);
 
   const dismissPasswordRecovery = useCallback(() => {
     setPasswordRecovery(false);
@@ -152,6 +154,7 @@ export default function ProfilePage() {
       {/* Password recovery modal */}
       {passwordRecovery && (
         <div
+          ref={passwordTrapRef}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
           onClick={(e) => { if (e.target === e.currentTarget) dismissPasswordRecovery(); }}
           role="dialog"

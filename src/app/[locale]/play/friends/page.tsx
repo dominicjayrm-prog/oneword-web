@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useWord } from '@/lib/hooks/useWord';
 import { useFriends } from '@/lib/hooks/useFriends';
+import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { createClient } from '@/lib/supabase/client';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { getCurrentBadge } from '@/lib/badges';
@@ -42,6 +43,7 @@ export default function FriendsPage() {
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
   const [removingFriendId, setRemovingFriendId] = useState<string | null>(null);
   const supabase = useMemo(() => createClient(), []);
+  const addModalTrapRef = useFocusTrap<HTMLDivElement>(showAddModal);
 
   useEffect(() => {
     if (user) {
@@ -221,6 +223,15 @@ export default function FriendsPage() {
     setSearchQuery('');
   }, []);
 
+  useEffect(() => {
+    if (!showAddModal) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') closeAddModal();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showAddModal, closeAddModal]);
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -233,7 +244,7 @@ export default function FriendsPage() {
   if (pendingLoaded && friends.length === 0 && pendingRequests.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <span className="text-6xl">👥</span>
+        <span className="text-6xl" aria-hidden="true">👥</span>
         <h2 className="mt-4 font-serif text-2xl font-bold text-text">{t('no_friends')}</h2>
         <Button variant="primary" className="mt-6" onClick={() => setShowAddModal(true)}>
           {t('add_friend')}
@@ -246,11 +257,11 @@ export default function FriendsPage() {
 
   function renderAddModal() {
     return (
-      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
       <div
+        ref={addModalTrapRef}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
         onClick={(e) => { if (e.target === e.currentTarget) closeAddModal(); }}
-        onKeyDown={(e) => { if (e.key === 'Escape') closeAddModal(); }}
+        role="presentation"
       >
         <div role="dialog" aria-modal="true" aria-labelledby="add-friend-title" className="w-full max-w-sm rounded-2xl bg-bg p-6">
           <h2 id="add-friend-title" className="font-serif text-xl font-bold text-text">{t('add_friend_title')}</h2>
@@ -258,6 +269,7 @@ export default function FriendsPage() {
             <input
               type="text"
               placeholder={t('enter_username')}
+              aria-label={t('enter_username')}
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setSearchError(null); }}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -268,7 +280,7 @@ export default function FriendsPage() {
             </Button>
           </div>
           {searchError && (
-            <p className="mt-2 text-sm font-medium text-red-500">{searchError}</p>
+            <p role="alert" className="mt-2 text-sm font-medium text-red-500">{searchError}</p>
           )}
           {searchResults.length > 0 && (
             <div className="mt-4 flex flex-col gap-2 max-h-60 overflow-y-auto">
@@ -283,7 +295,7 @@ export default function FriendsPage() {
                       </div>
                       <div>
                         <span className="text-sm font-medium text-text">@{result.username}</span>
-                        {badge && <span className="ml-1 text-xs">{badge.emoji}</span>}
+                        {badge && <span className="ml-1 text-xs" aria-hidden="true">{badge.emoji}</span>}
                       </div>
                     </div>
                     {result.is_friend ? (
@@ -373,7 +385,7 @@ export default function FriendsPage() {
 
       {word && !userDescription && (
         <p className="mt-6 text-center text-text-muted">
-          🔒 {t('play_to_see')}
+          <span aria-hidden="true">🔒</span> {t('play_to_see')}
         </p>
       )}
 
@@ -396,13 +408,13 @@ export default function FriendsPage() {
                       {friend.username?.[0]?.toUpperCase() || '?'}
                     </div>
                     <span className="font-medium text-text">
-                      @{friend.username} {badge?.emoji || ''}
+                      @{friend.username} {badge?.emoji && <span aria-hidden="true">{badge.emoji}</span>}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
                     {friend.current_streak > 0 && (
                       <span className="text-sm text-text-muted">
-                        🔥 {friend.current_streak}
+                        <span aria-hidden="true">🔥</span> {friend.current_streak}
                       </span>
                     )}
                     {removingFriendId === friend.id ? (

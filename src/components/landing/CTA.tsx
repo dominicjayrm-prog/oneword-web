@@ -102,13 +102,13 @@ export function CTA() {
         </form>
 
         {errorMsg && (
-          <p className={`mt-3 text-sm font-medium ${isSuccess ? 'text-[#2ECC71]' : 'text-red-500'}`}>
+          <p role="alert" className={`mt-3 text-sm font-medium ${isSuccess ? 'text-[#2ECC71]' : 'text-red-500'}`}>
             {errorMsg}
           </p>
         )}
 
         {isSuccess && !errorMsg && (
-          <p className="mt-3 text-sm font-medium text-[#2ECC71]">
+          <p role="status" className="mt-3 text-sm font-medium text-[#2ECC71]">
             {te('success_message')}
           </p>
         )}

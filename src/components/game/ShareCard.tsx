@@ -58,7 +58,7 @@ export function ShareCard({ word, description, rank, totalPlayers, streak, votes
           )}
           {streak != null && streak > 0 && (
             <div>
-              <p className="font-mono text-2xl font-bold text-white">🔥 {streak}</p>
+              <p className="font-mono text-2xl font-bold text-white"><span aria-hidden="true">🔥</span> {streak}</p>
               <p className="text-xs text-white/50">{t('streak_label')}</p>
             </div>
           )}

@@ -19,7 +19,7 @@ export function BadgePill({ streak, locale = 'en' }: BadgePillProps) {
         color: badge.color,
       }}
     >
-      {badge.emoji} {badge.name[locale === 'es' ? 'es' : 'en']}
+      <span aria-hidden="true">{badge.emoji}</span> {badge.name[locale === 'es' ? 'es' : 'en']}
     </span>
   );
 }
