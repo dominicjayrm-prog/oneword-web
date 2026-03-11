@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /en
+Allow: /es
+
+Disallow: /play/*
+Disallow: /auth/*
+Disallow: /api/*
+
+Sitemap: https://oneword.game/sitemap.xml
