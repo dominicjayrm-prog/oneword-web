@@ -163,6 +163,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
 
       const key = pairKey(normalized);
       if (!seenPairs.current.has(key)) {
+        if (seenPairs.current.size > 200) seenPairs.current.clear();
         seenPairs.current.add(key);
         setPair(normalized);
         setLoading(false);
@@ -175,6 +176,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       if (!fallbackPair) break;
       const key = pairKey(fallbackPair);
       if (!seenPairs.current.has(key)) {
+        if (seenPairs.current.size > 200) seenPairs.current.clear();
         seenPairs.current.add(key);
         setPair(fallbackPair);
         setLoading(false);

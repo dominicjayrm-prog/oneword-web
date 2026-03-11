@@ -40,7 +40,7 @@ function DescribeStep() {
           transition={{ delay: 1.5 }}
           className="mt-3 font-mono text-sm text-primary"
         >
-          5/5 ✓
+          {t('word_count_complete')}
         </motion.p>
       </div>
     </div>
@@ -176,7 +176,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       className="fixed inset-0 z-[150] flex flex-col bg-bg"
       role="dialog"
       aria-modal="true"
-      aria-label={t('step1_title')}
+      aria-label={t(`step${step + 1}_title`)}
     >
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-md px-6 py-12">

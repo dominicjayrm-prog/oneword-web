@@ -31,7 +31,7 @@ interface WeeklyRecapProps {
   onShare: () => void;
 }
 
-const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 
 export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
   const t = useTranslations('weekly');
@@ -108,7 +108,8 @@ export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
 
         {/* Day circles */}
         <div className="mt-8 flex justify-center gap-3">
-          {DAY_LABELS.map((label, i) => {
+          {DAY_KEYS.map((dayKey, i) => {
+            const label = t(`day_${dayKey}`);
             // Use explicit played_days array from backend when available,
             // otherwise fall back to filling the most recent N days of the week
             const played = data.played_days
@@ -123,7 +124,7 @@ export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
                   return i >= startDay && i < totalDaysInWeek;
                 })();
             return (
-              <div key={`${label}-${i}`} className="flex flex-col items-center gap-1">
+              <div key={dayKey} className="flex flex-col items-center gap-1">
                 <div
                   className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
                     played

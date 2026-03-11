@@ -3,10 +3,19 @@ import { createClient } from '@/lib/supabase/server';
 
 export const runtime = 'edge';
 
-export async function GET() {
+const OG_STRINGS = {
+  en: { label: "Today's Word", prompt: 'Can you describe it in 5 words?', fallback: 'One word. Five words to describe it.' },
+  es: { label: 'Palabra del Día', prompt: '¿Puedes describirla en 5 palabras?', fallback: 'Una palabra. Cinco palabras para describirla.' },
+} as const;
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const lang = searchParams.get('lang') === 'es' ? 'es' : 'en';
+  const strings = OG_STRINGS[lang];
+
   try {
     const supabase = await createClient();
-    const { data: wordData } = await supabase.rpc('get_today_word', { p_language: 'en' });
+    const { data: wordData } = await supabase.rpc('get_today_word', { p_language: lang });
 
     const word = wordData?.word || 'OneWord';
 
@@ -33,7 +42,7 @@ export async function GET() {
               letterSpacing: '0.2em',
             }}
           >
-            Today&apos;s Word
+            {strings.label}
           </div>
           <div
             style={{
@@ -54,7 +63,7 @@ export async function GET() {
               marginTop: 24,
             }}
           >
-            Can you describe it in 5 words?
+            {strings.prompt}
           </div>
           <div
             style={{
@@ -94,7 +103,7 @@ export async function GET() {
             <span style={{ color: '#FF6B4A' }}>word</span>
           </div>
           <div style={{ display: 'flex', fontSize: 28, color: '#8B8697', marginTop: 16 }}>
-            One word. Five words to describe it.
+            {strings.fallback}
           </div>
         </div>
       ),

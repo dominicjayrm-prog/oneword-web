@@ -243,15 +243,16 @@ export default function FriendsPage() {
   // Wait for both friends and pending to load before showing empty state
   if (pendingLoaded && friends.length === 0 && pendingRequests.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <span className="text-6xl" aria-hidden="true">👥</span>
-        <h2 className="mt-4 font-serif text-2xl font-bold text-text">{t('no_friends')}</h2>
-        <Button variant="primary" className="mt-6" onClick={() => setShowAddModal(true)}>
-          {t('add_friend')}
-        </Button>
-
+      <>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <span className="text-6xl" aria-hidden="true">👥</span>
+          <h2 className="mt-4 font-serif text-2xl font-bold text-text">{t('no_friends')}</h2>
+          <Button variant="primary" className="mt-6" onClick={() => setShowAddModal(true)}>
+            {t('add_friend')}
+          </Button>
+        </div>
         {showAddModal && renderAddModal()}
-      </div>
+      </>
     );
   }
 

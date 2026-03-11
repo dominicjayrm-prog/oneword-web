@@ -257,7 +257,14 @@
     "streak": "Streak",
     "avg_rank": "Avg Rank",
     "share_week": "Share Your Week",
-    "continue": "Continue"
+    "continue": "Continue",
+    "day_mon": "M",
+    "day_tue": "T",
+    "day_wed": "W",
+    "day_thu": "T",
+    "day_fri": "F",
+    "day_sat": "S",
+    "day_sun": "S"
   },
   "celebration": {
     "unlocked": "Badge Unlocked!",
@@ -285,7 +292,8 @@
     "back": "Back",
     "next": "Next",
     "lets_play": "Let's Play!",
-    "your_pick": "YOUR PICK ✓"
+    "your_pick": "YOUR PICK ✓",
+    "word_count_complete": "5/5 ✓"
   },
   "report": {
     "title": "Report Description",
