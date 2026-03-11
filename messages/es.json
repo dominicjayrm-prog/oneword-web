@@ -257,7 +257,14 @@
     "streak": "Racha",
     "avg_rank": "Puesto Medio",
     "share_week": "Compartir Tu Semana",
-    "continue": "Continuar"
+    "continue": "Continuar",
+    "day_mon": "L",
+    "day_tue": "M",
+    "day_wed": "X",
+    "day_thu": "J",
+    "day_fri": "V",
+    "day_sat": "S",
+    "day_sun": "D"
   },
   "celebration": {
     "unlocked": "\u00a1Insignia Desbloqueada!",
@@ -285,7 +292,8 @@
     "back": "Atr\u00e1s",
     "next": "Siguiente",
     "lets_play": "¡A jugar!",
-    "your_pick": "TU ELECCIÓN ✓"
+    "your_pick": "TU ELECCIÓN ✓",
+    "word_count_complete": "5/5 ✓"
   },
   "report": {
     "title": "Reportar Descripci\u00f3n",
