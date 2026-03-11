@@ -29,25 +29,25 @@ export default function ResultsPage() {
   const { friends, friendsDescriptions, fetchFriends, fetchFriendsDescriptions } = useFriends(user?.id);
   const [tab, setTab] = useState<Tab>('global');
   const [hasPlayed, setHasPlayed] = useState<boolean | null>(null);
+  const [descriptionChecked, setDescriptionChecked] = useState(false);
 
   useEffect(() => {
     if (user && word) {
-      fetchUserDescription(user.id);
+      setDescriptionChecked(false);
+      fetchUserDescription(user.id).then(() => setDescriptionChecked(true));
       fetchLeaderboard(LEADERBOARD_LIMIT);
       fetchFriends().then(() => fetchFriendsDescriptions(word.id));
     }
-  }, [user, word]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, word, fetchLeaderboard, fetchFriends, fetchFriendsDescriptions]);
 
   useEffect(() => {
     if (userDescription !== null) {
       setHasPlayed(true);
-    } else if (!wordLoading && word && user && hasPlayed === null) {
-      const timer = setTimeout(() => {
-        setHasPlayed((current) => current === null ? false : current);
-      }, 500);
-      return () => clearTimeout(timer);
+    } else if (descriptionChecked) {
+      setHasPlayed(false);
     }
-  }, [userDescription, wordLoading, word, user, hasPlayed]);
+  }, [userDescription, descriptionChecked]);
 
   if (wordLoading) {
     return (

@@ -74,7 +74,13 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-text-muted">
+        <p className="mt-4 text-center text-sm">
+          <Link href="/play/profile" className="text-text-muted hover:text-primary transition-colors">
+            {t('login_forgot_password')}
+          </Link>
+        </p>
+
+        <p className="mt-4 text-center text-sm text-text-muted">
           {t('login_no_account')}{' '}
           <Link href="/signup" className="font-medium text-primary hover:underline">
             {t('login_signup_link')}

@@ -127,6 +127,9 @@
     "signup_terms_link": "Terms of Use",
     "signup_and": "and",
     "signup_privacy_link": "Privacy Policy",
+    "signup_username_too_short": "Username must be at least 3 characters",
+    "signup_username_too_long": "Username must be 20 characters or less",
+    "signup_username_invalid_chars": "Username can only contain letters, numbers, and underscores",
     "signup_check_email": "Check your email to confirm your account, then log in.",
     "language_en": "English",
     "language_es": "Espa\u00f1ol"
@@ -145,7 +148,9 @@
     "check_back": "Check back later or contact support.",
     "day_streak": "{count} day streak",
     "your_pick": "YOUR PICK \u2713",
-    "next_word_in": "Next word in"
+    "next_word_in": "Next word in",
+    "share_recap_text": "OneWord Weekly Recap\n{days} days played · {streak} day streak\n\nPlay at oneword.game",
+    "copied_to_clipboard": "Copied to clipboard!"
   },
   "vote": {
     "play_first": "Play today's word first before voting",
@@ -278,6 +283,7 @@
     "reporting": "Reporting...",
     "cancel": "Cancel",
     "report_link": "Report",
+    "report_success": "Report submitted. Thank you.",
     "rate_limited": "Too many reports. Please wait."
   },
   "network": {

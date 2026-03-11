@@ -13,7 +13,14 @@ export async function GET() {
       return Response.json({ count: 0 });
     }
 
-    return Response.json({ count: count || 0 });
+    return Response.json(
+      { count: count || 0 },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        },
+      }
+    );
   } catch (err) {
     console.error('subscriber-count route error:', err);
     return Response.json({ count: 0 });

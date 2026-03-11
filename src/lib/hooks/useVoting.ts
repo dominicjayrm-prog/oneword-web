@@ -186,9 +186,9 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
     setLoading(false);
   }, [wordId, voterId, fetchPairFallback]);
 
-  async function submitVote(winnerId: string, loserId: string) {
-    if (!wordId || !voterId) return;
-    if (!checkRateLimit('vote')) return;
+  async function submitVote(winnerId: string, loserId: string): Promise<'ok' | 'rate_limited' | 'error'> {
+    if (!wordId || !voterId) return 'error';
+    if (!checkRateLimit('vote')) return 'rate_limited';
 
     const { error } = await supabase.rpc('submit_vote', {
       p_voter_id: voterId,
@@ -206,7 +206,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       });
       if (insertError) {
         console.error('Fallback vote insert error:', insertError.code, insertError.message);
-        return;
+        return 'error';
       }
     }
 
@@ -224,6 +224,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       setPair(null);
       await fetchPair();
     }
+    return 'ok';
   }
 
   return { pair, loading, restoring, votesCount, noMorePairs, batchExhausted, fetchPair, submitVote, VOTE_BATCH_SIZE };

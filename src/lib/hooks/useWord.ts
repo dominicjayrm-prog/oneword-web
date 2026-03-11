@@ -92,11 +92,22 @@ export function useWord(language = 'en') {
     }
     if (data) {
       setUserDescription(data);
+    } else {
+      setUserDescription(null);
     }
   }
 
   async function submitDescription(userId: string, description: string): Promise<{ oldStreak: number } | null> {
     if (!word) return null;
+
+    // Get current streak BEFORE insert to avoid race condition with triggers
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('current_streak')
+      .eq('id', userId)
+      .single();
+    const oldStreak = profileData?.current_streak ?? 0;
+
     const { data, error } = await supabase
       .from('descriptions')
       .insert({
@@ -111,14 +122,6 @@ export function useWord(language = 'en') {
       throw new Error(error.message);
     }
     setUserDescription(data);
-
-    // Get current streak before update
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('current_streak')
-      .eq('id', userId)
-      .single();
-    const oldStreak = profileData?.current_streak ?? 0;
 
     // Call update_streak RPC
     const { error: streakError } = await supabase.rpc('update_streak', { p_user_id: userId });
