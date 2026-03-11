@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useWord } from '@/lib/hooks/useWord';
 import { useFriends } from '@/lib/hooks/useFriends';
+import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { createClient } from '@/lib/supabase/client';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { getCurrentBadge } from '@/lib/badges';
@@ -42,6 +43,7 @@ export default function FriendsPage() {
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
   const [removingFriendId, setRemovingFriendId] = useState<string | null>(null);
   const supabase = useMemo(() => createClient(), []);
+  const addModalTrapRef = useFocusTrap<HTMLDivElement>(showAddModal);
 
   useEffect(() => {
     if (user) {
@@ -221,6 +223,15 @@ export default function FriendsPage() {
     setSearchQuery('');
   }, []);
 
+  useEffect(() => {
+    if (!showAddModal) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') closeAddModal();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showAddModal, closeAddModal]);
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -247,6 +258,7 @@ export default function FriendsPage() {
   function renderAddModal() {
     return (
       <div
+        ref={addModalTrapRef}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
         onClick={(e) => { if (e.target === e.currentTarget) closeAddModal(); }}
         role="presentation"

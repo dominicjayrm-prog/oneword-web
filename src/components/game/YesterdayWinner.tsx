@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { getRankEmoji } from '@/lib/utils';
+import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { Button } from '@/components/ui/Button';
 
 export interface YesterdayWinnerData {
@@ -25,6 +26,7 @@ interface YesterdayWinnerProps {
 
 export function YesterdayWinner({ data, onDismiss }: YesterdayWinnerProps) {
   const t = useTranslations('yesterday');
+  const trapRef = useFocusTrap<HTMLDivElement>();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -36,6 +38,7 @@ export function YesterdayWinner({ data, onDismiss }: YesterdayWinnerProps) {
 
   return (
     <motion.div
+      ref={trapRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

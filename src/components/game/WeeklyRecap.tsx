@@ -4,10 +4,13 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { getCurrentBadge } from '@/lib/badges';
+import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { Button } from '@/components/ui/Button';
 
 export interface WeeklyRecapData {
   days_played: number;
+  /** Optional array of 0-indexed day indices (0=Mon..6=Sun) the user actually played */
+  played_days?: number[];
   total_votes_received: number;
   best_rank: number | null;
   best_rank_word: string | null;
@@ -33,6 +36,7 @@ const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
   const t = useTranslations('weekly');
   const badge = getCurrentBadge(data.current_streak);
+  const trapRef = useFocusTrap<HTMLDivElement>();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -51,6 +55,7 @@ export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
 
   return (
     <motion.div
+      ref={trapRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -103,20 +108,35 @@ export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
 
         {/* Day circles */}
         <div className="mt-8 flex justify-center gap-3">
-          {DAY_LABELS.map((label, i) => (
-            <div key={`${label}-${i}`} className="flex flex-col items-center gap-1">
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
-                  i < data.days_played
-                    ? 'bg-primary text-white'
-                    : 'bg-white/10 text-white/30'
-                }`}
-              >
-                {i < data.days_played ? '✓' : ''}
+          {DAY_LABELS.map((label, i) => {
+            // Use explicit played_days array from backend when available,
+            // otherwise fall back to filling the most recent N days of the week
+            const played = data.played_days
+              ? data.played_days.includes(i)
+              : (() => {
+                  // Compute how many days elapsed in this week (Mon=0 ... Sun=6)
+                  const weekEnd = new Date(data.week_end + 'T12:00:00Z');
+                  const dayOfWeek = weekEnd.getUTCDay();
+                  const totalDaysInWeek = dayOfWeek === 0 ? 7 : dayOfWeek; // Mon-based
+                  // Fill the last N days (most recent) rather than first N
+                  const startDay = Math.max(0, totalDaysInWeek - data.days_played);
+                  return i >= startDay && i < totalDaysInWeek;
+                })();
+            return (
+              <div key={`${label}-${i}`} className="flex flex-col items-center gap-1">
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
+                    played
+                      ? 'bg-primary text-white'
+                      : 'bg-white/10 text-white/30'
+                  }`}
+                >
+                  {played ? '✓' : ''}
+                </div>
+                <span className="text-xs text-white/40">{label}</span>
               </div>
-              <span className="text-xs text-white/40">{label}</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Stats grid */}
