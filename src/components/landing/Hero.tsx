@@ -1,15 +1,36 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/Button';
+import { Onboarding } from '@/components/game/Onboarding';
 
 export function Hero() {
   const t = useTranslations('hero');
+  const router = useRouter();
   const demoPills = t.raw('demo_pills') as string[];
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  function handlePlayClick(e: React.MouseEvent) {
+    if (typeof window !== 'undefined' && !localStorage.getItem('hasSeenOnboarding')) {
+      e.preventDefault();
+      setShowOnboarding(true);
+    }
+  }
+
+  function handleOnboardingComplete() {
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    setShowOnboarding(false);
+    router.push('/play');
+  }
 
   return (
+    <>
+      <AnimatePresence>
+        {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
+      </AnimatePresence>
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20">
       <div className="pointer-events-none absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-primary/[0.06] blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-blue/[0.04] blur-3xl" />
@@ -73,7 +94,7 @@ export function Hero() {
           <Button variant="dark" size="lg" as="a" href="#">
             &#127822; {t('cta_appstore')}
           </Button>
-          <Link href="/play">
+          <Link href="/play" onClick={handlePlayClick}>
             <Button variant="outline" size="lg">
               &#127760; {t('cta_web')}
             </Button>
@@ -81,5 +102,6 @@ export function Hero() {
         </div>
       </motion.div>
     </section>
+    </>
   );
 }
