@@ -3,10 +3,16 @@ import type { MetadataRoute } from 'next';
 const BASE_URL = 'https://oneword.game';
 const locales = ['en', 'es'];
 
-const pages = [
-  '',
-  '/privacy',
-  '/terms',
+interface PageEntry {
+  path: string;
+  changeFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  priority: number;
+}
+
+const pages: PageEntry[] = [
+  { path: '', changeFrequency: 'daily', priority: 1.0 },
+  { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
+  { path: '/terms', changeFrequency: 'yearly', priority: 0.3 },
 ];
 
 function localeUrl(locale: string, page: string) {
@@ -19,11 +25,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const page of pages) {
     for (const locale of locales) {
       entries.push({
-        url: localeUrl(locale, page),
+        url: localeUrl(locale, page.path),
         lastModified: new Date(),
+        changeFrequency: page.changeFrequency,
+        priority: page.priority,
         alternates: {
           languages: Object.fromEntries(
-            locales.map((l) => [l, localeUrl(l, page)])
+            locales.map((l) => [l, localeUrl(l, page.path)])
           ),
         },
       });

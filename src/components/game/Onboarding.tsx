@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { Button } from '@/components/ui/Button';
 
 interface OnboardingProps {
@@ -147,6 +148,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const t = useTranslations('onboarding');
   const steps = [DescribeStep, VoteStep, CompeteStep];
   const StepComponent = steps[step];
+  const trapRef = useFocusTrap<HTMLDivElement>();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -170,6 +172,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   return (
     <motion.div
+      ref={trapRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

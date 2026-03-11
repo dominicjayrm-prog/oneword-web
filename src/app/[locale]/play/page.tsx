@@ -178,25 +178,29 @@ export default function PlayPage() {
 
   async function handleSubmit(description: string) {
     if (!user) return;
-    const result = await submitDescription(user.id, description);
-    setLockedIn(true);
-    await refreshProfile();
+    try {
+      const result = await submitDescription(user.id, description);
+      setLockedIn(true);
+      await refreshProfile();
 
-    if (result) {
-      const oldStreak = result.oldStreak;
-      const newStreak = oldStreak + 1;
-      const oldBadge = getCurrentBadge(oldStreak);
-      const newBadge = getCurrentBadge(newStreak);
-      if (newBadge && (!oldBadge || newBadge.streak !== oldBadge.streak)) {
-        const key = `milestone_shown_${newBadge.streak}`;
-        if (!localStorage.getItem(key)) {
-          setTimeout(() => {
-            setCelebrationBadge(newBadge);
-            setCelebrationStreak(newStreak);
-          }, 500);
-          localStorage.setItem(key, 'true');
+      if (result) {
+        const oldStreak = result.oldStreak;
+        const newStreak = oldStreak + 1;
+        const oldBadge = getCurrentBadge(oldStreak);
+        const newBadge = getCurrentBadge(newStreak);
+        if (newBadge && (!oldBadge || newBadge.streak !== oldBadge.streak)) {
+          const key = `milestone_shown_${newBadge.streak}`;
+          if (!localStorage.getItem(key)) {
+            setTimeout(() => {
+              setCelebrationBadge(newBadge);
+              setCelebrationStreak(newStreak);
+            }, 500);
+            localStorage.setItem(key, 'true');
+          }
         }
       }
+    } catch {
+      showToast(t('submit_error'), 'error');
     }
   }
 
@@ -211,7 +215,7 @@ export default function PlayPage() {
   if (error || !word) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="font-serif text-2xl text-text">{error || t('no_word')}</p>
+        <p className="font-serif text-2xl text-text">{t(error === 'no_word_available' ? 'no_word_available' : 'no_word')}</p>
         <p className="text-text-muted">{t('check_back')}</p>
       </div>
     );

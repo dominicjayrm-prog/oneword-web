@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { checkRateLimit } from '@/lib/rateLimit';
 
@@ -56,7 +56,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
   const [restoring, setRestoring] = useState(true);
   const batchExhaustedRef = useRef(false);
   const seenPairs = useRef<Set<string>>(new Set());
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   // Restore vote count from database (source of truth, works across devices)
   useEffect(() => {

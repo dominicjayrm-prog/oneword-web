@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 interface FriendProfile {
@@ -53,7 +53,7 @@ export function useFriends(userId: string | undefined) {
   const [friendsDescriptions, setFriendsDescriptions] = useState<FriendDescription[]>([]);
   const [loading, setLoading] = useState(false);
   const friendsRef = useRef<FriendProfile[]>([]);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchFriends = useCallback(async () => {
     if (!userId) return;
