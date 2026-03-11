@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useWord } from '@/lib/hooks/useWord';
+import { useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { getGameDate, getGameDay, getGameMonday } from '@/lib/gameDate';
 import { getCurrentBadge } from '@/lib/badges';
@@ -33,7 +34,7 @@ export default function PlayPage() {
   const { word, userDescription, loading, error, fetchUserDescription, submitDescription } = useWord(lang);
   const { showToast } = useToast();
   const [lockedIn, setLockedIn] = useState(false);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   // Interstitial state
   const [yesterdayData, setYesterdayData] = useState<YesterdayWinnerData | null>(null);
@@ -85,8 +86,10 @@ export default function PlayPage() {
     const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const storedTimezone = (profile as unknown as Record<string, unknown>).timezone as string | undefined;
     if (deviceTimezone && deviceTimezone !== storedTimezone) {
-      supabase.from('profiles').update({ timezone: deviceTimezone }).eq('id', user.id).then();
+      supabase.from('profiles').update({ timezone: deviceTimezone }).eq('id', user.id)
+        .then(({ error: e }) => { if (e) console.error('Timezone update failed:', e.message); });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, profile]);
 
   // Interstitial flow

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { getRankEmoji } from '@/lib/utils';
@@ -25,12 +26,24 @@ interface YesterdayWinnerProps {
 export function YesterdayWinner({ data, onDismiss }: YesterdayWinnerProps) {
   const t = useTranslations('yesterday');
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onDismiss();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onDismiss]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onDismiss(); }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="yesterday-winner-title"
     >
       <motion.div
         initial={{ scale: 0.9, y: 20 }}
@@ -50,7 +63,7 @@ export function YesterdayWinner({ data, onDismiss }: YesterdayWinnerProps) {
           {data.user_was_winner ? t('you_won') : t('yesterdays_winner')}
         </p>
 
-        <h2 className="mt-3 font-serif text-3xl font-black text-text">
+        <h2 id="yesterday-winner-title" className="mt-3 font-serif text-3xl font-black text-text">
           {data.word?.toUpperCase()}
         </h2>
         {data.word_category && (

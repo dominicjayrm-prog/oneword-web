@@ -1,9 +1,8 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link, useRouter, usePathname } from '@/i18n/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { NetworkBanner } from '@/components/ui/NetworkBanner';
@@ -37,8 +36,6 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
     );
   }
 
-  const localePrefix = locale === 'en' ? '' : `/${locale}`;
-
   return (
     <div className="flex min-h-screen flex-col">
       <NetworkBanner />
@@ -56,7 +53,7 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
                 href={link.href}
                 className={cn(
                   'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-                  pathname === `${localePrefix}${link.href}`
+                  pathname === link.href
                     ? 'bg-primary-light text-primary'
                     : 'text-text-muted hover:text-text'
                 )}
@@ -80,7 +77,7 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
         </div>
       </nav>
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <div className="mx-auto max-w-lg px-4 py-8">{children}</div>
       </main>
 
@@ -92,7 +89,7 @@ export default function PlayLayout({ children }: { children: React.ReactNode }) 
               href={link.href}
               className={cn(
                 'flex flex-col items-center gap-0.5 px-3 py-1 text-xs font-medium transition-colors',
-                pathname === `${localePrefix}${link.href}` ? 'text-primary' : 'text-text-muted'
+                pathname === link.href ? 'text-primary' : 'text-text-muted'
               )}
             >
               {link.label}

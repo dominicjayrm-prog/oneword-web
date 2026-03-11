@@ -119,7 +119,7 @@ export function LiveLeaderboard() {
           {entries.length > 0 ? (
             entries.map((entry, i) => (
               <motion.div
-                key={i}
+                key={`${entry.username}-${entry.description.slice(0, 20)}`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

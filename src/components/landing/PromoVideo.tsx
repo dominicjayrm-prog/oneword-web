@@ -319,9 +319,9 @@ export default function PromoVideo({ locale = 'en' }: { locale?: string }) {
 
       {!on && (
         <div style={{ position: "absolute", inset: 0, zIndex: 100, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.85)", backdropFilter: "blur(16px)", borderRadius: "20px" }}>
-          <div style={{ width: "70px", height: "70px", borderRadius: "50%", backgroundColor: C.primary, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 50px ${C.glow}`, cursor: "pointer", marginBottom: "12px" }}>
+          <button type="button" aria-label="Play promotional video" style={{ width: "70px", height: "70px", borderRadius: "50%", backgroundColor: C.primary, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 50px ${C.glow}`, cursor: "pointer", marginBottom: "12px", border: "none", outline: "none" }}>
             <span style={{ fontSize: "28px", marginLeft: "4px", color: "#FFF" }}>▶</span>
-          </div>
+          </button>
           <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "16px", color: C.white, margin: "0 0 2px" }}>one<span style={{ color: C.primary }}>word</span></p>
           <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", color: C.primary, fontSize: "12px", margin: "0 0 6px", opacity: 0.8 }}>{overlay.subtitle}</p>
           <p style={{ fontFamily: "'DM Sans'", color: "rgba(255,255,255,0.35)", fontSize: "11px" }}>{overlay.tapLabel}</p>

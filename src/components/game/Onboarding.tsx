@@ -11,7 +11,7 @@ interface OnboardingProps {
 
 function DescribeStep() {
   const t = useTranslations('onboarding');
-  const pills = ['Wet', 'dogs', 'hate', 'this', 'stuff'];
+  const pills = t.raw('example_pills') as string[];
 
   return (
     <div className="flex flex-col items-center text-center">
@@ -20,7 +20,7 @@ function DescribeStep() {
       <p className="mt-3 text-text-muted">{t('step1_desc')}</p>
       <div className="mt-8 rounded-2xl bg-surface p-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-text-muted">{t('example_word')}</p>
-        <h3 className="mt-1 font-serif text-4xl font-black text-text">RAIN</h3>
+        <h3 className="mt-1 font-serif text-4xl font-black text-text">{t('example_word_value')}</h3>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           {pills.map((word, i) => (
             <motion.span
@@ -58,8 +58,8 @@ function VoteStep() {
       <p className="mt-3 text-text-muted">{t('step2_desc')}</p>
       <div className="mt-8 flex w-full flex-col gap-3">
         {[
-          { key: 'a' as const, text: '"Wet dogs hate this stuff"' },
-          { key: 'b' as const, text: '"Sky\'s way of crying softly"' },
+          { key: 'a' as const, text: t('vote_option_a') },
+          { key: 'b' as const, text: t('vote_option_b') },
         ].map(({ key, text }) => (
           <motion.button
             key={key}
@@ -94,9 +94,9 @@ function VoteStep() {
 function CompeteStep() {
   const t = useTranslations('onboarding');
   const mockLeaderboard = [
-    { rank: 1, emoji: '🥇', desc: '"Wet dogs hate this stuff"', user: '@wordsmith' },
-    { rank: 2, emoji: '🥈', desc: '"Sky\'s way of crying softly"', user: '@poeticmind' },
-    { rank: 3, emoji: '🥉', desc: '"Clouds weeping on my parade"', user: '@cloudchaser' },
+    { rank: 1, emoji: '🥇', desc: t('leaderboard_1'), user: '@wordsmith' },
+    { rank: 2, emoji: '🥈', desc: t('leaderboard_2'), user: '@poeticmind' },
+    { rank: 3, emoji: '🥉', desc: t('leaderboard_3'), user: '@cloudchaser' },
   ];
 
   return (

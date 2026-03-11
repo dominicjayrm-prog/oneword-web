@@ -80,7 +80,10 @@ export default function ResultsPage() {
   }
 
   const userEntry = entries.find((e) => e.user_id === user?.id);
-  const userRank = userEntry ? entries.indexOf(userEntry) + 1 : null;
+  // Deterministic rank: count entries with strictly more votes, then +1
+  const userRank = userEntry
+    ? entries.filter((e) => e.vote_count > userEntry.vote_count).length + 1
+    : null;
 
   return (
     <div className="flex flex-col items-center">

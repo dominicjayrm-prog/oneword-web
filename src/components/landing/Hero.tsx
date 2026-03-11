@@ -43,9 +43,9 @@ export function Hero() {
           <span className="text-xs font-semibold uppercase tracking-widest text-text-muted">
             {t('demo_label')}
           </span>
-          <h2 className="mt-2 font-serif text-5xl font-black tracking-tight text-text md:text-6xl">
+          <p className="mt-2 font-serif text-5xl font-black tracking-tight text-text md:text-6xl" role="presentation">
             {t('demo_word')}
-          </h2>
+          </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             {demoPills.map((word: string, i: number) => (
               <motion.span

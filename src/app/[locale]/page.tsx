@@ -37,7 +37,7 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Nav />
-      <main>
+      <main id="main-content">
         <Hero />
         <section className="relative z-10 bg-[#0A0A12] py-16 md:py-20 overflow-hidden">
           <div className="max-w-screen-sm mx-auto px-6 text-center">

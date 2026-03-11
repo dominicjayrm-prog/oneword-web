@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useWord } from '@/lib/hooks/useWord';
@@ -20,6 +20,10 @@ interface SearchResult {
   request_pending: boolean;
 }
 
+function escapeLikePattern(s: string): string {
+  return s.replace(/[%_\\]/g, '\\$&');
+}
+
 export default function FriendsPage() {
   const { user, profile } = useAuth();
   const locale = useLocale();
@@ -34,8 +38,10 @@ export default function FriendsPage() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [pendingRequests, setPendingRequests] = useState<Array<{id: string; requester_id: string; username: string; avatar_url: string | null}>>([]);
+  const [pendingLoaded, setPendingLoaded] = useState(false);
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
-  const supabase = createClient();
+  const [removingFriendId, setRemovingFriendId] = useState<string | null>(null);
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     if (user) {
@@ -63,6 +69,7 @@ export default function FriendsPage() {
           avatar_url: (d.requester_avatar_url || d.avatar_url || null) as string | null,
         }))
       );
+      setPendingLoaded(true);
       return;
     }
 
@@ -74,6 +81,7 @@ export default function FriendsPage() {
       .eq('status', 'pending');
     if (error) {
       console.error('fetchPending error:', error.code, error.message);
+      setPendingLoaded(true);
       return;
     }
     if (data) {
@@ -86,6 +94,7 @@ export default function FriendsPage() {
         }))
       );
     }
+    setPendingLoaded(true);
   }
 
   async function handleAccept(friendshipId: string) {
@@ -111,7 +120,6 @@ export default function FriendsPage() {
   }
 
   async function handleRemoveFriend(friendId: string) {
-    if (!confirm(t('remove_confirm'))) return;
     if (!user) return;
 
     // Try both directions to find the friendship
@@ -135,6 +143,7 @@ export default function FriendsPage() {
       await supabase.from('friendships').delete().eq('id', friendship.id);
       fetchFriends();
     }
+    setRemovingFriendId(null);
   }
 
   async function handleSearch() {
@@ -154,11 +163,12 @@ export default function FriendsPage() {
     if (data && Array.isArray(data) && data.length > 0) {
       setSearchResults(data as SearchResult[]);
     } else if (error) {
-      // Fallback: direct query
+      // Fallback: direct query — escape LIKE wildcards
+      const escaped = escapeLikePattern(searchQuery.trim());
       const { data: fallback } = await supabase
         .from('profiles')
         .select('id, username, avatar_url, current_streak')
-        .ilike('username', `%${searchQuery.trim()}%`)
+        .ilike('username', `%${escaped}%`)
         .neq('id', user.id)
         .limit(10);
       if (fallback) {
@@ -204,6 +214,13 @@ export default function FriendsPage() {
     setSentRequests((prev) => new Set(prev).add(targetUserId));
   }
 
+  const closeAddModal = useCallback(() => {
+    setShowAddModal(false);
+    setSearchResults([]);
+    setSearchError(null);
+    setSearchQuery('');
+  }, []);
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -212,8 +229,8 @@ export default function FriendsPage() {
     );
   }
 
-  // Empty state
-  if (friends.length === 0 && pendingRequests.length === 0) {
+  // Wait for both friends and pending to load before showing empty state
+  if (pendingLoaded && friends.length === 0 && pendingRequests.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
         <span className="text-6xl">👥</span>
@@ -222,7 +239,6 @@ export default function FriendsPage() {
           {t('add_friend')}
         </Button>
 
-        {/* Add friend modal */}
         {showAddModal && renderAddModal()}
       </div>
     );
@@ -230,9 +246,14 @@ export default function FriendsPage() {
 
   function renderAddModal() {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
-        <div className="w-full max-w-sm rounded-2xl bg-bg p-6">
-          <h2 className="font-serif text-xl font-bold text-text">{t('add_friend_title')}</h2>
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
+        onClick={(e) => { if (e.target === e.currentTarget) closeAddModal(); }}
+        onKeyDown={(e) => { if (e.key === 'Escape') closeAddModal(); }}
+      >
+        <div role="dialog" aria-modal="true" aria-labelledby="add-friend-title" className="w-full max-w-sm rounded-2xl bg-bg p-6">
+          <h2 id="add-friend-title" className="font-serif text-xl font-bold text-text">{t('add_friend_title')}</h2>
           <div className="mt-4 flex gap-2">
             <input
               type="text"
@@ -249,7 +270,6 @@ export default function FriendsPage() {
           {searchError && (
             <p className="mt-2 text-sm font-medium text-red-500">{searchError}</p>
           )}
-          {/* Search results */}
           {searchResults.length > 0 && (
             <div className="mt-4 flex flex-col gap-2 max-h-60 overflow-y-auto">
               {searchResults.map((result) => {
@@ -280,7 +300,7 @@ export default function FriendsPage() {
               })}
             </div>
           )}
-          <Button variant="ghost" className="mt-4 w-full" onClick={() => { setShowAddModal(false); setSearchResults([]); setSearchError(null); setSearchQuery(''); }}>
+          <Button variant="ghost" className="mt-4 w-full" onClick={closeAddModal}>
             {t('cancel')}
           </Button>
         </div>
@@ -385,12 +405,29 @@ export default function FriendsPage() {
                         🔥 {friend.current_streak}
                       </span>
                     )}
-                    <button
-                      onClick={() => handleRemoveFriend(friend.id)}
-                      className="text-xs text-text-muted/50 hover:text-red-500 transition-colors cursor-pointer"
-                    >
-                      {t('remove')}
-                    </button>
+                    {removingFriendId === friend.id ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleRemoveFriend(friend.id)}
+                          className="text-xs font-medium text-red-500 cursor-pointer"
+                        >
+                          {t('remove')}?
+                        </button>
+                        <button
+                          onClick={() => setRemovingFriendId(null)}
+                          className="text-xs text-text-muted cursor-pointer"
+                        >
+                          {t('cancel')}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setRemovingFriendId(friend.id)}
+                        className="text-xs text-text-muted/50 hover:text-red-500 transition-colors cursor-pointer"
+                      >
+                        {t('remove')}
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -403,7 +440,6 @@ export default function FriendsPage() {
         </div>
       </div>
 
-      {/* Add friend modal */}
       {showAddModal && renderAddModal()}
     </div>
   );
