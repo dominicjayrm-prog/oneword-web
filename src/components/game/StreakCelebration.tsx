@@ -82,7 +82,7 @@ export function StreakCelebration({ badge, streak, locale = 'en', onDismiss }: S
           {/* Ring bursts */}
           {Array.from({ length: isEternal ? 5 : 3 }).map((_, i) => (
             <motion.div
-              key={i}
+              key={`burst-${i}`}
               initial={{ scale: 0, opacity: 0.6 }}
               animate={{ scale: 3 + i, opacity: 0 }}
               transition={{ delay: 0.2 + i * 0.15, duration: 1.2, ease: 'easeOut' }}
@@ -100,6 +100,7 @@ export function StreakCelebration({ badge, streak, locale = 'en', onDismiss }: S
             animate={{ scale: 1 }}
             transition={{ type: 'spring', delay: 0.1 }}
             className="text-7xl"
+            aria-hidden="true"
           >
             {badge.emoji}
           </motion.span>

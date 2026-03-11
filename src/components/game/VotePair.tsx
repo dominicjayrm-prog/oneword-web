@@ -63,7 +63,7 @@ export function VotePair({ optionA, optionB, onVote, onReport }: VotePairProps) 
             </p>
             {option.username && (
               <p className="mt-2 text-xs text-text-muted">
-                @{option.username} {option.badgeEmoji || ''}
+                @{option.username} {option.badgeEmoji && <span aria-hidden="true">{option.badgeEmoji}</span>}
               </p>
             )}
             {selected === option.id && (

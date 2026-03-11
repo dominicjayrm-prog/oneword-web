@@ -56,7 +56,7 @@ export function YesterdayWinner({ data, onDismiss }: YesterdayWinnerProps) {
         }`}
       >
         {data.user_was_winner ? (
-          <div className="mb-4 text-4xl">🏆</div>
+          <div className="mb-4 text-4xl" aria-hidden="true">🏆</div>
         ) : null}
 
         <p className="text-xs font-semibold uppercase tracking-widest text-text-muted">

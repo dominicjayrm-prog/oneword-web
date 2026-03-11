@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
@@ -15,7 +15,7 @@ function DescribeStep() {
 
   return (
     <div className="flex flex-col items-center text-center">
-      <span className="text-6xl">✍️</span>
+      <span className="text-6xl" aria-hidden="true">✍️</span>
       <h2 className="mt-6 font-serif text-3xl font-black text-text">{t('step1_title')}</h2>
       <p className="mt-3 text-text-muted">{t('step1_desc')}</p>
       <div className="mt-8 rounded-2xl bg-surface p-6">
@@ -53,7 +53,7 @@ function VoteStep() {
 
   return (
     <div className="flex flex-col items-center text-center">
-      <span className="text-6xl">🗳️</span>
+      <span className="text-6xl" aria-hidden="true">🗳️</span>
       <h2 className="mt-6 font-serif text-3xl font-black text-text">{t('step2_title')}</h2>
       <p className="mt-3 text-text-muted">{t('step2_desc')}</p>
       <div className="mt-8 flex w-full flex-col gap-3">
@@ -66,6 +66,7 @@ function VoteStep() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setPicked(key)}
+            aria-pressed={picked === key}
             className={`cursor-pointer rounded-2xl border-2 p-5 text-center transition-all ${
               picked === key
                 ? 'border-primary bg-primary-light'
@@ -101,7 +102,7 @@ function CompeteStep() {
 
   return (
     <div className="flex flex-col items-center text-center">
-      <span className="text-6xl">🏆</span>
+      <span className="text-6xl" aria-hidden="true">🏆</span>
       <h2 className="mt-6 font-serif text-3xl font-black text-text">{t('step3_title')}</h2>
       <p className="mt-3 text-text-muted">{t('step3_desc')}</p>
       <div className="mt-8 flex w-full flex-col gap-2">
@@ -115,7 +116,7 @@ function CompeteStep() {
               i === 0 ? 'border-gold/30 bg-gold/5' : i === 1 ? 'border-silver/30 bg-silver/5' : 'border-bronze/30 bg-bronze/5'
             }`}
           >
-            <span className="text-xl">{entry.emoji}</span>
+            <span className="text-xl" aria-hidden="true">{entry.emoji}</span>
             <div className="flex-1 text-left">
               <p className="font-serif text-sm text-text">{entry.desc}</p>
               <p className="text-xs text-text-muted">{entry.user}</p>
@@ -125,15 +126,15 @@ function CompeteStep() {
       </div>
       <div className="mt-6 flex justify-center gap-6">
         <div className="text-center">
-          <p className="text-2xl">🔥</p>
+          <p className="text-2xl" aria-hidden="true">🔥</p>
           <p className="text-xs text-text-muted">{t('streaks')}</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl">🏆</p>
+          <p className="text-2xl" aria-hidden="true">🏆</p>
           <p className="text-xs text-text-muted">{t('trophies')}</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl">🗳️</p>
+          <p className="text-2xl" aria-hidden="true">🗳️</p>
           <p className="text-xs text-text-muted">{t('votes')}</p>
         </div>
       </div>
@@ -146,6 +147,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const t = useTranslations('onboarding');
   const steps = [DescribeStep, VoteStep, CompeteStep];
   const StepComponent = steps[step];
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onComplete();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onComplete]);
 
   function handleNext() {
     if (step < steps.length - 1) {
@@ -165,6 +174,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[150] flex flex-col bg-bg"
+      role="dialog"
+      aria-modal="true"
+      aria-label={t('step1_title')}
     >
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-md px-6 py-12">
@@ -185,10 +197,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       <div className="border-t border-border bg-bg px-6 py-4">
         <div className="mx-auto flex max-w-md items-center justify-between">
           {/* Dots */}
-          <div className="flex gap-2">
+          <div className="flex gap-2" aria-label={`Step ${step + 1} of ${steps.length}`} role="group">
             {steps.map((_, i) => (
               <div
-                key={i}
+                key={`dot-${i}`}
                 className={`h-2 rounded-full transition-all ${
                   i === step ? 'w-6 bg-primary' : 'w-2 bg-border'
                 }`}

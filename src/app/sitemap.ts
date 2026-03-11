@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const locale of locales) {
       entries.push({
         url: localeUrl(locale, page),
-        lastModified: new Date('2026-03-11'),
+        lastModified: new Date(),
         alternates: {
           languages: Object.fromEntries(
             locales.map((l) => [l, localeUrl(l, page)])
