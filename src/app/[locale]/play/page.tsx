@@ -17,7 +17,6 @@ import { CountdownTimer } from '@/components/game/CountdownTimer';
 import { YesterdayWinner } from '@/components/game/YesterdayWinner';
 import { WeeklyRecap } from '@/components/game/WeeklyRecap';
 import { StreakCelebration } from '@/components/game/StreakCelebration';
-import { Onboarding } from '@/components/game/Onboarding';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -43,7 +42,6 @@ export default function PlayPage() {
   const [showYesterday, setShowYesterday] = useState(false);
   const [celebrationBadge, setCelebrationBadge] = useState<BadgeTier | null>(null);
   const [celebrationStreak, setCelebrationStreak] = useState(0);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const interstitialStartedRef = useRef(false);
   const interstitialWordIdRef = useRef<string | null>(null);
 
@@ -54,21 +52,6 @@ export default function PlayPage() {
       interstitialWordIdRef.current = word.id;
     }
   }, [word]);
-
-  // Onboarding gate — only for brand-new users who have never played
-  useEffect(() => {
-    if (typeof window === 'undefined' || !profile) return;
-    // If the user has any plays, they're not new — never show onboarding
-    if ((profile.total_plays ?? 0) > 0) return;
-    if (!localStorage.getItem('hasSeenOnboarding')) {
-      setShowOnboarding(true);
-    }
-  }, [profile]);
-
-  function handleOnboardingComplete() {
-    localStorage.setItem('hasSeenOnboarding', 'true');
-    setShowOnboarding(false);
-  }
 
   useEffect(() => {
     if (user && word) {
@@ -223,10 +206,6 @@ export default function PlayPage() {
 
   return (
     <>
-      <AnimatePresence>
-        {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
-      </AnimatePresence>
-
       <AnimatePresence>
         {showWeekly && weeklyData && (
           <WeeklyRecap data={weeklyData} onDismiss={dismissWeekly} onShare={handleShare} />
