@@ -1,4 +1,11 @@
 {
+  "errors": {
+    "not_found": "This page doesn't exist.",
+    "go_home": "Go Home",
+    "something_went_wrong": "Something went wrong",
+    "try_again_message": "An unexpected error occurred. Please try again.",
+    "try_again": "Try Again"
+  },
   "meta": {
     "title": "OneWord — Say it in five.",
     "description": "A daily word game where the whole world gets the same word and describes it in exactly 5 words. The community votes. The most creative wins. Play free on iOS and web.",
@@ -146,7 +153,9 @@
     "vote_on_others": "Vote on Others",
     "see_results": "See Results",
     "no_word": "No word available for today",
+    "no_word_available": "No word available for today",
     "check_back": "Check back later or contact support.",
+    "submit_error": "Failed to submit. Please try again.",
     "day_streak": "{count} day streak",
     "your_pick": "YOUR PICK \u2713",
     "next_word_in": "Next word in",

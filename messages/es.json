@@ -1,4 +1,11 @@
 {
+  "errors": {
+    "not_found": "Esta página no existe.",
+    "go_home": "Ir al Inicio",
+    "something_went_wrong": "Algo salió mal",
+    "try_again_message": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.",
+    "try_again": "Intentar de Nuevo"
+  },
   "meta": {
     "title": "OneWord \u2014 Dilo en cinco.",
     "description": "Un juego diario donde todo el mundo recibe la misma palabra y la describe en exactamente 5 palabras. La comunidad vota. El m\u00e1s creativo gana. Juega gratis en iOS y web.",
@@ -146,7 +153,9 @@
     "vote_on_others": "Votar por otros",
     "see_results": "Ver resultados",
     "no_word": "No hay palabra disponible hoy",
-    "check_back": "Vuelve m\u00e1s tarde o contacta soporte.",
+    "no_word_available": "No hay palabra disponible hoy",
+    "check_back": "Vuelve más tarde o contacta soporte.",
+    "submit_error": "Error al enviar. Inténtalo de nuevo.",
     "day_streak": "{count} d\u00eda{count, plural, one {} other {s}} de racha",
     "your_pick": "TU ELECCI\u00d3N \u2713",
     "next_word_in": "Siguiente palabra en",

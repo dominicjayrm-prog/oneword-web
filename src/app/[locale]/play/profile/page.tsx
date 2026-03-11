@@ -123,7 +123,7 @@ export default function ProfilePage() {
 
   async function handlePasswordUpdate() {
     setPasswordError(null);
-    if (newPassword.length < 6) {
+    if (newPassword.trim().length < 6) {
       setPasswordError(t('password_too_short'));
       return;
     }

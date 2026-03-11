@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { getGameDate, hasWordRolledOver } from '@/lib/gameDate';
 import type { DailyWord, Description } from '@/types';
@@ -20,7 +20,7 @@ export function useWord(language = 'en') {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const gameDateRef = useRef(getGameDate());
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchWord = useCallback(async () => {
     setLoading(true);
@@ -48,7 +48,7 @@ export function useWord(language = 'en') {
       setWord(fallbackWord);
     } else {
       console.error('Failed to fetch today\'s word:', rpcError, fallbackError);
-      setError('No word available for today');
+      setError('no_word_available');
     }
     gameDateRef.current = getGameDate();
     setLoading(false);
