@@ -5,7 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { Nav } from '@/components/ui/Nav';
 import { Footer } from '@/components/ui/Footer';
 
-const CONTACT_EMAIL = 'hello@oneword.game';
+const CONTACT_EMAIL = 'hello@oneword.app';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
