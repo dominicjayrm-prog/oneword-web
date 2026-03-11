@@ -21,8 +21,9 @@ export function AvatarPicker({ currentAvatar, onSelect }: AvatarPickerProps) {
       <button
         onClick={() => setOpen(!open)}
         className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-3xl transition-transform hover:scale-105 cursor-pointer"
+        aria-label={t('change_avatar')}
       >
-        {currentAvatar || '🎭'}
+        <span aria-hidden="true">{currentAvatar || '🎭'}</span>
       </button>
       <button
         onClick={() => setOpen(!open)}
@@ -39,11 +40,17 @@ export function AvatarPicker({ currentAvatar, onSelect }: AvatarPickerProps) {
             exit={{ opacity: 0, height: 0 }}
             className="mt-3 overflow-hidden"
           >
-            <div className="grid grid-cols-8 gap-2 rounded-xl border border-border bg-white p-3">
+            <div
+              className="grid grid-cols-4 gap-2 rounded-xl border border-border bg-white p-3 sm:grid-cols-8"
+              role="group"
+              aria-label={t('change_avatar')}
+            >
               {AVATAR_OPTIONS.map((emoji) => (
                 <button
                   key={emoji}
                   onClick={() => { onSelect(emoji); setOpen(false); }}
+                  aria-label={emoji}
+                  aria-pressed={currentAvatar === emoji}
                   className={cn(
                     'flex h-10 w-10 items-center justify-center rounded-lg text-xl transition-all cursor-pointer hover:bg-surface',
                     currentAvatar === emoji && 'ring-2 ring-primary bg-primary-light'

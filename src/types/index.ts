@@ -75,7 +75,7 @@ export interface Friendship {
   id: string;
   requester_id: string;
   addressee_id: string;
-  status: string;
+  status: 'pending' | 'accepted' | 'rejected';
   created_at: string;
   updated_at: string;
 }

@@ -216,7 +216,7 @@ export default function ProfilePage() {
             key={stat.label}
             className="flex flex-col items-center rounded-2xl border border-border bg-white p-4"
           >
-            <span className="text-2xl">{stat.emoji}</span>
+            <span className="text-2xl" aria-hidden="true">{stat.emoji}</span>
             <span className="mt-1 font-mono text-2xl font-bold text-text">{stat.value}</span>
             <span className="text-xs text-text-muted">{stat.label}</span>
           </div>

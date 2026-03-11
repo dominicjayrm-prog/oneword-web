@@ -104,7 +104,7 @@ export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
         {/* Day circles */}
         <div className="mt-8 flex justify-center gap-3">
           {DAY_LABELS.map((label, i) => (
-            <div key={i} className="flex flex-col items-center gap-1">
+            <div key={`${label}-${i}`} className="flex flex-col items-center gap-1">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
                   i < data.days_played

@@ -126,7 +126,7 @@ export default function VotePage() {
       <WordDisplay word={word.word} category={word.category} />
 
       <p className="mt-4 text-sm text-text-muted">
-        {t('vote_number', { count: votesCount + 1 })} / {VOTE_BATCH_SIZE}
+        {t('vote_progress', { current: votesCount + 1, total: VOTE_BATCH_SIZE })}
       </p>
 
       <div className="mt-8 w-full">

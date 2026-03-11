@@ -45,15 +45,6 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
-    keywords: [
-      'word game',
-      'daily game',
-      'wordle alternative',
-      'creative writing game',
-      'vocabulary game',
-      'five words',
-      'oneword game',
-    ],
     openGraph: {
       title: t('og_title'),
       description: t('og_description'),

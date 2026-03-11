@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -16,7 +16,7 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   function validateUsername(value: string): string | null {
     const trimmed = value.trim();
@@ -28,7 +28,7 @@ export default function SignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (loading) return; // Prevent double-submit
+    if (loading) return;
     setError('');
 
     const usernameError = validateUsername(username);
@@ -60,7 +60,6 @@ export default function SignupPage() {
     }
 
     if (data.user) {
-      // Poll for profile existence instead of fragile timeout
       const trimmedUsername = username.trim();
       let profileReady = false;
       for (let i = 0; i < 5; i++) {
@@ -110,13 +109,14 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
           {error && (
-            <div className="rounded-xl bg-primary-light px-4 py-3 text-sm text-primary">
+            <div role="alert" className="rounded-xl bg-primary-light px-4 py-3 text-sm text-primary">
               {error}
             </div>
           )}
           <input
             type="text"
             placeholder={t('signup_username')}
+            aria-label={t('signup_username')}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -128,6 +128,7 @@ export default function SignupPage() {
           <input
             type="email"
             placeholder={t('signup_email')}
+            aria-label={t('signup_email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -136,6 +137,7 @@ export default function SignupPage() {
           <input
             type="password"
             placeholder={t('signup_password')}
+            aria-label={t('signup_password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -145,6 +147,7 @@ export default function SignupPage() {
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
+            aria-label={t('language_label') || 'Language'}
             className="rounded-xl border border-border bg-white px-4 py-3 text-text outline-none focus:border-primary"
           >
             <option value="en">&#127468;&#127463; {t('language_en')}</option>

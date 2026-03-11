@@ -28,14 +28,14 @@ export function Features() {
       <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feat, i) => (
           <motion.div
-            key={i}
+            key={feat.title}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-30px' }}
             transition={{ duration: 0.4, delay: i * 0.08 }}
             className="rounded-2xl border border-border bg-white p-7"
           >
-            <span className="text-3xl">{feat.emoji}</span>
+            <span className="text-3xl" aria-hidden="true">{feat.emoji}</span>
             <h3 className="mt-4 font-serif text-lg font-bold text-text">{feat.title}</h3>
             <p className="mt-2 leading-relaxed text-text-muted">{feat.desc}</p>
           </motion.div>

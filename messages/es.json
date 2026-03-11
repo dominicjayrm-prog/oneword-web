@@ -132,7 +132,8 @@
     "signup_username_invalid_chars": "El nombre de usuario solo puede contener letras, n\u00fameros y guiones bajos",
     "signup_check_email": "Revisa tu correo para confirmar tu cuenta, luego inicia sesi\u00f3n.",
     "language_en": "English",
-    "language_es": "Espa\u00f1ol"
+    "language_es": "Espa\u00f1ol",
+    "language_label": "Idioma"
   },
   "game": {
     "todays_word": "la palabra de hoy",
@@ -158,6 +159,7 @@
     "all_done": "\u00a1Listo! Votaste en {count} pares \ud83c\udf89",
     "not_enough": "\u00a1A\u00fan no hay suficientes descripciones. Vuelve m\u00e1s tarde!",
     "vote_number": "Voto {count}",
+    "vote_progress": "{current} / {total}",
     "great_work": "\u00a1Buen trabajo! \ud83c\udf89",
     "voted_count": "Votaste en {count} pares. \u00a1Vuelve m\u00e1s tarde para m\u00e1s!"
   },
@@ -171,6 +173,7 @@
     "share_result": "Compartir resultado",
     "share_text": "OneWord - {word}\n\n\u201c{desc}\u201d\n\n\u00a1Qued\u00e9 #{rank} de {total} jugadores!\n\nJuega en oneword.game",
     "you_label": "T\u00da",
+    "vote_count_short": "{count}v",
     "play_first": "Juega la palabra del d\u00eda para ver resultados",
     "play_now": "Jugar ahora",
     "votes_label": "votos",
@@ -379,6 +382,8 @@
     "today": "Hoy",
     "vote": "Votar",
     "results": "Resultados",
-    "friends": "Amigos"
+    "friends": "Amigos",
+    "main_nav": "Navegaci\u00f3n principal",
+    "mobile_nav": "Navegaci\u00f3n m\u00f3vil"
   }
 }
