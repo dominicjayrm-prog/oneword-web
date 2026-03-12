@@ -68,26 +68,41 @@ export function useArchiveCalendar(language: string) {
     return Array.from(monthSet.keys());
   }, [allEntries]);
 
+  // Extract unique categories
+  const categories = useMemo(() => {
+    const catSet = new Set<string>();
+    for (const entry of allEntries) {
+      if (entry.category) catSet.add(entry.category);
+    }
+    return Array.from(catSet).sort();
+  }, [allEntries]);
+
   const filterByMonth = useCallback(
-    (monthKey: string | null) => {
-      if (!monthKey) {
+    (monthKey: string | null, category?: string | null) => {
+      let filtered = allEntries;
+      if (monthKey) {
+        filtered = filtered.filter((e) => {
+          const d = new Date(e.word_date + 'T12:00:00Z');
+          const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+          return key === monthKey;
+        });
+      }
+      if (category) {
+        filtered = filtered.filter((e) => e.category === category);
+      }
+      if (!monthKey && !category) {
         setEntries(allEntries.slice(0, PAGE_SIZE));
         setPage(1);
         setHasMore(allEntries.length > PAGE_SIZE);
         return;
       }
-      const filtered = allEntries.filter((e) => {
-        const d = new Date(e.word_date + 'T12:00:00Z');
-        const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
-        return key === monthKey;
-      });
       setEntries(filtered);
       setHasMore(false);
     },
     [allEntries]
   );
 
-  return { entries, loading, hasMore, loadMore, fetchCalendar, months, filterByMonth };
+  return { entries, loading, hasMore, loadMore, fetchCalendar, months, categories, filterByMonth };
 }
 
 export function useArchiveDay(language: string) {
@@ -98,13 +113,72 @@ export function useArchiveDay(language: string) {
   const fetchDay = useCallback(
     async (date: string) => {
       setLoading(true);
+
+      // Try RPC first
       const { data: rows, error } = await supabase.rpc('get_archive_day', {
         p_date: date,
         p_language: language,
       });
-      if (!error && rows) {
+
+      if (!error && rows && (rows as ArchiveDayEntry[]).length > 0) {
         setData(rows as ArchiveDayEntry[]);
+        setLoading(false);
+        return;
       }
+
+      if (error) {
+        console.error('get_archive_day RPC error:', error.code, error.message);
+      }
+
+      // Fallback: query tables directly
+      const { data: wordData } = await supabase
+        .from('daily_words')
+        .select('id, word, category, date')
+        .eq('date', date)
+        .eq('language', language)
+        .single();
+
+      if (!wordData) {
+        setLoading(false);
+        return;
+      }
+
+      const { data: countData } = await supabase
+        .from('descriptions')
+        .select('user_id', { count: 'exact', head: false })
+        .eq('word_id', wordData.id);
+
+      const playerCount = countData ? new Set(countData.map((r: { user_id: string }) => r.user_id)).size : 0;
+
+      const { data: descs, error: descError } = await supabase
+        .from('descriptions')
+        .select('description, vote_count, elo_rating, rank, user_id, profiles!inner(username)')
+        .eq('word_id', wordData.id)
+        .order('elo_rating', { ascending: false })
+        .limit(10);
+
+      if (descError) {
+        console.error('Archive day fallback error:', descError.code, descError.message);
+      }
+
+      if (descs) {
+        const mapped: ArchiveDayEntry[] = descs.map((row: Record<string, unknown>, i: number) => {
+          const profile = row.profiles as Record<string, unknown> | undefined;
+          return {
+            word: wordData.word,
+            category: wordData.category,
+            word_date: wordData.date,
+            description: row.description as string,
+            username: (profile?.username || '') as string,
+            elo_rating: (row.elo_rating ?? 0) as number,
+            rank: (row.rank ?? i + 1) as number,
+            vote_count: (row.vote_count ?? 0) as number,
+            player_count: playerCount,
+          };
+        });
+        setData(mapped);
+      }
+
       setLoading(false);
     },
     [language, supabase]
