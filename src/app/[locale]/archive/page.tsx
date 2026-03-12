@@ -32,9 +32,10 @@ function formatMonthLabel(monthKey: string, locale: string): string {
 export default function ArchivePage() {
   const t = useTranslations('archive');
   const locale = useLocale();
-  const { entries, loading, hasMore, loadMore, fetchCalendar, months, filterByMonth } =
+  const { entries, loading, hasMore, loadMore, fetchCalendar, months, categories, filterByMonth } =
     useArchiveCalendar(locale === 'es' ? 'es' : 'en');
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCalendar();
@@ -42,7 +43,12 @@ export default function ArchivePage() {
 
   function handleMonthFilter(monthKey: string | null) {
     setSelectedMonth(monthKey);
-    filterByMonth(monthKey);
+    filterByMonth(monthKey, selectedCategory);
+  }
+
+  function handleCategoryFilter(cat: string | null) {
+    setSelectedCategory(cat);
+    filterByMonth(selectedMonth, cat);
   }
 
   return (
@@ -72,32 +78,66 @@ export default function ArchivePage() {
           <p className="mt-3 text-text-muted">{t('subtitle')}</p>
         </div>
 
-        {/* Month filter */}
-        {months.length > 0 && (
-          <div className="mb-8 flex flex-wrap justify-center gap-2">
-            <button
-              onClick={() => handleMonthFilter(null)}
-              className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
-                selectedMonth === null
-                  ? 'bg-primary text-white'
-                  : 'bg-surface text-text-muted hover:text-text'
-              }`}
-            >
-              {locale === 'es' ? 'Todos' : 'All'}
-            </button>
-            {months.map((m) => (
-              <button
-                key={m}
-                onClick={() => handleMonthFilter(m)}
-                className={`rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-colors ${
-                  selectedMonth === m
-                    ? 'bg-primary text-white'
-                    : 'bg-surface text-text-muted hover:text-text'
-                }`}
-              >
-                {formatMonthLabel(m, locale)}
-              </button>
-            ))}
+        {/* Filters */}
+        {(categories.length > 0 || months.length > 0) && (
+          <div className="mb-8 space-y-3">
+            {/* Category filter */}
+            {categories.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-2">
+                <button
+                  onClick={() => handleCategoryFilter(null)}
+                  className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
+                    selectedCategory === null
+                      ? 'bg-primary text-white'
+                      : 'bg-surface text-text-muted hover:text-text'
+                  }`}
+                >
+                  {locale === 'es' ? 'Todas' : 'All'}
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => handleCategoryFilter(cat)}
+                    className={`rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-colors ${
+                      selectedCategory === cat
+                        ? 'bg-primary text-white'
+                        : 'bg-surface text-text-muted hover:text-text'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Month filter */}
+            {months.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-2">
+                <button
+                  onClick={() => handleMonthFilter(null)}
+                  className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
+                    selectedMonth === null
+                      ? 'bg-primary/20 text-primary'
+                      : 'bg-surface text-text-muted hover:text-text'
+                  }`}
+                >
+                  {locale === 'es' ? 'Todos los meses' : 'All months'}
+                </button>
+                {months.map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => handleMonthFilter(m)}
+                    className={`rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-colors ${
+                      selectedMonth === m
+                        ? 'bg-primary/20 text-primary'
+                        : 'bg-surface text-text-muted hover:text-text'
+                    }`}
+                  >
+                    {formatMonthLabel(m, locale)}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
