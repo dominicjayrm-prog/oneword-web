@@ -108,8 +108,7 @@
   "footer": {
     "privacy": "Privacy",
     "terms": "Terms",
-    "contact": "Contact",
-    "twitter": "Twitter"
+    "contact": "Contact"
   },
   "auth": {
     "login_title": "Welcome back",

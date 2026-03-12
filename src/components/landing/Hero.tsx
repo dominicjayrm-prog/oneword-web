@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Link, useRouter } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/Button';
 import { Onboarding } from '@/components/game/Onboarding';
 
@@ -13,10 +13,11 @@ export function Hero() {
   const demoPills = t.raw('demo_pills') as string[];
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  function handlePlayClick(e: React.MouseEvent) {
+  function handlePlayClick() {
     if (typeof window !== 'undefined' && !localStorage.getItem('hasSeenOnboarding')) {
-      e.preventDefault();
       setShowOnboarding(true);
+    } else {
+      router.push('/play');
     }
   }
 
@@ -94,11 +95,9 @@ export function Hero() {
           <Button variant="dark" size="lg" as="a" href="#">
             &#127822; {t('cta_appstore')}
           </Button>
-          <Link href="/play" onClick={handlePlayClick}>
-            <Button variant="outline" size="lg">
-              &#127760; {t('cta_web')}
-            </Button>
-          </Link>
+          <Button variant="outline" size="lg" onClick={handlePlayClick}>
+            &#127760; {t('cta_web')}
+          </Button>
         </div>
       </motion.div>
     </section>
