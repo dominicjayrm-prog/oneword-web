@@ -108,7 +108,8 @@
   "footer": {
     "privacy": "Privacy",
     "terms": "Terms",
-    "contact": "Contact"
+    "contact": "Contact",
+    "archive": "Archive"
   },
   "auth": {
     "login_title": "Welcome back",
@@ -401,5 +402,21 @@
     "friends": "Friends",
     "main_nav": "Main navigation",
     "mobile_nav": "Mobile navigation"
+  },
+  "archive": {
+    "title": "Archive",
+    "subtitle": "Every word. Every winner. Every day.",
+    "back": "\u2190 Back to Archive",
+    "players": "players",
+    "votes": "votes",
+    "load_more": "Load more",
+    "empty_title": "The archive is empty for now.",
+    "empty_subtitle": "Play today and check back tomorrow to see the results.",
+    "loading": "Loading archive...",
+    "home": "Home",
+    "play": "Play",
+    "meta_title": "Archive \u2014 OneWord",
+    "meta_description": "Browse every past OneWord challenge and see the most creative descriptions from players around the world.",
+    "day_meta_description": "\ud83e\udd47 {description} \u2014 See the top descriptions for {date}"
   }
 }

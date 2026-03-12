@@ -45,6 +45,7 @@ export function Footer() {
         <div className="flex items-center gap-6 text-sm text-text-muted">
           <Link href="/privacy" className="hover:text-text transition-colors">{t('privacy')}</Link>
           <Link href="/terms" className="hover:text-text transition-colors">{t('terms')}</Link>
+          <Link href="/archive" className="hover:text-text transition-colors">{t('archive')}</Link>
           <a href="mailto:hello@oneword.app" className="hover:text-text transition-colors">{t('contact')}</a>
           <div className="flex items-center gap-4">
             <a href="https://x.com/playoneword" target="_blank" rel="noopener noreferrer" className="hover:text-text transition-colors" aria-label="X (Twitter)">
