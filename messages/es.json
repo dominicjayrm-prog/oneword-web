@@ -108,7 +108,8 @@
   "footer": {
     "privacy": "Privacidad",
     "terms": "T\u00e9rminos",
-    "contact": "Contacto"
+    "contact": "Contacto",
+    "archive": "Archivo"
   },
   "auth": {
     "login_title": "Bienvenido de nuevo",
@@ -401,5 +402,21 @@
     "friends": "Amigos",
     "main_nav": "Navegaci\u00f3n principal",
     "mobile_nav": "Navegaci\u00f3n m\u00f3vil"
+  },
+  "archive": {
+    "title": "Archivo",
+    "subtitle": "Cada palabra. Cada ganador. Cada d\u00eda.",
+    "back": "\u2190 Volver al Archivo",
+    "players": "jugadores",
+    "votes": "votos",
+    "load_more": "Cargar m\u00e1s",
+    "empty_title": "El archivo est\u00e1 vac\u00edo por ahora.",
+    "empty_subtitle": "Juega hoy y vuelve ma\u00f1ana para ver los resultados.",
+    "loading": "Cargando archivo...",
+    "home": "Inicio",
+    "play": "Jugar",
+    "meta_title": "Archivo \u2014 OneWord",
+    "meta_description": "Explora todos los desaf\u00edos pasados de OneWord y descubre las descripciones m\u00e1s creativas de jugadores de todo el mundo.",
+    "day_meta_description": "\ud83e\udd47 {description} \u2014 Mira las mejores descripciones del {date}"
   }
 }

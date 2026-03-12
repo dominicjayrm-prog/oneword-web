@@ -11,6 +11,7 @@ interface PageEntry {
 
 const pages: PageEntry[] = [
   { path: '', changeFrequency: 'daily', priority: 1.0 },
+  { path: '/archive', changeFrequency: 'daily', priority: 0.7 },
   { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
   { path: '/terms', changeFrequency: 'yearly', priority: 0.3 },
 ];
