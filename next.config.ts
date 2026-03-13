@@ -17,9 +17,9 @@ const nextConfig: NextConfig = {
     ];
 
     return [
-      // All page routes get full CSP — exclude static assets and API/og
+      // All routes get full security headers + CSP
       {
-        source: "/((?!.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff|woff2)$)(?!api/og).*)",
+        source: "/(.*)",
         headers: [
           ...securityHeaders,
           { key: "X-Frame-Options", value: "DENY" },
@@ -35,6 +35,16 @@ const nextConfig: NextConfig = {
               "frame-ancestors 'none'",
             ].join("; "),
           },
+        ],
+      },
+      // OG image route — override CSP to allow crawlers to fetch freely
+      {
+        source: "/api/og",
+        headers: [
+          { key: "Content-Security-Policy", value: "" },
+          { key: "X-Frame-Options", value: "" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Cache-Control", value: "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800" },
         ],
       },
     ];
