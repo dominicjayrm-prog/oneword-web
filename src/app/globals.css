@@ -40,6 +40,122 @@ body {
   animation: shake 0.4s ease-in-out;
 }
 
+/* ── Hero animated gradient blobs (desktop only) ── */
+.hero-blobs {
+  position: absolute;
+  top: 100px;
+  left: 0;
+  right: 0;
+  height: calc(100vh - 100px);
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+  .hero-blobs { display: none; }
+}
+
+.hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, border-radius;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.hero-blob-l1 {
+  left: -5%;
+  top: 5%;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(255,107,74,0.22) 0%, rgba(255,107,74,0.07) 50%, transparent 70%);
+  filter: blur(50px);
+  animation: morphA 25s ease-in-out infinite, driftLeft1 35s ease-in-out infinite;
+}
+
+.hero-blob-l2 {
+  left: 3%;
+  top: 40%;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(74,91,255,0.15) 0%, rgba(74,91,255,0.04) 50%, transparent 70%);
+  filter: blur(45px);
+  animation: morphB 30s ease-in-out infinite, driftLeft2 40s ease-in-out infinite;
+}
+
+.hero-blob-r1 {
+  right: -5%;
+  top: 10%;
+  width: 430px;
+  height: 430px;
+  background: radial-gradient(circle, rgba(255,107,74,0.19) 0%, rgba(255,107,74,0.06) 50%, transparent 70%);
+  filter: blur(50px);
+  animation: morphC 28s ease-in-out infinite, driftRight1 38s ease-in-out infinite;
+}
+
+.hero-blob-r2 {
+  right: 2%;
+  top: 50%;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(74,91,255,0.13) 0%, rgba(74,91,255,0.03) 50%, transparent 70%);
+  filter: blur(45px);
+  animation: morphD 32s ease-in-out infinite, driftRight2 42s ease-in-out infinite;
+}
+
+@keyframes morphA {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50% { border-radius: 50% 60% 30% 60% / 30% 50% 70% 50%; }
+  75% { border-radius: 60% 30% 50% 40% / 60% 40% 60% 30%; }
+}
+
+@keyframes morphB {
+  0%, 100% { border-radius: 40% 60% 60% 40% / 70% 30% 50% 60%; }
+  25% { border-radius: 60% 40% 30% 60% / 40% 60% 70% 30%; }
+  50% { border-radius: 30% 50% 70% 40% / 60% 40% 30% 70%; }
+  75% { border-radius: 50% 30% 40% 60% / 30% 70% 60% 40%; }
+}
+
+@keyframes morphC {
+  0%, 100% { border-radius: 50% 50% 40% 60% / 40% 60% 50% 50%; }
+  25% { border-radius: 40% 60% 50% 50% / 60% 40% 60% 40%; }
+  50% { border-radius: 60% 40% 60% 40% / 50% 50% 40% 60%; }
+  75% { border-radius: 30% 70% 50% 50% / 60% 30% 50% 70%; }
+}
+
+@keyframes morphD {
+  0%, 100% { border-radius: 70% 30% 50% 50% / 30% 70% 40% 60%; }
+  25% { border-radius: 50% 50% 30% 70% / 50% 50% 60% 40%; }
+  50% { border-radius: 40% 60% 70% 30% / 60% 40% 30% 70%; }
+  75% { border-radius: 60% 40% 40% 60% / 40% 60% 70% 30%; }
+}
+
+@keyframes driftLeft1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.05); }
+  66% { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+@keyframes driftLeft2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(-25px, 50px) scale(1.08); }
+  66% { transform: translate(35px, -20px) scale(0.93); }
+}
+
+@keyframes driftRight1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(-30px, -35px) scale(1.06); }
+  66% { transform: translate(20px, 45px) scale(0.94); }
+}
+
+@keyframes driftRight2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(25px, 40px) scale(0.96); }
+  66% { transform: translate(-35px, -25px) scale(1.04); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
