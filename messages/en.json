@@ -418,5 +418,16 @@
     "meta_title": "Archive \u2014 OneWord",
     "meta_description": "Browse every past OneWord challenge and see the most creative descriptions from players around the world.",
     "day_meta_description": "\ud83e\udd47 {description} \u2014 See the top descriptions for {date}"
+  },
+  "favourites": {
+    "title": "Favourite Phrases",
+    "mine": "Mine",
+    "community": "Community",
+    "emptyMine": "Your best work lives here.",
+    "emptyMineSubtitle": "Star your favourite descriptions to save them.",
+    "emptyCommunity": "Discover brilliance.",
+    "emptyCommunitySubtitle": "Tap the heart on any description you love.",
+    "saved": "Saved to favourites \u2665",
+    "removed": "Removed from favourites"
   }
 }

@@ -11,6 +11,7 @@ import { ReportDialog } from '@/components/game/ReportDialog';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Link } from '@/i18n/navigation';
+import { useFavourites } from '@/lib/hooks/useFavourites';
 
 export default function VotePage() {
   const { user, profile } = useAuth();
@@ -22,6 +23,7 @@ export default function VotePage() {
     word?.id,
     user?.id
   );
+  const { isFavourited, toggleFavourite } = useFavourites(user?.id);
   const [hasPlayed, setHasPlayed] = useState<boolean | null>(null);
   const [reportTarget, setReportTarget] = useState<{ descriptionId: string; wordId: string } | null>(null);
 
@@ -150,6 +152,8 @@ export default function VotePage() {
               }}
               onVote={submitVote}
               onReport={(descId) => setReportTarget({ descriptionId: descId, wordId: word.id })}
+              isFavourited={isFavourited}
+              onToggleFavourite={toggleFavourite}
             />
           </>
         )}

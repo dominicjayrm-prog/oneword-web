@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Link } from '@/i18n/navigation';
-import { getRankEmoji } from '@/lib/utils';
+import { getRankEmoji, formatDescription } from '@/lib/utils';
 
 interface LeaderboardEntry {
   description: string;
@@ -133,7 +133,7 @@ export function LiveLeaderboard() {
                 <span className="text-2xl" aria-hidden="true">{getRankEmoji(i + 1)}</span>
                 <div className="flex-1 min-w-0">
                   <p className="font-serif text-lg text-white break-words">
-                    &ldquo;{entry.description}&rdquo;
+                    &ldquo;{formatDescription(entry.description)}&rdquo;
                   </p>
                   <p className="text-sm text-text-muted-light">@{entry.username}</p>
                 </div>

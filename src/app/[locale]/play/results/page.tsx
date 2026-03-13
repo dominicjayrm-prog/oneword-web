@@ -13,6 +13,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/Button';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
+import { useFavourites } from '@/lib/hooks/useFavourites';
 
 const LEADERBOARD_LIMIT = 20;
 
@@ -27,6 +28,7 @@ export default function ResultsPage() {
   const { word, userDescription, loading: wordLoading, error: wordError, fetchUserDescription } = useWord(lang);
   const { entries, loading: lbLoading, fetchLeaderboard } = useLeaderboard(word?.id);
   const { friends, friendsDescriptions, fetchFriends, fetchFriendsDescriptions } = useFriends(user?.id);
+  const { isFavourited, toggleFavourite } = useFavourites(user?.id);
   const [tab, setTab] = useState<Tab>('global');
   const [hasPlayed, setHasPlayed] = useState<boolean | null>(null);
   const [descriptionChecked, setDescriptionChecked] = useState(false);
@@ -134,6 +136,9 @@ export default function ResultsPage() {
                 voteCount={entry.vote_count}
                 isCurrentUser={entry.user_id === user?.id}
                 badgeEmoji={(entry as unknown as Record<string, unknown>).streak_badge_emoji as string | undefined}
+                descriptionId={entry.id}
+                isFavourited={isFavourited(entry.id)}
+                onToggleFavourite={() => toggleFavourite(entry.id)}
               />
             ))
           ) : (
@@ -148,6 +153,9 @@ export default function ResultsPage() {
               username={entry.username}
               voteCount={entry.vote_count}
               isCurrentUser={entry.user_id === user?.id}
+              descriptionId={entry.description_id}
+              isFavourited={isFavourited(entry.description_id)}
+              onToggleFavourite={() => toggleFavourite(entry.description_id)}
             />
           ))
         ) : (

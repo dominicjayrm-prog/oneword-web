@@ -13,6 +13,7 @@ interface FriendDescription {
   user_id: string;
   username: string;
   description: string;
+  description_id: string;
   vote_count: number;
 }
 
@@ -44,6 +45,7 @@ function normalizeFriendDesc(row: Record<string, unknown>): FriendDescription {
     user_id: (row.user_id || row.friend_id || '') as string,
     username: extractUsername(row),
     description: (row.description || row.description_text || '') as string,
+    description_id: (row.description_id || row.id || '') as string,
     vote_count: (row.vote_count ?? row.votes ?? 0) as number,
   };
 }
@@ -151,7 +153,7 @@ export function useFriends(userId: string | undefined) {
 
     const { data: descs } = await supabase
       .from('descriptions')
-      .select('user_id, description, vote_count, profiles!inner(username)')
+      .select('id, user_id, description, vote_count, profiles!inner(username)')
       .eq('word_id', wordId)
       .in('user_id', friendIds);
 
@@ -162,6 +164,7 @@ export function useFriends(userId: string | undefined) {
           user_id: row.user_id as string,
           username: (profile?.username || '') as string,
           description: (row.description || '') as string,
+          description_id: (row.id || '') as string,
           vote_count: (row.vote_count ?? 0) as number,
         };
       });

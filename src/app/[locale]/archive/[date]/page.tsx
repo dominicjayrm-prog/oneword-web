@@ -8,6 +8,7 @@ import { useArchiveDay } from '@/lib/hooks/useArchive';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Footer } from '@/components/ui/Footer';
 import { use } from 'react';
+import { formatDescription } from '@/lib/utils';
 
 const RANK_EMOJI: Record<number, string> = { 1: '\uD83E\uDD47', 2: '\uD83E\uDD48', 3: '\uD83E\uDD49' };
 const RANK_BG: Record<number, string> = {
@@ -138,7 +139,7 @@ export default function ArchiveDayPage({
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="text-base italic text-text">
-                          &ldquo;{entry.description}&rdquo;
+                          &ldquo;{formatDescription(entry.description)}&rdquo;
                         </p>
                         <p className="mt-1.5 text-xs text-text-muted">
                           <span className="font-semibold">@{entry.username}</span>

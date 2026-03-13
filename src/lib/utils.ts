@@ -23,3 +23,8 @@ export function getOrdinal(n: number, locale?: string): string {
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
+
+export function formatDescription(description: string): string {
+  if (!description || description.length === 0) return description;
+  return description.charAt(0).toUpperCase() + description.slice(1);
+}

@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
+import { formatDescription } from '@/lib/utils';
 
 interface ShareCardProps {
   word: string;
@@ -44,7 +45,7 @@ export function ShareCard({ word, description, rank, totalPlayers, streak, votes
       >
         <p className="font-serif text-sm font-bold text-white/50">oneword</p>
         <h3 className="mt-3 font-serif text-3xl font-black text-white">{word.toUpperCase()}</h3>
-        <p className="mt-3 font-serif text-lg italic text-white/80">&ldquo;{description}&rdquo;</p>
+        <p className="mt-3 font-serif text-lg italic text-white/80">&ldquo;{formatDescription(description)}&rdquo;</p>
         <div className="mt-4 flex items-center justify-center gap-6">
           <div>
             <p className="font-mono text-2xl font-bold text-primary">#{rank}</p>

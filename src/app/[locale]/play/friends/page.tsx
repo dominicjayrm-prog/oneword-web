@@ -11,6 +11,9 @@ import { checkRateLimit } from '@/lib/rateLimit';
 import { getCurrentBadge } from '@/lib/badges';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { FavouriteButton } from '@/components/game/FavouriteButton';
+import { useFavourites } from '@/lib/hooks/useFavourites';
+import { formatDescription } from '@/lib/utils';
 
 interface SearchResult {
   user_id: string;
@@ -33,6 +36,7 @@ export default function FriendsPage() {
   const { word, userDescription, fetchUserDescription } = useWord(lang);
   const { friends, friendsDescriptions, loading, fetchFriends, fetchFriendsDescriptions } =
     useFriends(user?.id);
+  const { isFavourited, toggleFavourite } = useFavourites(user?.id);
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -374,10 +378,22 @@ export default function FriendsPage() {
                 key={fd.user_id}
                 className="rounded-xl border border-border bg-white p-4"
               >
-                <p className="text-sm font-medium text-text-muted">@{fd.username}</p>
-                <p className="mt-1 font-serif text-lg italic text-text">
-                  &ldquo;{fd.description}&rdquo;
-                </p>
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-text-muted">@{fd.username}</p>
+                    <p className="mt-1 font-serif text-lg italic text-text">
+                      &ldquo;{formatDescription(fd.description)}&rdquo;
+                    </p>
+                  </div>
+                  {fd.description_id && (
+                    <FavouriteButton
+                      isFavourited={isFavourited(fd.description_id)}
+                      onToggle={() => toggleFavourite(fd.description_id)}
+                      size={14}
+                      className="ml-2 mt-1"
+                    />
+                  )}
+                </div>
               </div>
             ))}
           </div>

@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useRouter } from '@/i18n/navigation';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { FavouritePhrases } from '@/components/game/FavouritePhrases';
 
 export default function ProfilePage() {
   const { user, profile, loading, signOut, refreshProfile } = useAuth();
@@ -30,6 +31,8 @@ export default function ProfilePage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [showFavourites, setShowFavourites] = useState(false);
+  const tFav = useTranslations('favourites');
 
   useEffect(() => {
     if (profile?.language) setLanguage(profile.language);
@@ -72,6 +75,10 @@ export default function ProfilePage() {
         <LoadingSpinner size="lg" />
       </div>
     );
+  }
+
+  if (showFavourites && user) {
+    return <FavouritePhrases userId={user.id} onBack={() => setShowFavourites(false)} />;
   }
 
   async function handleLanguageChange(newLang: string) {
@@ -211,6 +218,17 @@ export default function ProfilePage() {
       <div className="mt-6">
         <BadgeProgress streak={profile.current_streak} locale={locale} />
       </div>
+
+      {/* Favourite Phrases */}
+      <button
+        onClick={() => setShowFavourites(true)}
+        className="mt-6 flex w-full items-center justify-between rounded-2xl border border-border bg-white p-4 transition-colors hover:border-primary/50 cursor-pointer"
+      >
+        <span className="text-sm font-semibold text-text">
+          <span className="text-primary">&hearts;</span> {tFav('title')}
+        </span>
+        <span className="text-text-muted">&rsaquo;</span>
+      </button>
 
       {/* Stats grid */}
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">

@@ -8,6 +8,7 @@ import { useWord } from '@/lib/hooks/useWord';
 import { useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { getGameDate, getGameDay, getGameMonday } from '@/lib/gameDate';
+import { formatDescription } from '@/lib/utils';
 import { getCurrentBadge } from '@/lib/badges';
 import { WordDisplay } from '@/components/game/WordDisplay';
 import { DescriptionInput } from '@/components/game/DescriptionInput';
@@ -254,7 +255,7 @@ export default function PlayPage() {
                 {t('locked_in')}
               </span>
               <p className="mt-4 font-serif text-xl italic text-text">
-                &ldquo;{userDescription.description}&rdquo;
+                &ldquo;{formatDescription(userDescription.description)}&rdquo;
               </p>
             </div>
             <div className="mt-4">

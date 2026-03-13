@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { getCurrentBadge } from '@/lib/badges';
+import { formatDescription } from '@/lib/utils';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { Button } from '@/components/ui/Button';
 
@@ -98,7 +99,7 @@ export function WeeklyRecap({ data, onDismiss, onShare }: WeeklyRecapProps) {
               {data.best_rank_word.toUpperCase()}
             </h3>
             <p className="mt-2 font-serif text-lg italic text-white/80">
-              &ldquo;{data.best_rank_description}&rdquo;
+              &ldquo;{formatDescription(data.best_rank_description!)}&rdquo;
             </p>
             <p className="mt-2 text-sm text-white/60">
               #{data.best_rank} {t('of')} {data.best_rank_total_players}
