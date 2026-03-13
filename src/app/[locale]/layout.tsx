@@ -42,20 +42,35 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'meta' });
+  const isEs = locale === 'es';
+  const siteUrl = 'https://playoneword.app';
+  const pageUrl = isEs ? `${siteUrl}/es` : siteUrl;
+  const ogImage = isEs ? `${siteUrl}/og-image-es.png` : `${siteUrl}/og-image.png`;
+
   return {
     title: t('title'),
     description: t('description'),
     openGraph: {
       title: t('og_title'),
       description: t('og_description'),
+      url: pageUrl,
+      siteName: 'OneWord',
       type: 'website',
-      locale: locale === 'es' ? 'es_ES' : 'en_US',
-      images: ['/og-image.png'],
+      locale: isEs ? 'es_ES' : 'en_US',
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: t('og_title'),
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: t('og_title'),
       description: t('og_description'),
+      images: [ogImage],
     },
     icons: {
       icon: [
@@ -67,11 +82,11 @@ export async function generateMetadata({
       apple: '/apple-touch-icon.png',
     },
     alternates: {
-      canonical: locale === 'en' ? 'https://oneword.game' : `https://oneword.game/es`,
+      canonical: isEs ? `${siteUrl}/es` : siteUrl,
       languages: {
-        en: 'https://oneword.game',
-        es: 'https://oneword.game/es',
-        'x-default': 'https://oneword.game',
+        en: siteUrl,
+        es: `${siteUrl}/es`,
+        'x-default': siteUrl,
       },
     },
   };
