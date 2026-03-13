@@ -17,11 +17,9 @@ const ROOT = join(__dirname, '..');
 const wasmPath = join(ROOT, 'node_modules/@resvg/resvg-wasm/index_bg.wasm');
 await initWasm(readFile(wasmPath));
 
+// Use bundled fonts (local files)
 const notoSans = await readFile(
   join(ROOT, 'node_modules/next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf')
-);
-const geistRegular = await readFile(
-  join(ROOT, 'node_modules/@vercel/og/dist/Geist-Regular.ttf')
 );
 
 const WIDTH = 1200;
@@ -61,22 +59,32 @@ for (const { file, tagline, subtitle } of variants) {
             style: {
               display: 'flex',
               flexDirection: 'row',
-              fontSize: '90px',
-              fontWeight: 400,
-              fontFamily: 'Noto Sans',
+              alignItems: 'baseline',
             },
             children: [
               {
                 type: 'span',
                 props: {
-                  style: { color: '#1A1A2E' },
+                  style: {
+                    fontFamily: 'Noto Sans',
+                    fontSize: '90px',
+                    fontWeight: 400,
+                    color: '#1A1A2E',
+                    letterSpacing: '-2px',
+                  },
                   children: 'one',
                 },
               },
               {
                 type: 'span',
                 props: {
-                  style: { color: '#FF6B4A' },
+                  style: {
+                    fontFamily: 'Noto Sans',
+                    fontSize: '90px',
+                    fontWeight: 400,
+                    color: '#FF6B4A',
+                    letterSpacing: '-2px',
+                  },
                   children: 'word',
                 },
               },
@@ -92,6 +100,7 @@ for (const { file, tagline, subtitle } of variants) {
               height: '3px',
               backgroundColor: '#FF6B4A',
               marginTop: '12px',
+              marginBottom: '16px',
               borderRadius: '2px',
             },
           },
@@ -101,12 +110,12 @@ for (const { file, tagline, subtitle } of variants) {
           type: 'div',
           props: {
             style: {
+              fontFamily: 'Noto Sans',
               fontSize: '28px',
               fontWeight: 400,
               fontStyle: 'italic',
               color: 'rgba(255,107,74,0.8)',
-              marginTop: '16px',
-              fontFamily: 'Noto Sans',
+              marginTop: '0px',
             },
             children: tagline,
           },
@@ -116,12 +125,12 @@ for (const { file, tagline, subtitle } of variants) {
           type: 'div',
           props: {
             style: {
+              fontFamily: 'Noto Sans',
               fontSize: '16px',
               fontWeight: 400,
               color: '#8B8697',
               marginTop: '14px',
               letterSpacing: '3px',
-              fontFamily: 'Geist',
             },
             children: subtitle,
           },
@@ -135,7 +144,6 @@ for (const { file, tagline, subtitle } of variants) {
     height: HEIGHT,
     fonts: [
       { name: 'Noto Sans', data: notoSans, weight: 400, style: 'normal' },
-      { name: 'Geist', data: geistRegular, weight: 400, style: 'normal' },
     ],
   });
 
