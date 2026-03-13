@@ -1,7 +1,6 @@
 /**
- * Generate static OG images for social media sharing.
+ * Generate static OG image fallbacks (cream background design).
  * Uses satori (SVG) + @resvg/resvg-wasm (PNG).
- * Uses Noto Sans (bundled) + the Geist font from @vercel/og.
  *
  * Run: node scripts/generate-og-images.mjs
  */
@@ -15,11 +14,9 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-// Initialize resvg WASM
 const wasmPath = join(ROOT, 'node_modules/@resvg/resvg-wasm/index_bg.wasm');
 await initWasm(readFile(wasmPath));
 
-// Use fonts bundled with next.js / @vercel/og (these are static, non-variable)
 const notoSans = await readFile(
   join(ROOT, 'node_modules/next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf')
 );
@@ -54,7 +51,7 @@ for (const { file, tagline, subtitle } of variants) {
         justifyContent: 'center',
         width: '100%',
         height: '100%',
-        background: 'linear-gradient(135deg, #0F0E17 0%, #2D1B69 100%)',
+        backgroundColor: '#FFFDF7',
       },
       children: [
         // Logo: "one" + "word"
@@ -64,7 +61,7 @@ for (const { file, tagline, subtitle } of variants) {
             style: {
               display: 'flex',
               flexDirection: 'row',
-              fontSize: '82px',
+              fontSize: '90px',
               fontWeight: 400,
               fontFamily: 'Noto Sans',
             },
@@ -72,7 +69,7 @@ for (const { file, tagline, subtitle } of variants) {
               {
                 type: 'span',
                 props: {
-                  style: { color: '#FFFFFF' },
+                  style: { color: '#1A1A2E' },
                   children: 'one',
                 },
               },
@@ -86,43 +83,43 @@ for (const { file, tagline, subtitle } of variants) {
             ],
           },
         },
-        // Coral divider line
+        // Coral divider
         {
           type: 'div',
           props: {
             style: {
-              width: '48px',
+              width: '50px',
               height: '3px',
               backgroundColor: '#FF6B4A',
-              marginTop: '28px',
+              marginTop: '12px',
               borderRadius: '2px',
             },
           },
         },
-        // Tagline (italic effect via styling)
+        // Tagline
         {
           type: 'div',
           props: {
             style: {
-              fontSize: '30px',
+              fontSize: '28px',
               fontWeight: 400,
               fontStyle: 'italic',
-              color: 'rgba(255,107,74,0.75)',
-              marginTop: '24px',
+              color: 'rgba(255,107,74,0.8)',
+              marginTop: '16px',
               fontFamily: 'Noto Sans',
             },
             children: tagline,
           },
         },
-        // Subtitle (uppercase, small)
+        // Subtitle
         {
           type: 'div',
           props: {
             style: {
-              fontSize: '13px',
+              fontSize: '16px',
               fontWeight: 400,
-              color: 'rgba(255,255,255,0.35)',
-              marginTop: '32px',
+              color: '#8B8697',
+              marginTop: '14px',
               letterSpacing: '3px',
               fontFamily: 'Geist',
             },
@@ -137,28 +134,16 @@ for (const { file, tagline, subtitle } of variants) {
     width: WIDTH,
     height: HEIGHT,
     fonts: [
-      {
-        name: 'Noto Sans',
-        data: notoSans,
-        weight: 400,
-        style: 'normal',
-      },
-      {
-        name: 'Geist',
-        data: geistRegular,
-        weight: 400,
-        style: 'normal',
-      },
+      { name: 'Noto Sans', data: notoSans, weight: 400, style: 'normal' },
+      { name: 'Geist', data: geistRegular, weight: 400, style: 'normal' },
     ],
   });
 
-  const resvg = new Resvg(svg, {
-    fitTo: { mode: 'width', value: WIDTH },
-  });
+  const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH } });
   const png = resvg.render().asPng();
 
   await writeFile(join(ROOT, 'public', file), png);
   console.log(`✓ Generated ${file} (${(png.length / 1024).toFixed(1)} KB)`);
 }
 
-console.log('\nDone! OG images saved to public/');
+console.log('\nDone!');
