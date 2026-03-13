@@ -1,75 +1,66 @@
-import sharp from 'sharp';
-import { writeFileSync } from 'fs';
+import satori from 'satori';
+import { Resvg, initWasm } from '@resvg/resvg-wasm';
+import { readFile, writeFile } from 'fs/promises';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const svgIcon = (size) => Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">
-  <rect width="${size}" height="${size}" fill="white"/>
-  <text x="${size/2}" y="${size * 0.75}" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="${size * 0.75}" fill="#FF6B4A">W</text>
-</svg>`);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, '..');
 
-const svgApple = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-  <rect width="180" height="180" fill="white"/>
-  <text x="90" y="130" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="130" fill="#FF6B4A">W</text>
-</svg>`);
+const wasmPath = join(ROOT, 'node_modules/@resvg/resvg-wasm/index_bg.wasm');
+await initWasm(readFile(wasmPath));
 
-async function generatePng(svg, size, outputPath) {
-  await sharp(svg).resize(size, size).png().toFile(outputPath);
-  console.log(`Generated ${outputPath}`);
-}
+const notoSans = await readFile(
+  join(ROOT, 'node_modules/next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf')
+);
 
-async function generateIco(sizes) {
-  // Generate individual PNGs for ICO
-  const pngBuffers = await Promise.all(
-    sizes.map(size => sharp(svgIcon(size)).resize(size, size).png().toBuffer())
-  );
+const faviconElement = {
+  type: 'div',
+  props: {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      height: '100%',
+      borderRadius: '50%',
+      backgroundColor: '#FF6B4A',
+    },
+    children: [
+      {
+        type: 'div',
+        props: {
+          style: {
+            fontSize: '120px',
+            fontWeight: 400,
+            color: 'white',
+            fontFamily: 'Noto Sans',
+            marginTop: '-8px',
+          },
+          children: 'W',
+        },
+      },
+    ],
+  },
+};
 
-  // Build ICO file manually
-  const numImages = pngBuffers.length;
-  const headerSize = 6;
-  const dirEntrySize = 16;
-  const dirSize = dirEntrySize * numImages;
+const sizes = [
+  { name: 'apple-touch-icon.png', size: 180 },
+  { name: 'favicon-32x32.png', size: 32 },
+  { name: 'favicon-16x16.png', size: 16 },
+];
 
-  let offset = headerSize + dirSize;
-  const entries = pngBuffers.map((buf, i) => {
-    const entry = { size: sizes[i], buffer: buf, offset };
-    offset += buf.length;
-    return entry;
+for (const { name, size } of sizes) {
+  const renderSize = Math.max(size, 180);
+  const svg = await satori(faviconElement, {
+    width: renderSize,
+    height: renderSize,
+    fonts: [
+      { name: 'Noto Sans', data: notoSans, weight: 400, style: 'normal' },
+    ],
   });
-
-  const totalSize = offset;
-  const ico = Buffer.alloc(totalSize);
-
-  // ICO header
-  ico.writeUInt16LE(0, 0);     // reserved
-  ico.writeUInt16LE(1, 2);     // type: ICO
-  ico.writeUInt16LE(numImages, 4);
-
-  // Directory entries
-  entries.forEach((entry, i) => {
-    const pos = headerSize + i * dirEntrySize;
-    ico.writeUInt8(entry.size < 256 ? entry.size : 0, pos);      // width
-    ico.writeUInt8(entry.size < 256 ? entry.size : 0, pos + 1);  // height
-    ico.writeUInt8(0, pos + 2);    // color palette
-    ico.writeUInt8(0, pos + 3);    // reserved
-    ico.writeUInt16LE(1, pos + 4); // color planes
-    ico.writeUInt16LE(32, pos + 6); // bits per pixel
-    ico.writeUInt32LE(entry.buffer.length, pos + 8);  // size
-    ico.writeUInt32LE(entry.offset, pos + 12);        // offset
-  });
-
-  // Image data
-  entries.forEach(entry => {
-    entry.buffer.copy(ico, entry.offset);
-  });
-
-  writeFileSync('public/favicon.ico', ico);
-  console.log('Generated public/favicon.ico');
+  const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: size } });
+  const png = resvg.render().asPng();
+  await writeFile(join(ROOT, 'public', name), png);
+  console.log(`Done: ${name} (${size}x${size}, ${(png.length / 1024).toFixed(1)} KB)`);
 }
-
-async function main() {
-  await generatePng(svgIcon(16), 16, 'public/favicon-16x16.png');
-  await generatePng(svgIcon(32), 32, 'public/favicon-32x32.png');
-  await generatePng(svgApple, 180, 'public/apple-touch-icon.png');
-  await generateIco([16, 32, 48]);
-}
-
-main().catch(console.error);
