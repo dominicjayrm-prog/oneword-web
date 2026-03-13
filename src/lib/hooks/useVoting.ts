@@ -47,6 +47,30 @@ function pairKey(pair: VotePairData): string {
   return `${ids[0]}:${ids[1]}`;
 }
 
+function seenStorageKey(wordId: string): string {
+  return `oneword_seen_descs_${wordId}`;
+}
+
+function loadSeenDescriptions(wordId: string): Set<string> {
+  try {
+    const stored = sessionStorage.getItem(seenStorageKey(wordId));
+    if (stored) {
+      return new Set(JSON.parse(stored) as string[]);
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return new Set();
+}
+
+function persistSeenDescriptions(wordId: string, seen: Set<string>) {
+  try {
+    sessionStorage.setItem(seenStorageKey(wordId), JSON.stringify([...seen]));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 export function useVoting(wordId: string | undefined, voterId: string | undefined) {
   const [pair, setPair] = useState<VotePairData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -56,11 +80,13 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
   const [restoring, setRestoring] = useState(true);
   const batchExhaustedRef = useRef(false);
   const seenPairs = useRef<Set<string>>(new Set());
+  const seenDescriptions = useRef<Set<string>>(new Set());
   const supabase = useMemo(() => createClient(), []);
 
   // Restore vote count from database (source of truth, works across devices)
   useEffect(() => {
     seenPairs.current = new Set();
+    seenDescriptions.current = wordId ? loadSeenDescriptions(wordId) : new Set();
     batchExhaustedRef.current = false;
     setBatchExhausted(false);
     setVotesCount(0);
@@ -141,7 +167,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
     if (batchExhaustedRef.current) return;
     setLoading(true);
 
-    const MAX_RETRIES = 5;
+    const MAX_RETRIES = 10;
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       const { data, error } = await supabase.rpc('get_vote_pair', {
@@ -162,9 +188,14 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       }
 
       const key = pairKey(normalized);
-      if (!seenPairs.current.has(key)) {
+      const hasSeenDesc = seenDescriptions.current.has(normalized.option_a_id) ||
+        seenDescriptions.current.has(normalized.option_b_id);
+      if (!seenPairs.current.has(key) && !hasSeenDesc) {
         if (seenPairs.current.size > 200) seenPairs.current.clear();
         seenPairs.current.add(key);
+        seenDescriptions.current.add(normalized.option_a_id);
+        seenDescriptions.current.add(normalized.option_b_id);
+        if (wordId) persistSeenDescriptions(wordId, seenDescriptions.current);
         setPair(normalized);
         setLoading(false);
         return;
@@ -175,9 +206,14 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       const fallbackPair = await fetchPairFallback();
       if (!fallbackPair) break;
       const key = pairKey(fallbackPair);
-      if (!seenPairs.current.has(key)) {
+      const hasSeenDesc = seenDescriptions.current.has(fallbackPair.option_a_id) ||
+        seenDescriptions.current.has(fallbackPair.option_b_id);
+      if (!seenPairs.current.has(key) && !hasSeenDesc) {
         if (seenPairs.current.size > 200) seenPairs.current.clear();
         seenPairs.current.add(key);
+        seenDescriptions.current.add(fallbackPair.option_a_id);
+        seenDescriptions.current.add(fallbackPair.option_b_id);
+        if (wordId) persistSeenDescriptions(wordId, seenDescriptions.current);
         setPair(fallbackPair);
         setLoading(false);
         return;
