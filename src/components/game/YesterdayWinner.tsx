@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { getRankEmoji } from '@/lib/utils';
+import { getRankEmoji, formatDescription } from '@/lib/utils';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { Button } from '@/components/ui/Button';
 
@@ -75,7 +75,7 @@ export function YesterdayWinner({ data, onDismiss }: YesterdayWinnerProps) {
 
         <div className="mt-6 rounded-2xl bg-surface p-5">
           <p className="font-serif text-xl italic text-text">
-            &ldquo;{data.winner_description}&rdquo;
+            &ldquo;{formatDescription(data.winner_description)}&rdquo;
           </p>
           <p className="mt-2 text-sm text-text-muted">
             @{data.winner_username} &middot; {data.winner_votes} {t('votes')}
@@ -86,7 +86,7 @@ export function YesterdayWinner({ data, onDismiss }: YesterdayWinnerProps) {
           <div className="mt-4 rounded-xl border border-border p-4">
             <p className="text-sm text-text-muted">{t('your_result')}</p>
             <p className="mt-1 font-serif italic text-text">
-              &ldquo;{data.user_description}&rdquo;
+              &ldquo;{formatDescription(data.user_description!)}&rdquo;
             </p>
             <p className="mt-1 font-mono text-sm font-bold text-primary">
               {getRankEmoji(data.user_rank)} {t('out_of', { total: data.total_descriptions })}

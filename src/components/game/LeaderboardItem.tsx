@@ -1,8 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { getRankEmoji } from '@/lib/utils';
+import { getRankEmoji, formatDescription } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { FavouriteButton } from '@/components/game/FavouriteButton';
 
 interface LeaderboardItemProps {
   rank: number;
@@ -11,6 +12,9 @@ interface LeaderboardItemProps {
   voteCount: number;
   isCurrentUser?: boolean;
   badgeEmoji?: string;
+  descriptionId?: string;
+  isFavourited?: boolean;
+  onToggleFavourite?: () => Promise<boolean>;
 }
 
 export function LeaderboardItem({
@@ -20,6 +24,9 @@ export function LeaderboardItem({
   voteCount,
   isCurrentUser,
   badgeEmoji,
+  descriptionId,
+  isFavourited,
+  onToggleFavourite,
 }: LeaderboardItemProps) {
   const t = useTranslations('results');
   return (
@@ -41,7 +48,7 @@ export function LeaderboardItem({
       </span>
       <div className="flex-1 min-w-0">
         <p className="font-serif text-base text-text break-words">
-          &ldquo;{description}&rdquo;
+          &ldquo;{formatDescription(description)}&rdquo;
         </p>
         <p className="text-sm text-text-muted">
           @{username} {badgeEmoji && <span aria-hidden="true">{badgeEmoji}</span>}
@@ -50,7 +57,16 @@ export function LeaderboardItem({
           )}
         </p>
       </div>
-      <span className="font-mono text-xs text-text-muted shrink-0">{t('vote_count_short', { count: voteCount })}</span>
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="font-mono text-xs text-text-muted">{t('vote_count_short', { count: voteCount })}</span>
+        {descriptionId && onToggleFavourite && (
+          <FavouriteButton
+            isFavourited={!!isFavourited}
+            onToggle={onToggleFavourite}
+            size={14}
+          />
+        )}
+      </div>
     </div>
   );
 }

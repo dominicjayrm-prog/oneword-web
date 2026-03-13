@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
+import { cn, formatDescription } from '@/lib/utils';
+import { FavouriteButton } from '@/components/game/FavouriteButton';
 
 interface VoteOption {
   id: string;
@@ -17,9 +18,11 @@ interface VotePairProps {
   optionB: VoteOption;
   onVote: (winnerId: string, loserId: string) => void;
   onReport?: (descriptionId: string) => void;
+  isFavourited?: (id: string) => boolean;
+  onToggleFavourite?: (id: string) => Promise<boolean>;
 }
 
-export function VotePair({ optionA, optionB, onVote, onReport }: VotePairProps) {
+export function VotePair({ optionA, optionB, onVote, onReport, isFavourited, onToggleFavourite }: VotePairProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const t = useTranslations('game');
   const tReport = useTranslations('report');
@@ -59,12 +62,21 @@ export function VotePair({ optionA, optionB, onVote, onReport }: VotePairProps) 
             )}
           >
             <p className="font-serif text-xl italic text-text">
-              &ldquo;{option.description}&rdquo;
+              &ldquo;{formatDescription(option.description)}&rdquo;
             </p>
             {option.username && (
               <p className="mt-2 text-xs text-text-muted">
                 @{option.username} {option.badgeEmoji && <span aria-hidden="true">{option.badgeEmoji}</span>}
               </p>
+            )}
+            {isFavourited && onToggleFavourite && (
+              <div className="mt-2 flex justify-end">
+                <FavouriteButton
+                  isFavourited={isFavourited(option.id)}
+                  onToggle={() => onToggleFavourite(option.id)}
+                  size={14}
+                />
+              </div>
             )}
             {selected === option.id && (
               <motion.span

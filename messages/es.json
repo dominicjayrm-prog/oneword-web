@@ -418,5 +418,16 @@
     "meta_title": "Archivo \u2014 OneWord",
     "meta_description": "Explora todos los desaf\u00edos pasados de OneWord y descubre las descripciones m\u00e1s creativas de jugadores de todo el mundo.",
     "day_meta_description": "\ud83e\udd47 {description} \u2014 Mira las mejores descripciones del {date}"
+  },
+  "favourites": {
+    "title": "Frases Favoritas",
+    "mine": "M\u00edas",
+    "community": "Comunidad",
+    "emptyMine": "Tus mejores obras viven aqu\u00ed.",
+    "emptyMineSubtitle": "Marca tus descripciones favoritas para guardarlas.",
+    "emptyCommunity": "Descubre la brillantez.",
+    "emptyCommunitySubtitle": "Toca el coraz\u00f3n en cualquier descripci\u00f3n que te encante.",
+    "saved": "Guardado en favoritos \u2665",
+    "removed": "Eliminado de favoritos"
   }
 }
