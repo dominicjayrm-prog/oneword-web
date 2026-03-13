@@ -33,14 +33,19 @@ export function Hero() {
         {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
       </AnimatePresence>
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20">
-      <div className="pointer-events-none absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-primary/[0.06] blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-blue/[0.04] blur-3xl" />
+      {/* Animated gradient blobs — desktop only */}
+      <div className="hero-blobs">
+        <div className="hero-blob hero-blob-l1" />
+        <div className="hero-blob hero-blob-l2" />
+        <div className="hero-blob hero-blob-r1" />
+        <div className="hero-blob hero-blob-r2" />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="flex flex-col items-center text-center"
+        className="relative z-10 flex flex-col items-center text-center"
       >
         <span className="mb-8 rounded-full bg-primary-light px-5 py-2 text-sm font-medium text-primary">
           {t('badge')}
