@@ -45,7 +45,7 @@ export async function generateMetadata({
   const isEs = locale === 'es';
   const siteUrl = 'https://playoneword.app';
   const pageUrl = isEs ? `${siteUrl}/es` : siteUrl;
-  const ogImage = isEs ? `${siteUrl}/api/og?lang=es` : `${siteUrl}/api/og?lang=en`;
+  const ogImage = isEs ? `${siteUrl}/og-image-es.png` : `${siteUrl}/og-image.png`;
 
   return {
     title: t('title'),

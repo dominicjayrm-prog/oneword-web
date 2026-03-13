@@ -17,19 +17,9 @@ const nextConfig: NextConfig = {
     ];
 
     return [
-      // Static assets (images, fonts, etc.) — no CSP or X-Frame-Options
-      // so social media crawlers can freely fetch OG images
+      // All page routes get full CSP — exclude static assets and API/og
       {
-        source: "/:path*.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2)",
-        headers: [
-          ...securityHeaders,
-          { key: "Access-Control-Allow-Origin", value: "*" },
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
-      // All other routes get full CSP
-      {
-        source: "/(.*)",
+        source: "/((?!.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff|woff2)$)(?!api/og).*)",
         headers: [
           ...securityHeaders,
           { key: "X-Frame-Options", value: "DENY" },
