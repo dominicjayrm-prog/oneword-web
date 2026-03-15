@@ -111,6 +111,11 @@
     "contact": "Contacto",
     "archive": "Archivo"
   },
+  "contact": {
+    "title": "Contacto",
+    "body": "Si tienes alguna pregunta, necesitas ayuda con tu cuenta, quieres reportar un error o tienes cualquier comentario, escr\u00edbenos a",
+    "back_home": "Volver al inicio"
+  },
   "auth": {
     "login_title": "Bienvenido de nuevo",
     "login_subtitle": "Inicia sesi\u00f3n para jugar la palabra de hoy",
