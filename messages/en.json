@@ -111,6 +111,11 @@
     "contact": "Contact",
     "archive": "Archive"
   },
+  "contact": {
+    "title": "Contact Us",
+    "body": "If you have any questions, need help with your account, want to report a bug, or have any feedback, please reach out to us at",
+    "back_home": "Back to home"
+  },
   "auth": {
     "login_title": "Welcome back",
     "login_subtitle": "Log in to play today's word",
