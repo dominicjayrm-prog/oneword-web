@@ -55,11 +55,11 @@ export default function TermsPage() {
 
           <Section title={t('s5_title')}>
             <p>{t('s5_p1')}</p>
-            <p>{t('s5_p2')}</p>
           </Section>
 
           <Section title={t('s6_title')}>
             <p>{t('s6_p1')}</p>
+            <p>{t('s6_p2')}</p>
           </Section>
 
           <Section title={t('s7_title')}>
@@ -88,6 +88,14 @@ export default function TermsPage() {
 
           <Section title={t('s13_title')}>
             <p>{t('s13_p1')}</p>
+          </Section>
+
+          <Section title={t('s14_title')}>
+            <p>{t('s14_p1')}</p>
+          </Section>
+
+          <Section title={t('s15_title')}>
+            <p>{t('s15_p1')}</p>
             <p>
               {t('email_label')}{' '}
               <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary underline">

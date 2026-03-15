@@ -51,8 +51,14 @@ export default function PrivacyPage() {
 
           <Section title={t('s4_title')}>
             <p>{t('s4_p1')}</p>
+            <p>{t('s4_p2')}</p>
+            <p>{t('s4_p3')}</p>
+          </Section>
+
+          <Section title={t('s5_title')}>
+            <p>{t('s5_p1')}</p>
             <p>
-              <strong>{t('s4_supabase')}</strong>{' '}
+              <strong>{t('s5_supabase')}</strong>{' '}
               <a
                 href="https://supabase.com/privacy"
                 className="text-primary underline"
@@ -63,7 +69,7 @@ export default function PrivacyPage() {
               </a>
             </p>
             <p>
-              <strong>{t('s4_expo')}</strong>{' '}
+              <strong>{t('s5_expo')}</strong>{' '}
               <a
                 href="https://expo.dev/privacy"
                 className="text-primary underline"
@@ -74,7 +80,7 @@ export default function PrivacyPage() {
               </a>
             </p>
             <p>
-              <strong>{t('s4_vercel')}</strong>{' '}
+              <strong>{t('s5_vercel')}</strong>{' '}
               <a
                 href="https://vercel.com/legal/privacy-policy"
                 className="text-primary underline"
@@ -84,31 +90,21 @@ export default function PrivacyPage() {
                 vercel.com/legal/privacy-policy
               </a>
             </p>
-            <p>{t('s4_future')}</p>
-          </Section>
-
-          <Section title={t('s5_title')}>
-            <p>{t('s5_p1')}</p>
-            <p>{t('s5_p2')}</p>
+            <p>{t('s5_cookies')}</p>
           </Section>
 
           <Section title={t('s6_title')}>
             <p>{t('s6_p1')}</p>
             <p>{t('s6_p2')}</p>
-            <p>{t('s6_p3')}</p>
-            <p>{t('s6_p4')}</p>
-            <p>
-              {t('s6_p5')}{' '}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary underline">
-                {CONTACT_EMAIL}
-              </a>
-              .
-            </p>
           </Section>
 
           <Section title={t('s7_title')}>
+            <p>{t('s7_p1')}</p>
+            <p>{t('s7_p2')}</p>
+            <p>{t('s7_p3')}</p>
+            <p>{t('s7_p4')}</p>
             <p>
-              {t('s7_p1')}{' '}
+              {t('s7_p5')}{' '}
               <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary underline">
                 {CONTACT_EMAIL}
               </a>
@@ -117,7 +113,13 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title={t('s8_title')}>
-            <p>{t('s8_p1')}</p>
+            <p>
+              {t('s8_p1')}{' '}
+              <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary underline">
+                {CONTACT_EMAIL}
+              </a>
+              .
+            </p>
           </Section>
 
           <Section title={t('s9_title')}>
@@ -126,6 +128,10 @@ export default function PrivacyPage() {
 
           <Section title={t('s10_title')}>
             <p>{t('s10_p1')}</p>
+          </Section>
+
+          <Section title={t('s11_title')}>
+            <p>{t('s11_p1')}</p>
             <p>
               {t('email_label')}{' '}
               <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary underline">
