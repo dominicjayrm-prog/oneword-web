@@ -12,11 +12,11 @@ export async function generateMetadata({
     title: t('meta_title'),
     description: t('meta_description'),
     alternates: {
-      canonical: locale === 'en' ? 'https://oneword.game/archive' : `https://oneword.game/es/archive`,
+      canonical: locale === 'en' ? 'https://playoneword.app/archive' : `https://playoneword.app/es/archive`,
       languages: {
-        en: 'https://oneword.game/archive',
-        es: 'https://oneword.game/es/archive',
-        'x-default': 'https://oneword.game/archive',
+        en: 'https://playoneword.app/archive',
+        es: 'https://playoneword.app/es/archive',
+        'x-default': 'https://playoneword.app/archive',
       },
     },
   };

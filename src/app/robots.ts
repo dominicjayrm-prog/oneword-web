@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/play/', '/auth/', '/login', '/signup', '/es/login', '/es/signup'],
       },
     ],
-    sitemap: 'https://oneword.game/sitemap.xml',
+    sitemap: 'https://playoneword.app/sitemap.xml',
   };
 }

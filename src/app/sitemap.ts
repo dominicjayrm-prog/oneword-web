@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = 'https://oneword.game';
+const BASE_URL = 'https://playoneword.app';
 const locales = ['en', 'es'];
 
 interface PageEntry {

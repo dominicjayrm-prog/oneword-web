@@ -159,7 +159,7 @@
     "day_streak": "{count} day streak",
     "your_pick": "YOUR PICK \u2713",
     "next_word_in": "Next word in",
-    "share_recap_text": "OneWord Weekly Recap\n{days} days played · {streak} day streak\n\nPlay at oneword.game",
+    "share_recap_text": "OneWord Weekly Recap\n{days} days played · {streak} day streak\n\nPlay at playoneword.app",
     "copied_to_clipboard": "Copied to clipboard!"
   },
   "vote": {
@@ -180,7 +180,7 @@
     "your_result": "Your result",
     "out_of": "out of {count} players",
     "share_result": "Share Result",
-    "share_text": "OneWord - {word}\n\n\u201c{desc}\u201d\n\nI ranked #{rank} out of {total} players!\n\nPlay at oneword.game",
+    "share_text": "OneWord - {word}\n\n\u201c{desc}\u201d\n\nI ranked #{rank} out of {total} players!\n\nPlay at playoneword.app",
     "you_label": "YOU",
     "vote_count_short": "{count}v",
     "play_first": "Play today's word first to see results",
