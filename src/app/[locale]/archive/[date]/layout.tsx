@@ -21,7 +21,7 @@ export async function generateMetadata({
   const formattedDate = formatDateForTitle(date, locale);
   const title = `${formattedDate} — OneWord ${locale === 'es' ? 'Archivo' : 'Archive'}`;
   const description = t('meta_description');
-  const baseUrl = 'https://oneword.game';
+  const baseUrl = 'https://playoneword.app';
 
   return {
     title,

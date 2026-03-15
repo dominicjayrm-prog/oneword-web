@@ -18,7 +18,7 @@ export default async function Home() {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
     name: 'OneWord',
-    url: 'https://oneword.game',
+    url: 'https://playoneword.app',
     description: tMeta('description'),
     applicationCategory: 'Game',
     operatingSystem: 'iOS, Web',
