@@ -21,7 +21,8 @@
     "download": "Download",
     "play_now": "Play Now",
     "login": "Log In",
-    "signup": "Sign Up"
+    "signup": "Sign Up",
+    "blog": "Blog"
   },
   "hero": {
     "badge": "The daily game for creative minds",
@@ -109,12 +110,29 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "contact": "Contact",
-    "archive": "Archive"
+    "archive": "Archive",
+    "blog": "Blog"
   },
   "contact": {
     "title": "Contact Us",
     "body": "If you have any questions, need help with your account, want to report a bug, or have any feedback, please reach out to us at",
     "back_home": "Back to home"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Insights, updates, and the story behind OneWord",
+    "back_to_blog": "\u2190 Back to Blog",
+    "by": "By",
+    "min_read": "min read",
+    "posts_by": "Posts by",
+    "share": "Share this post",
+    "copy_link": "Copy link",
+    "link_copied": "Link copied!",
+    "related_posts": "Related Posts",
+    "no_posts": "No posts yet. Check back soon!",
+    "tags": "Tags",
+    "published": "Published",
+    "draft": "Draft"
   },
   "auth": {
     "login_title": "Welcome back",

@@ -5,6 +5,15 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'nqqzxwchnhonhqyljdrk.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+  },
   async headers() {
     const securityHeaders = [
       { key: "X-Content-Type-Options", value: "nosniff" },
@@ -27,11 +36,11 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self'",
-              "img-src 'self' data: blob:",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+              "img-src 'self' data: blob: https://nqqzxwchnhonhqyljdrk.supabase.co",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://va.vercel-scripts.com",
               "frame-ancestors 'none'",
             ].join("; "),
           },
