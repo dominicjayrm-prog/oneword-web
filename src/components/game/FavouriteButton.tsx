@@ -25,7 +25,7 @@ export function FavouriteButton({ isFavourited, onToggle, size = 15, className =
     <button
       onClick={handleClick}
       className={`inline-flex shrink-0 cursor-pointer items-center justify-center transition-transform duration-150 hover:scale-110 ${className}`}
-      aria-label={isFavourited ? t('removed') : t('saved')}
+      aria-label={isFavourited ? t('saved') : t('removed')}
       type="button"
     >
       {isFavourited ? (

@@ -57,18 +57,18 @@ export function Footer() {
           <Link href="/blog" className="hover:text-text transition-colors">{t('blog')}</Link>
           <Link href="/contact" className="hover:text-text transition-colors">{t('contact')}</Link>
           <div className="flex items-center gap-4">
-            <a href="https://x.com/playoneword" target="_blank" rel="noopener noreferrer" className="hover:text-text transition-colors" aria-label="X (Twitter)">
-              <XIcon className="h-4 w-4" />
+            <a href="https://x.com/playoneword" target="_blank" rel="noopener noreferrer" className="inline-flex h-10 w-10 items-center justify-center rounded-lg hover:text-text hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="X (Twitter)">
+              <XIcon className="h-5 w-5" />
             </a>
-            <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="hover:text-text transition-colors" aria-label="Instagram">
-              <InstagramIcon className="h-4 w-4" />
+            <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 w-10 items-center justify-center rounded-lg hover:text-text hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="Instagram">
+              <InstagramIcon className="h-5 w-5" />
             </a>
-            <a href="https://www.linkedin.com/company/playoneword" target="_blank" rel="noopener noreferrer" className="hover:text-text transition-colors" aria-label="LinkedIn">
-              <LinkedInIcon className="h-4 w-4" />
+            <a href="https://www.linkedin.com/company/playoneword" target="_blank" rel="noopener noreferrer" className="inline-flex h-10 w-10 items-center justify-center rounded-lg hover:text-text hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="LinkedIn">
+              <LinkedInIcon className="h-5 w-5" />
             </a>
             {locale !== 'es' && (
-              <a href="https://www.facebook.com/playoneword/" target="_blank" rel="noopener noreferrer" className="hover:text-text transition-colors" aria-label="Facebook">
-                <FacebookIcon className="h-4 w-4" />
+              <a href="https://www.facebook.com/playoneword/" target="_blank" rel="noopener noreferrer" className="inline-flex h-10 w-10 items-center justify-center rounded-lg hover:text-text hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="Facebook">
+                <FacebookIcon className="h-5 w-5" />
               </a>
             )}
           </div>

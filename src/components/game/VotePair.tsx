@@ -52,8 +52,9 @@ export function VotePair({ optionA, optionB, onVote, onReport, isFavourited, onT
             whileTap={!selected ? { scale: 0.98 } : {}}
             onClick={() => handleVote(option.id, other.id)}
             disabled={!!selected}
+            aria-pressed={selected === option.id}
             className={cn(
-              'w-full cursor-pointer rounded-2xl border-2 p-6 text-center transition-all',
+              'w-full cursor-pointer rounded-2xl border-2 p-6 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
               selected === option.id
                 ? 'border-primary bg-primary-light'
                 : selected

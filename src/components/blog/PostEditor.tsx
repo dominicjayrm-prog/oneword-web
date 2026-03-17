@@ -5,7 +5,12 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from '@/i18n/navigation';
 import type { BlogPost, BlogAuthor, ContentBlock } from '@/lib/blog/types';
 import { contentBlocksToHtml, htmlToContentBlocks } from '@/lib/blog/content-utils';
-import RichTextEditor from '@/components/admin/RichTextEditor';
+import dynamic from 'next/dynamic';
+
+const RichTextEditor = dynamic(() => import('@/components/admin/RichTextEditor'), {
+  ssr: false,
+  loading: () => <div className="h-64 animate-pulse rounded-xl bg-surface" />,
+});
 
 interface FaqItem {
   question: string;
