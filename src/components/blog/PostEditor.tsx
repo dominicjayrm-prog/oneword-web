@@ -338,17 +338,16 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
                 />
               </label>
             )}
-            {bannerUrl && (
-              <div className="mt-3">
-                <input
-                  type="text"
-                  value={bannerAlt}
-                  onChange={(e) => setBannerAlt(e.target.value)}
-                  placeholder="Alt text for the banner image..."
-                  className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E] placeholder-[#B0ACBA]"
-                />
-              </div>
-            )}
+            <div className="mt-3">
+              <label className="block text-xs font-medium text-[#8B8697] mb-1">Alt Text</label>
+              <input
+                type="text"
+                value={bannerAlt}
+                onChange={(e) => setBannerAlt(e.target.value)}
+                placeholder="Describe the banner image for accessibility..."
+                className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E] placeholder-[#B0ACBA]"
+              />
+            </div>
           </div>
 
           {/* Rich Text Editor */}
