@@ -62,7 +62,7 @@ export default function BlogIndexPage() {
     <>
       <Nav />
       <main className="mx-auto max-w-[960px] px-6 pb-20 pt-28">
-        <div className="mb-12 text-center">
+        <div className="animate-fade-in-up mb-12 text-center">
           <h1 className="font-serif text-4xl font-bold text-text md:text-5xl">
             Blog
           </h1>
@@ -74,11 +74,12 @@ export default function BlogIndexPage() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-            : posts.map((post) => (
+            : posts.map((post, index) => (
                 <Link
                   key={post.id}
                   href={`/blog/${post.slug}`}
-                  className="group overflow-hidden rounded-xl border border-border bg-white transition hover:shadow-lg"
+                  className="animate-fade-in-up group overflow-hidden rounded-xl border border-border bg-white transition hover:shadow-lg"
+                  style={{ animationDelay: `${100 + index * 80}ms` }}
                 >
                   {post.banner_url && (
                     <div className="relative aspect-video overflow-hidden">
