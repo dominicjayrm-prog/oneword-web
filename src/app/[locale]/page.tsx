@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { Nav } from '@/components/ui/Nav';
 import { Footer } from '@/components/ui/Footer';
@@ -8,10 +7,7 @@ import { LiveLeaderboard } from '@/components/landing/LiveLeaderboard';
 import { Features } from '@/components/landing/Features';
 import { Examples } from '@/components/landing/Examples';
 import { CTA } from '@/components/landing/CTA';
-
-const PromoVideo = dynamic(() => import('@/components/landing/PromoVideo'), {
-  ssr: false,
-});
+import PromoVideo from '@/components/landing/PromoVideo';
 
 export default async function Home() {
   const t = await getTranslations('video');
