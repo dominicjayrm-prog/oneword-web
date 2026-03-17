@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from '@/i18n/navigation';
-import type { BlogPost, BlogAuthor, ContentBlock } from '@/lib/blog/types';
+import type { BlogPost, BlogAuthor } from '@/lib/blog/types';
+import { contentBlocksToHtml, htmlToContentBlocks } from '@/lib/blog/content-utils';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 
 interface PostEditorProps {
   initialPost?: BlogPost;
@@ -18,58 +20,6 @@ function slugify(text: string): string {
     .replace(/-+/g, '-');
 }
 
-function countWords(blocks: ContentBlock[]): number {
-  let count = 0;
-  for (const block of blocks) {
-    if ('text' in block && block.text) {
-      count += block.text.split(/\s+/).filter(Boolean).length;
-    }
-    if (block.type === 'list') {
-      for (const item of block.items) {
-        count += item.split(/\s+/).filter(Boolean).length;
-      }
-    }
-    if (block.type === 'code' && block.code) {
-      count += block.code.split(/\s+/).filter(Boolean).length;
-    }
-  }
-  return count;
-}
-
-function emptyBlock(type: ContentBlock['type']): ContentBlock {
-  switch (type) {
-    case 'heading':
-      return { type: 'heading', level: 2, text: '' };
-    case 'paragraph':
-      return { type: 'paragraph', text: '' };
-    case 'image':
-      return { type: 'image', url: '', alt: '' };
-    case 'list':
-      return { type: 'list', style: 'bullet', items: [''] };
-    case 'quote':
-      return { type: 'quote', text: '' };
-    case 'divider':
-      return { type: 'divider' };
-    case 'callout':
-      return { type: 'callout', text: '' };
-    case 'code':
-      return { type: 'code', code: '', language: '' };
-    default:
-      return { type: 'paragraph', text: '' };
-  }
-}
-
-const BLOCK_TYPES: { value: ContentBlock['type']; label: string }[] = [
-  { value: 'heading', label: 'Heading' },
-  { value: 'paragraph', label: 'Paragraph' },
-  { value: 'image', label: 'Image' },
-  { value: 'list', label: 'List' },
-  { value: 'quote', label: 'Quote' },
-  { value: 'divider', label: 'Divider' },
-  { value: 'callout', label: 'Callout' },
-  { value: 'code', label: 'Code' },
-];
-
 export default function PostEditor({ initialPost }: PostEditorProps) {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
@@ -82,7 +32,12 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
   const [excerpt, setExcerpt] = useState(initialPost?.excerpt ?? '');
   const [bannerUrl, setBannerUrl] = useState(initialPost?.banner_url ?? '');
   const [bannerAlt, setBannerAlt] = useState(initialPost?.banner_alt ?? '');
-  const [content, setContent] = useState<ContentBlock[]>(initialPost?.content ?? []);
+  const [contentHtml, setContentHtml] = useState(() => {
+    if (initialPost?.content) {
+      return contentBlocksToHtml(initialPost.content);
+    }
+    return '';
+  });
   const [status, setStatus] = useState<'draft' | 'published'>(initialPost?.status ?? 'draft');
   const [language, setLanguage] = useState<'en' | 'es'>(initialPost?.language ?? 'en');
   const [authorId, setAuthorId] = useState(initialPost?.author_id ?? '');
@@ -91,17 +46,16 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
   const [metaDescription, setMetaDescription] = useState(initialPost?.meta_description ?? '');
   const [readTime, setReadTime] = useState(initialPost?.read_time_minutes ?? 1);
   const [publishedAt, setPublishedAt] = useState(
-    initialPost?.published_at
-      ? initialPost.published_at.slice(0, 16)
-      : ''
+    initialPost?.published_at ? initialPost.published_at.slice(0, 16) : ''
   );
-  const [seoOpen, setSeoOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'settings' | 'seo'>('settings');
 
   // Data
   const [authors, setAuthors] = useState<BlogAuthor[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   // Fetch authors
   useEffect(() => {
@@ -114,18 +68,19 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
       });
   }, [supabase]);
 
-  // Auto-slug from title
+  // Auto-slug
   useEffect(() => {
     if (!slugManual) {
       setSlug(slugify(title));
     }
   }, [title, slugManual]);
 
-  // Auto read-time
+  // Auto read-time from HTML content
   useEffect(() => {
-    const words = countWords(content);
+    const text = contentHtml.replace(/<[^>]*>/g, ' ');
+    const words = text.split(/\s+/).filter(Boolean).length;
     setReadTime(Math.max(1, Math.round(words / 200)));
-  }, [content]);
+  }, [contentHtml]);
 
   // Banner upload
   async function handleBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -150,57 +105,38 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
     setUploading(false);
   }
 
-  // Content block image upload
-  async function handleBlockImageUpload(index: number, file: File) {
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be under 5MB');
-      return;
-    }
-    setError('');
-    const { data, error: uploadError } = await supabase.storage
-      .from('blog-images')
-      .upload(`content/${Date.now()}-${file.name}`, file);
-    if (uploadError) {
-      setError(uploadError.message);
-      return;
-    }
-    const url = supabase.storage.from('blog-images').getPublicUrl(data.path).data.publicUrl;
-    updateBlock(index, { url } as Partial<ContentBlock>);
-  }
-
-  // Block helpers
-  function updateBlock(index: number, updates: Partial<ContentBlock>) {
-    setContent((prev) => {
-      const copy = [...prev];
-      copy[index] = { ...copy[index], ...updates } as ContentBlock;
-      return copy;
-    });
-  }
-
-  function removeBlock(index: number) {
-    setContent((prev) => prev.filter((_, i) => i !== index));
-  }
-
-  function moveBlock(index: number, direction: -1 | 1) {
-    const target = index + direction;
-    if (target < 0 || target >= content.length) return;
-    setContent((prev) => {
-      const copy = [...prev];
-      [copy[index], copy[target]] = [copy[target], copy[index]];
-      return copy;
-    });
-  }
-
-  function addBlock(type: ContentBlock['type']) {
-    setContent((prev) => [...prev, emptyBlock(type)]);
-  }
+  // Image upload for rich text editor
+  const handleContentImageUpload = useCallback(
+    async (file: File): Promise<string | null> => {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image must be under 5MB');
+        return null;
+      }
+      setError('');
+      const { data, error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(`content/${Date.now()}-${file.name}`, file);
+      if (uploadError) {
+        setError(uploadError.message);
+        return null;
+      }
+      return supabase.storage.from('blog-images').getPublicUrl(data.path).data.publicUrl;
+    },
+    [supabase]
+  );
 
   // Save
   const handleSave = useCallback(
     async (saveStatus: 'draft' | 'published') => {
+      if (!title.trim()) {
+        setError('Title is required');
+        return;
+      }
       setSaving(true);
       setError('');
+      setSuccessMsg('');
 
+      const contentBlocks = htmlToContentBlocks(contentHtml);
       const parsedTags = tags
         .split(',')
         .map((t) => t.trim())
@@ -210,7 +146,7 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
         title,
         slug,
         excerpt: excerpt || null,
-        content,
+        content: contentBlocks,
         banner_url: bannerUrl || null,
         banner_alt: bannerAlt || null,
         author_id: authorId || null,
@@ -252,144 +188,146 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
         return;
       }
 
-      router.push('/admin/blog');
+      setSuccessMsg(saveStatus === 'published' ? 'Post published!' : 'Draft saved!');
+      setTimeout(() => {
+        router.push('/admin/blog/posts');
+      }, 800);
+      setSaving(false);
     },
     [
-      title, slug, excerpt, content, bannerUrl, bannerAlt, authorId,
+      title, slug, excerpt, contentHtml, bannerUrl, bannerAlt, authorId,
       language, metaTitle, metaDescription, tags, readTime, publishedAt,
       isEditing, initialPost, supabase, router,
     ]
   );
 
-  // List item helpers
-  function updateListItem(blockIndex: number, itemIndex: number, value: string) {
-    setContent((prev) => {
-      const copy = [...prev];
-      const block = copy[blockIndex];
-      if (block.type === 'list') {
-        const items = [...block.items];
-        items[itemIndex] = value;
-        copy[blockIndex] = { ...block, items };
-      }
-      return copy;
-    });
-  }
-
-  function addListItem(blockIndex: number) {
-    setContent((prev) => {
-      const copy = [...prev];
-      const block = copy[blockIndex];
-      if (block.type === 'list') {
-        copy[blockIndex] = { ...block, items: [...block.items, ''] };
-      }
-      return copy;
-    });
-  }
-
-  function removeListItem(blockIndex: number, itemIndex: number) {
-    setContent((prev) => {
-      const copy = [...prev];
-      const block = copy[blockIndex];
-      if (block.type === 'list' && block.items.length > 1) {
-        const items = block.items.filter((_, i) => i !== itemIndex);
-        copy[blockIndex] = { ...block, items };
-      }
-      return copy;
-    });
-  }
-
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-[1200px]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="font-serif text-3xl font-bold text-[#1A1A2E]">
-          {isEditing ? 'Edit Post' : 'New Post'}
-        </h1>
-        <button
-          onClick={() => router.push('/admin/blog')}
-          className="text-sm text-[#8B8697] hover:text-[#1A1A2E] transition-colors"
-        >
-          Back to Dashboard
-        </button>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push('/admin/blog/posts')}
+            className="p-2 rounded-lg text-[#8B8697] hover:bg-white hover:text-[#1A1A2E] transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 className="text-xl font-bold text-[#1A1A2E]">
+            {isEditing ? 'Edit Post' : 'New Post'}
+          </h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => handleSave('draft')}
+            disabled={saving || !title}
+            className="px-5 py-2 rounded-xl border border-[#E8E3D9] text-[#1A1A2E] text-sm font-medium hover:bg-white disabled:opacity-50 transition-colors"
+          >
+            {saving ? 'Saving...' : 'Save Draft'}
+          </button>
+          <button
+            onClick={() => handleSave('published')}
+            disabled={saving || !title}
+            className="px-5 py-2 rounded-xl bg-[#FF6B4A] text-white text-sm font-medium hover:bg-[#e55a3a] disabled:opacity-50 transition-colors shadow-sm"
+          >
+            {saving ? 'Publishing...' : 'Publish'}
+          </button>
+        </div>
       </div>
 
+      {/* Messages */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-center gap-2">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           {error}
         </div>
       )}
+      {successMsg && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm flex items-center gap-2">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {successMsg}
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
-        {/* Main content */}
-        <div className="space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6">
+        {/* Main Content */}
+        <div className="space-y-5">
           {/* Title */}
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Post title..."
-            className="w-full font-serif text-3xl font-bold text-[#1A1A2E] placeholder-[#E8E3D9] border-0 border-b-2 border-[#E8E3D9] focus:border-[#FF6B4A] focus:outline-none bg-transparent pb-2"
-          />
-
-          {/* Slug */}
-          <div>
-            <label className="block text-xs text-[#8B8697] mb-1">Slug</label>
+          <div className="bg-white rounded-xl border border-[#E8E3D9]/50 shadow-sm p-5">
             <input
               type="text"
-              value={slug}
-              onChange={(e) => {
-                setSlugManual(true);
-                setSlug(slugify(e.target.value));
-              }}
-              className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Post title..."
+              className="w-full text-2xl font-bold text-[#1A1A2E] placeholder-[#D0CCC4] border-0 focus:outline-none bg-transparent"
             />
-            <p className="text-xs text-[#8B8697] mt-1">
-              playoneword.app/blog/{slug || 'your-slug-here'}
-            </p>
+            <div className="mt-3 flex items-center gap-2 text-xs text-[#8B8697]">
+              <span>playoneword.app/blog/</span>
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => {
+                  setSlugManual(true);
+                  setSlug(slugify(e.target.value));
+                }}
+                className="flex-1 text-xs border border-[#E8E3D9] rounded-md px-2 py-1 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E]"
+              />
+            </div>
           </div>
 
           {/* Excerpt */}
-          <div>
-            <label className="block text-xs text-[#8B8697] mb-1">Excerpt</label>
+          <div className="bg-white rounded-xl border border-[#E8E3D9]/50 shadow-sm p-5">
+            <label className="block text-xs font-medium text-[#8B8697] uppercase tracking-wide mb-2">
+              Excerpt
+            </label>
             <textarea
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               placeholder="Short description for cards and SEO..."
-              rows={3}
-              className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E] resize-none"
+              rows={2}
+              className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E] resize-none placeholder-[#B0ACBA]"
             />
           </div>
 
           {/* Banner */}
-          <div>
-            <label className="block text-xs text-[#8B8697] mb-1">Banner Image</label>
+          <div className="bg-white rounded-xl border border-[#E8E3D9]/50 shadow-sm p-5">
+            <label className="block text-xs font-medium text-[#8B8697] uppercase tracking-wide mb-2">
+              Banner Image
+            </label>
             {bannerUrl ? (
-              <div className="relative">
+              <div className="relative group">
                 <img
                   src={bannerUrl}
                   alt={bannerAlt || 'Banner preview'}
-                  className="w-full h-48 object-cover rounded-lg"
+                  className="w-full h-48 object-cover rounded-xl"
                 />
-                <button
-                  onClick={() => {
-                    setBannerUrl('');
-                    setBannerAlt('');
-                  }}
-                  className="absolute top-2 right-2 bg-white/90 text-red-500 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold hover:bg-white transition-colors"
-                >
-                  X
-                </button>
+                <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button
+                    onClick={() => {
+                      setBannerUrl('');
+                      setBannerAlt('');
+                    }}
+                    className="bg-white text-red-500 rounded-lg px-4 py-2 text-sm font-medium hover:bg-red-50 transition-colors"
+                  >
+                    Remove Image
+                  </button>
+                </div>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-[#E8E3D9] rounded-lg cursor-pointer hover:border-[#FF6B4A] transition-colors">
+              <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-[#E8E3D9] rounded-xl cursor-pointer hover:border-[#FF6B4A] hover:bg-[#FFF0EC]/30 transition-all">
                 {uploading ? (
                   <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#E8E3D9] border-t-[#FF6B4A]" />
                 ) : (
                   <>
-                    <svg className="w-8 h-8 text-[#8B8697] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-8 h-8 text-[#C0BAD0] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span className="text-sm text-[#8B8697]">Click to upload (max 5MB)</span>
+                    <span className="text-sm text-[#8B8697]">Click to upload banner (max 5MB)</span>
                   </>
                 )}
                 <input
@@ -400,477 +338,240 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
                 />
               </label>
             )}
-            <div className="mt-2">
-              <label className="block text-xs text-[#8B8697] mb-1">
-                Alt text <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={bannerAlt}
-                onChange={(e) => setBannerAlt(e.target.value)}
-                placeholder="Describe the image..."
-                className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-              />
-            </div>
+            {bannerUrl && (
+              <div className="mt-3">
+                <input
+                  type="text"
+                  value={bannerAlt}
+                  onChange={(e) => setBannerAlt(e.target.value)}
+                  placeholder="Alt text for the banner image..."
+                  className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E] placeholder-[#B0ACBA]"
+                />
+              </div>
+            )}
           </div>
 
-          {/* Content Blocks */}
+          {/* Rich Text Editor */}
           <div>
-            <label className="block text-xs text-[#8B8697] mb-3">Content Blocks</label>
-            <div className="space-y-4">
-              {content.map((block, index) => (
-                <div
-                  key={index}
-                  className="border border-[#E8E3D9] rounded-lg p-4 bg-[#FFFDF7]"
-                >
-                  {/* Block header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <select
-                      value={block.type}
-                      onChange={(e) => {
-                        const newType = e.target.value as ContentBlock['type'];
-                        setContent((prev) => {
-                          const copy = [...prev];
-                          copy[index] = emptyBlock(newType);
-                          return copy;
-                        });
-                      }}
-                      className="text-sm border border-[#E8E3D9] rounded px-2 py-1 bg-white text-[#1A1A2E] focus:outline-none focus:border-[#FF6B4A]"
-                    >
-                      {BLOCK_TYPES.map((bt) => (
-                        <option key={bt.value} value={bt.value}>
-                          {bt.label}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => moveBlock(index, -1)}
-                        disabled={index === 0}
-                        className="p-1 text-[#8B8697] hover:text-[#1A1A2E] disabled:opacity-30 transition-colors"
-                        title="Move up"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
-                      </button>
-                      <button
-                        onClick={() => moveBlock(index, 1)}
-                        disabled={index === content.length - 1}
-                        className="p-1 text-[#8B8697] hover:text-[#1A1A2E] disabled:opacity-30 transition-colors"
-                        title="Move down"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                      </button>
-                      <button
-                        onClick={() => removeBlock(index)}
-                        className="p-1 text-red-400 hover:text-red-600 transition-colors"
-                        title="Delete block"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Block content based on type */}
-                  {block.type === 'heading' && (
-                    <div className="space-y-2">
-                      <select
-                        value={block.level}
-                        onChange={(e) =>
-                          updateBlock(index, { level: Number(e.target.value) as 2 | 3 })
-                        }
-                        className="text-sm border border-[#E8E3D9] rounded px-2 py-1 bg-white text-[#1A1A2E] focus:outline-none focus:border-[#FF6B4A]"
-                      >
-                        <option value={2}>H2</option>
-                        <option value={3}>H3</option>
-                      </select>
-                      <input
-                        type="text"
-                        value={block.text}
-                        onChange={(e) => updateBlock(index, { text: e.target.value })}
-                        placeholder="Heading text..."
-                        className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-                      />
-                    </div>
-                  )}
-
-                  {block.type === 'paragraph' && (
-                    <textarea
-                      value={block.text}
-                      onChange={(e) => updateBlock(index, { text: e.target.value })}
-                      placeholder="Write your paragraph..."
-                      rows={4}
-                      className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E] resize-none"
-                    />
-                  )}
-
-                  {block.type === 'image' && (
-                    <div className="space-y-2">
-                      {block.url ? (
-                        <img
-                          src={block.url}
-                          alt={block.alt || 'Block image'}
-                          className="w-full h-32 object-cover rounded-lg"
-                        />
-                      ) : (
-                        <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-[#E8E3D9] rounded-lg cursor-pointer hover:border-[#FF6B4A] transition-colors">
-                          <span className="text-sm text-[#8B8697]">Upload image</span>
-                          <input
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleBlockImageUpload(index, file);
-                            }}
-                            className="hidden"
-                          />
-                        </label>
-                      )}
-                      <input
-                        type="text"
-                        value={block.alt}
-                        onChange={(e) => updateBlock(index, { alt: e.target.value })}
-                        placeholder="Alt text (required)"
-                        className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-                      />
-                      <input
-                        type="text"
-                        value={block.caption ?? ''}
-                        onChange={(e) => updateBlock(index, { caption: e.target.value })}
-                        placeholder="Caption (optional)"
-                        className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-                      />
-                    </div>
-                  )}
-
-                  {block.type === 'list' && (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() =>
-                            updateBlock(index, {
-                              style: block.style === 'bullet' ? 'numbered' : 'bullet',
-                            })
-                          }
-                          className="text-xs px-2 py-1 rounded bg-[#F5F0E8] text-[#8B8697] hover:bg-[#E8E3D9] transition-colors"
-                        >
-                          {block.style === 'bullet' ? 'Bullet' : 'Numbered'}
-                        </button>
-                      </div>
-                      {block.items.map((item, itemIdx) => (
-                        <div key={itemIdx} className="flex items-center gap-2">
-                          <span className="text-xs text-[#8B8697] w-4">
-                            {block.style === 'bullet' ? '\u2022' : `${itemIdx + 1}.`}
-                          </span>
-                          <input
-                            type="text"
-                            value={item}
-                            onChange={(e) =>
-                              updateListItem(index, itemIdx, e.target.value)
-                            }
-                            placeholder="List item..."
-                            className="flex-1 text-sm border border-[#E8E3D9] rounded-lg px-3 py-1.5 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-                          />
-                          <button
-                            onClick={() => removeListItem(index, itemIdx)}
-                            className="text-red-400 hover:text-red-600 text-xs transition-colors"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        onClick={() => addListItem(index)}
-                        className="text-xs text-[#FF6B4A] hover:underline"
-                      >
-                        + Add item
-                      </button>
-                    </div>
-                  )}
-
-                  {block.type === 'quote' && (
-                    <div className="space-y-2">
-                      <textarea
-                        value={block.text}
-                        onChange={(e) => updateBlock(index, { text: e.target.value })}
-                        placeholder="Quote text..."
-                        rows={3}
-                        className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E] resize-none italic"
-                      />
-                      <input
-                        type="text"
-                        value={block.attribution ?? ''}
-                        onChange={(e) => updateBlock(index, { attribution: e.target.value })}
-                        placeholder="Attribution (optional)"
-                        className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-                      />
-                    </div>
-                  )}
-
-                  {block.type === 'divider' && (
-                    <hr className="border-[#E8E3D9]" />
-                  )}
-
-                  {block.type === 'callout' && (
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={block.emoji ?? ''}
-                        onChange={(e) => updateBlock(index, { emoji: e.target.value })}
-                        placeholder="Emoji (e.g. 💡)"
-                        className="w-20 text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-                      />
-                      <textarea
-                        value={block.text}
-                        onChange={(e) => updateBlock(index, { text: e.target.value })}
-                        placeholder="Callout text..."
-                        rows={3}
-                        className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E] resize-none"
-                      />
-                    </div>
-                  )}
-
-                  {block.type === 'code' && (
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={block.language ?? ''}
-                        onChange={(e) => updateBlock(index, { language: e.target.value })}
-                        placeholder="Language (e.g. javascript)"
-                        className="w-48 text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-                      />
-                      <textarea
-                        value={block.code}
-                        onChange={(e) => updateBlock(index, { code: e.target.value })}
-                        placeholder="Paste your code..."
-                        rows={6}
-                        className="w-full text-sm font-mono border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#1A1A2E] text-green-400 resize-none"
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Add block */}
-            <div className="mt-4 flex flex-wrap gap-2">
-              {BLOCK_TYPES.map((bt) => (
-                <button
-                  key={bt.value}
-                  onClick={() => addBlock(bt.value)}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-[#E8E3D9] text-[#8B8697] hover:border-[#FF6B4A] hover:text-[#FF6B4A] transition-colors"
-                >
-                  + {bt.label}
-                </button>
-              ))}
-            </div>
+            <label className="block text-xs font-medium text-[#8B8697] uppercase tracking-wide mb-2">
+              Content
+            </label>
+            <RichTextEditor
+              content={contentHtml}
+              onChange={setContentHtml}
+              onImageUpload={handleContentImageUpload}
+              placeholder="Start writing your blog post here... You can paste content, then highlight text to format it as headings, bold, lists, etc."
+            />
           </div>
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Status */}
-          <div>
-            <label className="block text-xs text-[#8B8697] mb-2">Status</label>
-            <div className="flex gap-1">
+        <div className="space-y-5">
+          {/* Tabs */}
+          <div className="bg-white rounded-xl border border-[#E8E3D9]/50 shadow-sm overflow-hidden">
+            <div className="flex border-b border-[#E8E3D9]/50">
               <button
-                onClick={() => setStatus('draft')}
-                className={`flex-1 text-sm py-2 rounded-lg transition-colors ${
-                  status === 'draft'
-                    ? 'bg-[#F5F0E8] text-[#1A1A2E] font-medium'
-                    : 'text-[#8B8697] hover:bg-[#F5F0E8]/50'
+                onClick={() => setActiveTab('settings')}
+                className={`flex-1 px-4 py-3 text-xs font-medium uppercase tracking-wide transition-colors ${
+                  activeTab === 'settings'
+                    ? 'text-[#FF6B4A] border-b-2 border-[#FF6B4A] bg-[#FFF0EC]/30'
+                    : 'text-[#8B8697] hover:text-[#1A1A2E]'
                 }`}
               >
-                Draft
+                Settings
               </button>
               <button
-                onClick={() => setStatus('published')}
-                className={`flex-1 text-sm py-2 rounded-lg transition-colors ${
-                  status === 'published'
-                    ? 'bg-green-500/10 text-green-600 font-medium'
-                    : 'text-[#8B8697] hover:bg-[#F5F0E8]/50'
+                onClick={() => setActiveTab('seo')}
+                className={`flex-1 px-4 py-3 text-xs font-medium uppercase tracking-wide transition-colors ${
+                  activeTab === 'seo'
+                    ? 'text-[#FF6B4A] border-b-2 border-[#FF6B4A] bg-[#FFF0EC]/30'
+                    : 'text-[#8B8697] hover:text-[#1A1A2E]'
                 }`}
               >
-                Published
-              </button>
-            </div>
-          </div>
-
-          {/* Language */}
-          <div>
-            <label className="block text-xs text-[#8B8697] mb-2">Language</label>
-            <div className="flex gap-1">
-              <button
-                onClick={() => setLanguage('en')}
-                className={`flex-1 text-sm py-2 rounded-lg transition-colors ${
-                  language === 'en'
-                    ? 'bg-[#FF6B4A] text-white font-medium'
-                    : 'bg-[#F5F0E8] text-[#8B8697] hover:bg-[#E8E3D9]'
-                }`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLanguage('es')}
-                className={`flex-1 text-sm py-2 rounded-lg transition-colors ${
-                  language === 'es'
-                    ? 'bg-[#FF6B4A] text-white font-medium'
-                    : 'bg-[#F5F0E8] text-[#8B8697] hover:bg-[#E8E3D9]'
-                }`}
-              >
-                ES
+                SEO
               </button>
             </div>
-          </div>
 
-          {/* Author */}
-          <div>
-            <label className="block text-xs text-[#8B8697] mb-2">Author</label>
-            <select
-              value={authorId}
-              onChange={(e) => setAuthorId(e.target.value)}
-              className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-            >
-              <option value="">Select author...</option>
-              {authors.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="p-4 space-y-4">
+              {activeTab === 'settings' && (
+                <>
+                  {/* Status */}
+                  <div>
+                    <label className="block text-xs font-medium text-[#8B8697] mb-2">Status</label>
+                    <div className="flex gap-1 bg-[#F8F6F1] rounded-lg p-1">
+                      <button
+                        onClick={() => setStatus('draft')}
+                        className={`flex-1 text-xs py-2 rounded-md transition-all font-medium ${
+                          status === 'draft'
+                            ? 'bg-white text-[#1A1A2E] shadow-sm'
+                            : 'text-[#8B8697] hover:text-[#1A1A2E]'
+                        }`}
+                      >
+                        Draft
+                      </button>
+                      <button
+                        onClick={() => setStatus('published')}
+                        className={`flex-1 text-xs py-2 rounded-md transition-all font-medium ${
+                          status === 'published'
+                            ? 'bg-green-500 text-white shadow-sm'
+                            : 'text-[#8B8697] hover:text-[#1A1A2E]'
+                        }`}
+                      >
+                        Published
+                      </button>
+                    </div>
+                  </div>
 
-          {/* Tags */}
-          <div>
-            <label className="block text-xs text-[#8B8697] mb-2">Tags</label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="tag1, tag2, tag3"
-              className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-            />
-            {tags && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {tags
-                  .split(',')
-                  .map((t) => t.trim())
-                  .filter(Boolean)
-                  .map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs px-2 py-0.5 rounded-full bg-[#FFF0EC] text-[#FF6B4A]"
+                  {/* Language */}
+                  <div>
+                    <label className="block text-xs font-medium text-[#8B8697] mb-2">Language</label>
+                    <div className="flex gap-1 bg-[#F8F6F1] rounded-lg p-1">
+                      <button
+                        onClick={() => setLanguage('en')}
+                        className={`flex-1 text-xs py-2 rounded-md transition-all font-medium ${
+                          language === 'en'
+                            ? 'bg-[#FF6B4A] text-white shadow-sm'
+                            : 'text-[#8B8697] hover:text-[#1A1A2E]'
+                        }`}
+                      >
+                        English
+                      </button>
+                      <button
+                        onClick={() => setLanguage('es')}
+                        className={`flex-1 text-xs py-2 rounded-md transition-all font-medium ${
+                          language === 'es'
+                            ? 'bg-[#FF6B4A] text-white shadow-sm'
+                            : 'text-[#8B8697] hover:text-[#1A1A2E]'
+                        }`}
+                      >
+                        Spanish
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Author */}
+                  <div>
+                    <label className="block text-xs font-medium text-[#8B8697] mb-2">Author</label>
+                    <select
+                      value={authorId}
+                      onChange={(e) => setAuthorId(e.target.value)}
+                      className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E]"
                     >
-                      {tag}
-                    </span>
-                  ))}
-              </div>
-            )}
-          </div>
+                      <option value="">Select author...</option>
+                      {authors.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-          {/* SEO */}
-          <div className="border border-[#E8E3D9] rounded-lg overflow-hidden">
-            <button
-              onClick={() => setSeoOpen(!seoOpen)}
-              className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-[#1A1A2E] hover:bg-[#FFFDF7] transition-colors"
-            >
-              SEO Settings
-              <svg
-                className={`w-4 h-4 text-[#8B8697] transition-transform ${seoOpen ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {seoOpen && (
-              <div className="px-4 pb-4 space-y-3">
-                <div>
-                  <label className="block text-xs text-[#8B8697] mb-1">Meta Title</label>
-                  <input
-                    type="text"
-                    value={metaTitle}
-                    onChange={(e) => setMetaTitle(e.target.value)}
-                    placeholder={title || 'Page title'}
-                    className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-                  />
-                  <p className="text-xs text-[#8B8697] mt-1">
-                    {(metaTitle || title).length}/60
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-xs text-[#8B8697] mb-1">Meta Description</label>
-                  <textarea
-                    value={metaDescription}
-                    onChange={(e) => setMetaDescription(e.target.value)}
-                    placeholder={excerpt || 'Page description'}
-                    rows={3}
-                    className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E] resize-none"
-                  />
-                  <p className="text-xs text-[#8B8697] mt-1">
-                    {(metaDescription || excerpt).length}/160
-                  </p>
-                </div>
-                {/* Google preview */}
-                <div className="bg-white border border-[#E8E3D9] rounded-lg p-3">
-                  <p className="text-xs text-[#8B8697] mb-2">Google Preview</p>
-                  <p className="text-blue-700 text-sm font-medium truncate">
-                    {metaTitle || title || 'Page Title'}
-                  </p>
-                  <p className="text-green-700 text-xs truncate">
-                    playoneword.app/blog/{slug || 'your-slug'}
-                  </p>
-                  <p className="text-xs text-[#8B8697] line-clamp-2 mt-0.5">
-                    {metaDescription || excerpt || 'Page description will appear here...'}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+                  {/* Tags */}
+                  <div>
+                    <label className="block text-xs font-medium text-[#8B8697] mb-2">Tags</label>
+                    <input
+                      type="text"
+                      value={tags}
+                      onChange={(e) => setTags(e.target.value)}
+                      placeholder="tag1, tag2, tag3"
+                      className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E] placeholder-[#B0ACBA]"
+                    />
+                    {tags && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {tags
+                          .split(',')
+                          .map((t) => t.trim())
+                          .filter(Boolean)
+                          .map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-xs px-2.5 py-1 rounded-full bg-[#FFF0EC] text-[#FF6B4A] font-medium"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                      </div>
+                    )}
+                  </div>
 
-          {/* Read time */}
-          <div>
-            <label className="block text-xs text-[#8B8697] mb-2">
-              Read Time (minutes)
-            </label>
-            <input
-              type="number"
-              value={readTime}
-              onChange={(e) => setReadTime(Math.max(1, Number(e.target.value)))}
-              min={1}
-              className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-            />
-          </div>
+                  {/* Read Time */}
+                  <div>
+                    <label className="block text-xs font-medium text-[#8B8697] mb-2">
+                      Read Time (min)
+                    </label>
+                    <input
+                      type="number"
+                      value={readTime}
+                      onChange={(e) => setReadTime(Math.max(1, Number(e.target.value)))}
+                      min={1}
+                      className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E]"
+                    />
+                  </div>
 
-          {/* Published date */}
-          <div>
-            <label className="block text-xs text-[#8B8697] mb-2">Published Date</label>
-            <input
-              type="datetime-local"
-              value={publishedAt}
-              onChange={(e) => setPublishedAt(e.target.value)}
-              className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E]"
-            />
+                  {/* Published Date */}
+                  <div>
+                    <label className="block text-xs font-medium text-[#8B8697] mb-2">
+                      Publish Date
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={publishedAt}
+                      onChange={(e) => setPublishedAt(e.target.value)}
+                      className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E]"
+                    />
+                  </div>
+                </>
+              )}
+
+              {activeTab === 'seo' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-[#8B8697] mb-2">Meta Title</label>
+                    <input
+                      type="text"
+                      value={metaTitle}
+                      onChange={(e) => setMetaTitle(e.target.value)}
+                      placeholder={title || 'Page title'}
+                      className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E] placeholder-[#B0ACBA]"
+                    />
+                    <p className="text-xs text-[#8B8697] mt-1">{(metaTitle || title).length}/60</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-[#8B8697] mb-2">
+                      Meta Description
+                    </label>
+                    <textarea
+                      value={metaDescription}
+                      onChange={(e) => setMetaDescription(e.target.value)}
+                      placeholder={excerpt || 'Page description'}
+                      rows={3}
+                      className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E] resize-none placeholder-[#B0ACBA]"
+                    />
+                    <p className="text-xs text-[#8B8697] mt-1">
+                      {(metaDescription || excerpt).length}/160
+                    </p>
+                  </div>
+
+                  {/* Google Preview */}
+                  <div>
+                    <p className="text-xs font-medium text-[#8B8697] mb-2">Google Preview</p>
+                    <div className="bg-[#F8F6F1] border border-[#E8E3D9] rounded-lg p-4">
+                      <p className="text-blue-700 text-sm font-medium truncate">
+                        {metaTitle || title || 'Page Title'}
+                      </p>
+                      <p className="text-green-700 text-xs truncate mt-0.5">
+                        playoneword.app/blog/{slug || 'your-slug'}
+                      </p>
+                      <p className="text-xs text-[#8B8697] line-clamp-2 mt-1">
+                        {metaDescription || excerpt || 'Page description will appear here...'}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Bottom actions */}
-      <div className="flex items-center gap-3 mt-8 pt-6 border-t border-[#E8E3D9]">
-        <button
-          onClick={() => handleSave('draft')}
-          disabled={saving || !title}
-          className="px-6 py-2.5 rounded-lg border border-[#E8E3D9] text-[#1A1A2E] text-sm font-medium hover:bg-[#F5F0E8] disabled:opacity-50 transition-colors"
-        >
-          {saving ? 'Saving...' : 'Save Draft'}
-        </button>
-        <button
-          onClick={() => handleSave('published')}
-          disabled={saving || !title}
-          className="px-6 py-2.5 rounded-lg bg-[#FF6B4A] text-white text-sm font-medium hover:bg-[#e55a3a] disabled:opacity-50 transition-colors"
-        >
-          {saving ? 'Publishing...' : 'Publish'}
-        </button>
       </div>
     </div>
   );
