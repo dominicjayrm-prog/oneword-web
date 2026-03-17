@@ -97,7 +97,7 @@ export function Hero() {
         </motion.div>
 
         <div className="mt-8 mb-6 flex flex-wrap items-center justify-center gap-4">
-          <Button variant="dark" size="lg" as="a" href="https://apps.apple.com/app/oneword-say-it-in-five/id6746268182">
+          <Button variant="dark" size="lg" as="a" href="#">
             &#127822; {t('cta_appstore')}
           </Button>
           <Button variant="outline" size="lg" onClick={handlePlayClick}>
