@@ -26,15 +26,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const bio = (locale === 'es' ? author.bio_es : author.bio_en) || `Posts by ${author.name}`;
   const siteUrl = 'https://playoneword.app';
 
+  const canonical = locale === 'es' ? `${siteUrl}/es/blog/author/${slug}` : `${siteUrl}/blog/author/${slug}`;
+
   return {
     title: `${author.name} — OneWord Blog`,
     description: bio,
     alternates: {
-      canonical: locale === 'es' ? `${siteUrl}/es/blog/author/${slug}` : `${siteUrl}/blog/author/${slug}`,
+      canonical,
       languages: {
         en: `${siteUrl}/blog/author/${slug}`,
         es: `${siteUrl}/es/blog/author/${slug}`,
+        'x-default': `${siteUrl}/blog/author/${slug}`,
       },
+    },
+    openGraph: {
+      type: 'profile',
+      title: `${author.name} — OneWord Blog`,
+      description: bio,
+      url: canonical,
+      images: [{ url: `${siteUrl}/api/og?type=author&title=${encodeURIComponent(author.name)}`, width: 1200, height: 630, alt: author.name }],
     },
   };
 }

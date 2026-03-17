@@ -26,14 +26,21 @@ function localeUrl(locale: string, page: string) {
 export async function GET() {
   const now = new Date().toISOString();
 
-  // Static pages
+  // Static pages with xhtml:link hreflang alternates
   const staticUrls = pages.flatMap((page) =>
-    locales.map((locale) => `  <url>
+    locales.map((locale) => {
+      const enUrl = localeUrl('en', page.path);
+      const esUrl = localeUrl('es', page.path);
+      return `  <url>
     <loc>${localeUrl(locale, page.path)}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>${page.changeFrequency}</changefreq>
     <priority>${page.priority}</priority>
-  </url>`)
+    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
+    <xhtml:link rel="alternate" hreflang="es" href="${esUrl}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
+  </url>`;
+    })
   );
 
   // Dynamic blog post URLs
@@ -70,14 +77,44 @@ export async function GET() {
       if (authors) {
         for (const author of authors) {
           for (const locale of locales) {
-            const loc = locale === 'en'
-              ? `${BASE_URL}/blog/author/${author.slug}`
-              : `${BASE_URL}/${locale}/blog/author/${author.slug}`;
+            const enUrl = `${BASE_URL}/blog/author/${author.slug}`;
+            const esUrl = `${BASE_URL}/es/blog/author/${author.slug}`;
+            const loc = locale === 'en' ? enUrl : esUrl;
             blogUrls.push(`  <url>
     <loc>${loc}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
+    <xhtml:link rel="alternate" hreflang="es" href="${esUrl}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
+  </url>`);
+          }
+        }
+      }
+
+      // Archive date pages (recent words)
+      const { data: words } = await supabase
+        .from('words')
+        .select('word_date')
+        .lte('word_date', new Date().toISOString().split('T')[0])
+        .order('word_date', { ascending: false })
+        .limit(90);
+
+      if (words) {
+        for (const word of words) {
+          for (const locale of locales) {
+            const enUrl = `${BASE_URL}/archive/${word.word_date}`;
+            const esUrl = `${BASE_URL}/es/archive/${word.word_date}`;
+            const loc = locale === 'en' ? enUrl : esUrl;
+            blogUrls.push(`  <url>
+    <loc>${loc}</loc>
+    <lastmod>${word.word_date}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
+    <xhtml:link rel="alternate" hreflang="es" href="${esUrl}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
   </url>`);
           }
         }
@@ -88,13 +125,15 @@ export async function GET() {
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${[...staticUrls, ...blogUrls].join('\n')}
 </urlset>`;
 
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml',
+      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
     },
   });
 }

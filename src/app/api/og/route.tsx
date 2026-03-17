@@ -6,6 +6,9 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const lang = searchParams.get('lang') === 'es' ? 'es' : 'en';
   const isSpanish = lang === 'es';
+  const title = searchParams.get('title');
+  const type = searchParams.get('type'); // 'blog' | 'author' | default
+  const author = searchParams.get('author');
 
   // Load fonts from Google Fonts CDN
   const [playfairBold, dmSans] = await Promise.all([
@@ -17,6 +20,168 @@ export async function GET(request: Request) {
     ).then((res) => res.arrayBuffer()),
   ]);
 
+  // Blog post OG image
+  if (type === 'blog' && title) {
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '1200px',
+            height: '630px',
+            backgroundColor: '#0A0A12',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '60px 80px',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'baseline' }}>
+            <span
+              style={{
+                fontFamily: 'Playfair Display',
+                fontSize: '32px',
+                fontWeight: 900,
+                color: '#FFFFFF',
+                letterSpacing: '-1px',
+              }}
+            >
+              one
+            </span>
+            <span
+              style={{
+                fontFamily: 'Playfair Display',
+                fontSize: '32px',
+                fontWeight: 900,
+                color: '#FF6B4A',
+                letterSpacing: '-1px',
+              }}
+            >
+              word
+            </span>
+            <span
+              style={{
+                fontFamily: 'DM Sans',
+                fontSize: '14px',
+                color: '#8B8697',
+                letterSpacing: '3px',
+                textTransform: 'uppercase',
+                marginLeft: '16px',
+              }}
+            >
+              BLOG
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>
+            <span
+              style={{
+                fontFamily: 'Playfair Display',
+                fontSize: title.length > 60 ? '48px' : '56px',
+                fontWeight: 900,
+                color: '#FFFFFF',
+                letterSpacing: '-2px',
+                lineHeight: 1.15,
+                maxWidth: '900px',
+              }}
+            >
+              {title}
+            </span>
+            {author && (
+              <span
+                style={{
+                  fontFamily: 'DM Sans',
+                  fontSize: '20px',
+                  color: '#FF6B4A',
+                  marginTop: '24px',
+                }}
+              >
+                {isSpanish ? 'por' : 'by'} {author}
+              </span>
+            )}
+          </div>
+
+          <div
+            style={{
+              width: '50px',
+              height: '3px',
+              backgroundColor: '#FF6B4A',
+              borderRadius: '2px',
+            }}
+          />
+        </div>
+      ),
+      {
+        width: 1200,
+        height: 630,
+        fonts: [
+          { name: 'Playfair Display', data: playfairBold, style: 'normal', weight: 900 },
+          { name: 'DM Sans', data: dmSans, style: 'normal', weight: 400 },
+        ],
+      },
+    );
+  }
+
+  // Author profile OG image
+  if (type === 'author' && title) {
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '1200px',
+            height: '630px',
+            backgroundColor: '#FFFDF7',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: '100px',
+              height: '100px',
+              borderRadius: '50px',
+              backgroundColor: '#FF6B4A',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '24px',
+            }}
+          >
+            <span style={{ fontFamily: 'Playfair Display', fontSize: '48px', fontWeight: 900, color: '#FFFFFF' }}>
+              {title.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <span
+            style={{
+              fontFamily: 'Playfair Display',
+              fontSize: '52px',
+              fontWeight: 900,
+              color: '#1A1A2E',
+              letterSpacing: '-2px',
+            }}
+          >
+            {title}
+          </span>
+          <div style={{ display: 'flex', alignItems: 'baseline', marginTop: '16px' }}>
+            <span style={{ fontFamily: 'Playfair Display', fontSize: '24px', fontWeight: 900, color: '#1A1A2E' }}>one</span>
+            <span style={{ fontFamily: 'Playfair Display', fontSize: '24px', fontWeight: 900, color: '#FF6B4A' }}>word</span>
+            <span style={{ fontFamily: 'DM Sans', fontSize: '14px', color: '#8B8697', letterSpacing: '3px', textTransform: 'uppercase', marginLeft: '12px' }}>BLOG</span>
+          </div>
+        </div>
+      ),
+      {
+        width: 1200,
+        height: 630,
+        fonts: [
+          { name: 'Playfair Display', data: playfairBold, style: 'normal', weight: 900 },
+          { name: 'DM Sans', data: dmSans, style: 'normal', weight: 400 },
+        ],
+      },
+    );
+  }
+
+  // Default site OG image
   return new ImageResponse(
     (
       <div
@@ -30,7 +195,6 @@ export async function GET(request: Request) {
           justifyContent: 'center',
         }}
       >
-        {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'baseline' }}>
           <span
             style={{
@@ -55,8 +219,6 @@ export async function GET(request: Request) {
             word
           </span>
         </div>
-
-        {/* Coral divider */}
         <div
           style={{
             width: '50px',
@@ -67,8 +229,6 @@ export async function GET(request: Request) {
             marginBottom: '16px',
           }}
         />
-
-        {/* Tagline */}
         <span
           style={{
             fontFamily: 'Playfair Display',
@@ -81,8 +241,6 @@ export async function GET(request: Request) {
         >
           {isSpanish ? 'Dilo en cinco.' : 'Say it in five.'}
         </span>
-
-        {/* Subtitle */}
         <span
           style={{
             fontFamily: 'DM Sans',
