@@ -28,6 +28,8 @@ export function contentBlocksToHtml(blocks: ContentBlock[]): string {
           return `<p>${block.emoji ? block.emoji + ' ' : ''}${formatInlineText(block.text)}</p>`;
         case 'code':
           return `<pre><code>${escapeHtml(block.code)}</code></pre>`;
+        case 'faq':
+          return `<div data-type="faq">${block.items.map((item) => `<div data-faq-item><dt>${escapeHtml(item.question)}</dt><dd>${escapeHtml(item.answer)}</dd></div>`).join('')}</div>`;
         default:
           return '';
       }
@@ -129,6 +131,31 @@ export function htmlToContentBlocks(html: string): ContentBlock[] {
           code: code ? code.textContent || '' : el.textContent || '',
           language: '',
         });
+        break;
+      }
+      case 'div': {
+        if (el.getAttribute('data-type') === 'faq') {
+          const faqItems: { question: string; answer: string }[] = [];
+          const itemEls = el.querySelectorAll('[data-faq-item]');
+          itemEls.forEach((itemEl) => {
+            const dt = itemEl.querySelector('dt');
+            const dd = itemEl.querySelector('dd');
+            if (dt && dd) {
+              faqItems.push({
+                question: dt.textContent?.trim() || '',
+                answer: dd.textContent?.trim() || '',
+              });
+            }
+          });
+          if (faqItems.length > 0) {
+            blocks.push({ type: 'faq', items: faqItems });
+          }
+          break;
+        }
+        const divText = getInlineText(el);
+        if (divText.trim()) {
+          blocks.push({ type: 'paragraph', text: divText });
+        }
         break;
       }
       default: {

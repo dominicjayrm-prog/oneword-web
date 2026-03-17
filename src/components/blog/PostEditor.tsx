@@ -3,9 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from '@/i18n/navigation';
-import type { BlogPost, BlogAuthor } from '@/lib/blog/types';
+import type { BlogPost, BlogAuthor, ContentBlock } from '@/lib/blog/types';
 import { contentBlocksToHtml, htmlToContentBlocks } from '@/lib/blog/content-utils';
 import RichTextEditor from '@/components/admin/RichTextEditor';
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
 
 interface PostEditorProps {
   initialPost?: BlogPost;
@@ -48,6 +53,13 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
   const [publishedAt, setPublishedAt] = useState(
     initialPost?.published_at ? initialPost.published_at.slice(0, 16) : ''
   );
+  const [faqItems, setFaqItems] = useState<FaqItem[]>(() => {
+    if (initialPost?.content) {
+      const faqBlock = initialPost.content.find((b): b is Extract<ContentBlock, { type: 'faq' }> => b.type === 'faq');
+      return faqBlock?.items ?? [];
+    }
+    return [];
+  });
   const [activeTab, setActiveTab] = useState<'settings' | 'seo'>('settings');
 
   // Data
@@ -136,7 +148,11 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
       setError('');
       setSuccessMsg('');
 
-      const contentBlocks = htmlToContentBlocks(contentHtml);
+      const contentBlocks: ContentBlock[] = htmlToContentBlocks(contentHtml);
+      const validFaqItems = faqItems.filter((item) => item.question.trim() && item.answer.trim());
+      if (validFaqItems.length > 0) {
+        contentBlocks.push({ type: 'faq', items: validFaqItems });
+      }
       const parsedTags = tags
         .split(',')
         .map((t) => t.trim())
@@ -197,7 +213,7 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
     [
       title, slug, excerpt, contentHtml, bannerUrl, bannerAlt, authorId,
       language, metaTitle, metaDescription, tags, readTime, publishedAt,
-      isEditing, initialPost, supabase, router,
+      faqItems, isEditing, initialPost, supabase, router,
     ]
   );
 
@@ -361,6 +377,111 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
               onImageUpload={handleContentImageUpload}
               placeholder="Start writing your blog post here... You can paste content, then highlight text to format it as headings, bold, lists, etc."
             />
+          </div>
+
+          {/* FAQ Block Editor */}
+          <div className="bg-white rounded-xl border border-[#E8E3D9]/50 shadow-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <label className="block text-xs font-medium text-[#8B8697] uppercase tracking-wide">
+                FAQ Block
+              </label>
+              <button
+                type="button"
+                onClick={() => setFaqItems((prev) => [...prev, { question: '', answer: '' }])}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-[#FF6B4A] hover:text-[#e55a3a] transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add Question
+              </button>
+            </div>
+
+            {faqItems.length === 0 ? (
+              <p className="text-sm text-[#B0ACBA] text-center py-4">
+                No FAQ items yet. Click &quot;Add Question&quot; to start.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {faqItems.map((item, index) => (
+                  <div key={index} className="border border-[#E8E3D9] rounded-lg p-4 bg-[#F8F6F1]/50">
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <span className="text-xs font-medium text-[#8B8697] mt-1">Q{index + 1}</span>
+                      <div className="flex items-center gap-1">
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFaqItems((prev) => {
+                                const updated = [...prev];
+                                [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+                                return updated;
+                              });
+                            }}
+                            className="p-1 rounded text-[#8B8697] hover:bg-white hover:text-[#1A1A2E] transition-colors"
+                            title="Move up"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                            </svg>
+                          </button>
+                        )}
+                        {index < faqItems.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFaqItems((prev) => {
+                                const updated = [...prev];
+                                [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
+                                return updated;
+                              });
+                            }}
+                            className="p-1 rounded text-[#8B8697] hover:bg-white hover:text-[#1A1A2E] transition-colors"
+                            title="Move down"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setFaqItems((prev) => prev.filter((_, i) => i !== index))}
+                          className="p-1 rounded text-[#8B8697] hover:bg-red-50 hover:text-red-500 transition-colors"
+                          title="Delete"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <input
+                      type="text"
+                      value={item.question}
+                      onChange={(e) =>
+                        setFaqItems((prev) =>
+                          prev.map((faq, i) => (i === index ? { ...faq, question: e.target.value } : faq))
+                        )
+                      }
+                      placeholder="Question"
+                      className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E] placeholder-[#B0ACBA] mb-2"
+                    />
+                    <textarea
+                      value={item.answer}
+                      onChange={(e) =>
+                        setFaqItems((prev) =>
+                          prev.map((faq, i) => (i === index ? { ...faq, answer: e.target.value } : faq))
+                        )
+                      }
+                      placeholder="Answer"
+                      rows={2}
+                      className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2 focus:border-[#FF6B4A] focus:outline-none bg-white text-[#1A1A2E] resize-none placeholder-[#B0ACBA]"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

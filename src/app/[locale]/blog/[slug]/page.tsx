@@ -7,7 +7,7 @@ import { Nav } from '@/components/ui/Nav';
 import { Footer } from '@/components/ui/Footer';
 import { ContentRenderer } from '@/components/blog/ContentRenderer';
 import { BlogPostTracker } from '@/components/blog/BlogPostTracker';
-import type { BlogPost } from '@/lib/blog/types';
+import type { BlogPost, ContentBlock } from '@/lib/blog/types';
 import type { Metadata } from 'next';
 
 type Props = {
@@ -132,6 +132,26 @@ export default async function BlogPostPage({ params }: Props) {
     ],
   };
 
+  // Collect all FAQ items from all FAQ blocks
+  const faqItems = typedPost.content
+    .filter((block): block is Extract<ContentBlock, { type: 'faq' }> => block.type === 'faq')
+    .flatMap((block) => block.items);
+
+  const faqSchema = faqItems.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqItems.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.answer,
+          },
+        })),
+      }
+    : null;
+
   return (
     <>
       <Nav />
@@ -243,9 +263,9 @@ export default async function BlogPostPage({ params }: Props) {
               >
                 {typedPost.author.name}
               </Link>
-              {typedPost.author.bio && (
+              {(locale === 'es' ? typedPost.author.bio_es : typedPost.author.bio_en) && (
                 <p className="mt-1 text-sm leading-relaxed text-text-muted">
-                  {typedPost.author.bio}
+                  {locale === 'es' ? typedPost.author.bio_es : typedPost.author.bio_en}
                 </p>
               )}
               <div className="mt-3 flex items-center gap-3">
@@ -319,6 +339,12 @@ export default async function BlogPostPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
     </>
   );
 }

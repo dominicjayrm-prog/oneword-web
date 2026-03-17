@@ -6,13 +6,15 @@ export type ContentBlock =
   | { type: 'quote'; text: string; attribution?: string }
   | { type: 'divider' }
   | { type: 'callout'; text: string; emoji?: string }
-  | { type: 'code'; language?: string; code: string };
+  | { type: 'code'; language?: string; code: string }
+  | { type: 'faq'; items: { question: string; answer: string }[] };
 
 export interface BlogAuthor {
   id: string;
   name: string;
   slug: string;
-  bio: string | null;
+  bio_en: string | null;
+  bio_es: string | null;
   avatar_url: string | null;
   twitter_url: string | null;
   linkedin_url: string | null;

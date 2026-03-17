@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${author.name} — OneWord Blog`,
-    description: author.bio || `Posts by ${author.name}`,
+    description: author.bio_en || `Posts by ${author.name}`,
   };
 }
 
@@ -67,7 +67,7 @@ export default async function AuthorPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: typedAuthor.name,
-    description: typedAuthor.bio || undefined,
+    description: typedAuthor.bio_en || undefined,
     image: typedAuthor.avatar_url || undefined,
     url: `https://playoneword.app/blog/author/${typedAuthor.slug}`,
     sameAs: [
@@ -98,8 +98,10 @@ export default async function AuthorPage({ params }: Props) {
           <h1 className="font-serif text-3xl font-bold text-text">
             {typedAuthor.name}
           </h1>
-          {typedAuthor.bio && (
-            <p className="mt-3 max-w-lg text-text-muted">{typedAuthor.bio}</p>
+          {(locale === 'es' ? typedAuthor.bio_es : typedAuthor.bio_en) && (
+            <p className="mt-3 max-w-lg text-text-muted">
+              {locale === 'es' ? typedAuthor.bio_es : typedAuthor.bio_en}
+            </p>
           )}
           <div className="mt-4 flex items-center gap-4">
             {typedAuthor.twitter_url && (
