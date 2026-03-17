@@ -13,7 +13,7 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const supabase = await createClient();
   const { data: author } = await supabase
     .from('blog_authors')
@@ -23,9 +23,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!author) return {};
 
+  const bio = (locale === 'es' ? author.bio_es : author.bio_en) || `Posts by ${author.name}`;
+  const siteUrl = 'https://playoneword.app';
+
   return {
     title: `${author.name} — OneWord Blog`,
-    description: author.bio_en || `Posts by ${author.name}`,
+    description: bio,
+    alternates: {
+      canonical: locale === 'es' ? `${siteUrl}/es/blog/author/${slug}` : `${siteUrl}/blog/author/${slug}`,
+      languages: {
+        en: `${siteUrl}/blog/author/${slug}`,
+        es: `${siteUrl}/es/blog/author/${slug}`,
+      },
+    },
   };
 }
 
@@ -67,7 +77,7 @@ export default async function AuthorPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: typedAuthor.name,
-    description: typedAuthor.bio_en || undefined,
+    description: (locale === 'es' ? typedAuthor.bio_es : typedAuthor.bio_en) || undefined,
     image: typedAuthor.avatar_url || undefined,
     url: `https://playoneword.app/blog/author/${typedAuthor.slug}`,
     sameAs: [

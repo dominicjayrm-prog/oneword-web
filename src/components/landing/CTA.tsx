@@ -82,12 +82,12 @@ export function CTA() {
             placeholder={te('placeholder')}
             aria-label={te('placeholder')}
             disabled={isSuccess}
-            className="h-[52px] flex-1 rounded-[14px] border border-border bg-white px-5 text-base text-text outline-none transition-colors placeholder:text-text-muted/50 focus:border-primary disabled:opacity-60"
+            className="h-[52px] flex-1 rounded-[14px] border border-border bg-white px-5 text-base text-text outline-none transition-colors placeholder:text-text-muted/50 focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
           />
           <button
             type="submit"
             disabled={status === 'loading' || isSuccess}
-            className={`h-[52px] rounded-[14px] px-7 text-base font-bold text-white transition-all ${
+            className={`h-[52px] rounded-[14px] px-7 text-base font-bold text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
               isSuccess
                 ? 'bg-[#2ECC71] shadow-lg shadow-[#2ECC71]/20'
                 : 'bg-primary shadow-lg shadow-primary/25 hover:shadow-primary/40 disabled:opacity-70'

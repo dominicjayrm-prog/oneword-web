@@ -46,7 +46,8 @@ export function StreakCelebration({ badge, streak, locale = 'en', onDismiss }: S
   const nextBadge = getNextBadge(streak);
   const progress = getProgressToNext(streak);
   const isEternal = badge.streak === 365;
-  const confettiCount = isEternal ? 50 : 35;
+  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const confettiCount = prefersReducedMotion ? 0 : isEternal ? 50 : 35;
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
