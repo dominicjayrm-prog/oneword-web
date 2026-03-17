@@ -16,7 +16,8 @@ function slugify(text: string): string {
 interface AuthorFormData {
   name: string;
   slug: string;
-  bio: string;
+  bio_en: string;
+  bio_es: string;
   avatar_url: string;
   twitter_url: string;
   linkedin_url: string;
@@ -27,7 +28,8 @@ interface AuthorFormData {
 const emptyForm: AuthorFormData = {
   name: '',
   slug: '',
-  bio: '',
+  bio_en: '',
+  bio_es: '',
   avatar_url: '',
   twitter_url: '',
   linkedin_url: '',
@@ -76,7 +78,8 @@ export default function AuthorsPage() {
     setForm({
       name: author.name,
       slug: author.slug,
-      bio: author.bio ?? '',
+      bio_en: author.bio_en ?? '',
+      bio_es: author.bio_es ?? '',
       avatar_url: author.avatar_url ?? '',
       twitter_url: author.twitter_url ?? '',
       linkedin_url: author.linkedin_url ?? '',
@@ -139,7 +142,8 @@ export default function AuthorsPage() {
     const authorData = {
       name: form.name.trim(),
       slug: form.slug || slugify(form.name),
-      bio: form.bio || null,
+      bio_en: form.bio_en || null,
+      bio_es: form.bio_es || null,
       avatar_url: form.avatar_url || null,
       twitter_url: form.twitter_url || null,
       linkedin_url: form.linkedin_url || null,
@@ -209,7 +213,7 @@ export default function AuthorsPage() {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E3D9]/50">
               <h2 className="text-lg font-bold text-[#1A1A2E]">
@@ -260,16 +264,28 @@ export default function AuthorsPage() {
                 />
               </div>
 
-              {/* Bio */}
-              <div>
-                <label className="block text-xs font-medium text-[#8B8697] mb-1.5">Bio</label>
-                <textarea
-                  value={form.bio}
-                  onChange={(e) => updateForm('bio', e.target.value)}
-                  placeholder="Short author bio..."
-                  rows={3}
-                  className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2.5 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E] resize-none placeholder-[#B0ACBA]"
-                />
+              {/* Bilingual Bios */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-[#8B8697] mb-1.5">Bio (English)</label>
+                  <textarea
+                    value={form.bio_en}
+                    onChange={(e) => updateForm('bio_en', e.target.value)}
+                    placeholder="Short author bio in English..."
+                    rows={3}
+                    className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2.5 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E] resize-none placeholder-[#B0ACBA]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#8B8697] mb-1.5">Bio (Español)</label>
+                  <textarea
+                    value={form.bio_es}
+                    onChange={(e) => updateForm('bio_es', e.target.value)}
+                    placeholder="Biografía breve del autor en español..."
+                    rows={3}
+                    className="w-full text-sm border border-[#E8E3D9] rounded-lg px-3 py-2.5 focus:border-[#FF6B4A] focus:outline-none bg-[#F8F6F1] text-[#1A1A2E] resize-none placeholder-[#B0ACBA]"
+                  />
+                </div>
               </div>
 
               {/* Avatar */}
@@ -390,8 +406,8 @@ export default function AuthorsPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-[#1A1A2E]">{author.name}</p>
                   <p className="text-xs text-[#8B8697] mt-0.5">/{author.slug}</p>
-                  {author.bio && (
-                    <p className="text-sm text-[#8B8697] mt-2 line-clamp-2">{author.bio}</p>
+                  {author.bio_en && (
+                    <p className="text-sm text-[#8B8697] mt-2 line-clamp-2">{author.bio_en}</p>
                   )}
                   {/* Social icons */}
                   <div className="flex items-center gap-2 mt-3">
