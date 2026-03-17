@@ -157,7 +157,7 @@ export default async function BlogPostPage({ params }: Props) {
       <Nav />
       <main className="mx-auto max-w-[720px] px-6 pb-20 pt-28">
         {/* Breadcrumbs */}
-        <nav className="mb-6 text-sm text-text-muted" aria-label="Breadcrumb">
+        <nav className="animate-fade-in-up mb-6 text-sm text-text-muted" aria-label="Breadcrumb">
           <ol className="flex items-center gap-1.5">
             <li>
               <Link href="/" className="hover:text-primary">
@@ -178,7 +178,8 @@ export default async function BlogPostPage({ params }: Props) {
         {/* Back link */}
         <Link
           href="/blog"
-          className="mb-8 inline-block text-sm font-medium text-primary hover:underline"
+          className="animate-fade-in-up mb-8 inline-block text-sm font-medium text-primary hover:underline"
+          style={{ animationDelay: '50ms' }}
         >
           &larr; {t('back_to_blog')}
         </Link>
@@ -198,12 +199,12 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         {/* Title */}
-        <h1 className="font-serif text-4xl font-black text-text md:text-5xl">
+        <h1 className="animate-fade-in-up font-serif text-4xl font-black text-text md:text-5xl" style={{ animationDelay: '100ms' }}>
           {typedPost.title}
         </h1>
 
         {/* Meta line */}
-        <div className="mt-4 flex flex-wrap items-center gap-1 text-sm text-text-muted">
+        <div className="animate-fade-in-up mt-4 flex flex-wrap items-center gap-1 text-sm text-text-muted" style={{ animationDelay: '150ms' }}>
           {typedPost.author && (
             <>
               <span>{t('by')}</span>
@@ -225,7 +226,7 @@ export default async function BlogPostPage({ params }: Props) {
 
         {/* Banner */}
         {typedPost.banner_url && (
-          <div className="relative mt-8 aspect-video overflow-hidden rounded-xl">
+          <div className="animate-fade-in-up relative mt-8 aspect-video overflow-hidden rounded-xl" style={{ animationDelay: '200ms' }}>
             <Image
               src={typedPost.banner_url}
               alt={typedPost.banner_alt || typedPost.title}
@@ -238,7 +239,7 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         {/* Content */}
-        <article className="mt-10">
+        <article className="animate-fade-in-up mt-10" style={{ animationDelay: '250ms' }}>
           <ContentRenderer content={typedPost.content} />
         </article>
 

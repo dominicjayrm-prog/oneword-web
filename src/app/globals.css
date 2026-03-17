@@ -23,6 +23,10 @@
   --font-mono: var(--font-dm-mono), 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
+html, body {
+  overflow-x: hidden;
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-text);
@@ -154,6 +158,22 @@ body {
   0%, 100% { transform: translate(0px, 0px) scale(1); }
   33% { transform: translate(25px, 40px) scale(0.96); }
   66% { transform: translate(-35px, -25px) scale(1.04); }
+}
+
+/* ── Page entrance animations ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
