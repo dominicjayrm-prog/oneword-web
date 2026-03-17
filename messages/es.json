@@ -21,7 +21,8 @@
     "download": "Descargar",
     "play_now": "Jugar Ahora",
     "login": "Iniciar Sesi\u00f3n",
-    "signup": "Registrarse"
+    "signup": "Registrarse",
+    "blog": "Blog"
   },
   "hero": {
     "badge": "El juego diario para mentes creativas",
@@ -109,12 +110,29 @@
     "privacy": "Privacidad",
     "terms": "T\u00e9rminos",
     "contact": "Contacto",
-    "archive": "Archivo"
+    "archive": "Archivo",
+    "blog": "Blog"
   },
   "contact": {
     "title": "Contacto",
     "body": "Si tienes alguna pregunta, necesitas ayuda con tu cuenta, quieres reportar un error o tienes cualquier comentario, escr\u00edbenos a",
     "back_home": "Volver al inicio"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Ideas, novedades y la historia detr\u00e1s de OneWord",
+    "back_to_blog": "\u2190 Volver al Blog",
+    "by": "Por",
+    "min_read": "min de lectura",
+    "posts_by": "Publicaciones de",
+    "share": "Compartir este art\u00edculo",
+    "copy_link": "Copiar enlace",
+    "link_copied": "\u00a1Enlace copiado!",
+    "related_posts": "Art\u00edculos relacionados",
+    "no_posts": "A\u00fan no hay publicaciones. \u00a1Vuelve pronto!",
+    "tags": "Etiquetas",
+    "published": "Publicado",
+    "draft": "Borrador"
   },
   "auth": {
     "login_title": "Bienvenido de nuevo",

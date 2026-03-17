@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { track } from '@vercel/analytics';
 import { Link } from '@/i18n/navigation';
 import { Button } from './Button';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -22,11 +23,14 @@ export function Nav() {
           <a href="#how-it-works" className="text-sm text-text-muted hover:text-text transition-colors">
             {t('how_it_works')}
           </a>
+          <Link href="/blog" className="text-sm text-text-muted hover:text-text transition-colors">
+            {t('blog')}
+          </Link>
           <LanguageSwitcher />
-          <Button variant="dark" size="sm" as="a" href="#">
+          <Button variant="dark" size="sm" as="a" href="#" onClick={() => track('download_click', { platform: 'ios', page: 'nav' })}>
             {t('download')}
           </Button>
-          <Link href="/play">
+          <Link href="/play" onClick={() => track('play_web_click', { page: 'nav' })}>
             <Button variant="primary" size="sm">
               {t('play_now')}
             </Button>
@@ -57,11 +61,14 @@ export function Nav() {
           >
             {t('how_it_works')}
           </a>
+          <Link href="/blog" className="text-sm text-text-muted hover:text-text" onClick={() => setMobileOpen(false)}>
+            {t('blog')}
+          </Link>
           <LanguageSwitcher />
-          <Button variant="dark" size="sm" as="a" href="#">
+          <Button variant="dark" size="sm" as="a" href="#" onClick={() => track('download_click', { platform: 'ios', page: 'nav' })}>
             {t('download')}
           </Button>
-          <Link href="/play">
+          <Link href="/play" onClick={() => track('play_web_click', { page: 'nav' })}>
             <Button variant="primary" size="sm">
               {t('play_now')}
             </Button>

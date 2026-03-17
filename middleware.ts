@@ -7,7 +7,7 @@ const SUPPORTED_LOCALES = new Set<string>(routing.locales);
 const intlMiddleware = createIntlMiddleware(routing);
 
 // Routes that require authentication — add new protected routes here
-const AUTH_REQUIRED_PATTERNS = [/^\/play(\/|$)/];
+const AUTH_REQUIRED_PATTERNS = [/^\/play(\/|$)/, /^\/admin(\/|$)/];
 
 export async function middleware(request: NextRequest) {
   // Run next-intl middleware first (handles locale detection + redirect)

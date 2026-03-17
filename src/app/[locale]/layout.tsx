@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { DM_Sans, DM_Mono, Playfair_Display } from 'next/font/google';
 import { routing } from '@/i18n/routing';
+import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { ToastProvider } from '@/components/providers/ToastProvider';
 
@@ -116,6 +117,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <ToastProvider>{children}</ToastProvider>
           </AuthProvider>
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
