@@ -7,6 +7,7 @@ import { Nav } from '@/components/ui/Nav';
 import { Footer } from '@/components/ui/Footer';
 import { ContentRenderer } from '@/components/blog/ContentRenderer';
 import { BlogPostTracker } from '@/components/blog/BlogPostTracker';
+import { RelatedPosts } from '@/components/blog/RelatedPosts';
 import type { BlogPost, ContentBlock } from '@/lib/blog/types';
 import type { Metadata } from 'next';
 
@@ -31,25 +32,41 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? `https://playoneword.app/es/blog/${slug}`
       : `https://playoneword.app/blog/${slug}`;
 
+  const siteUrl = 'https://playoneword.app';
+  const enUrl = `${siteUrl}/blog/${slug}`;
+  const esUrl = `${siteUrl}/es/blog/${slug}`;
+
   return {
     title: `${post.meta_title || post.title} — OneWord Blog`,
     description: post.meta_description || post.excerpt || '',
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      languages: {
+        en: enUrl,
+        es: esUrl,
+        'x-default': enUrl,
+      },
+    },
     openGraph: {
       type: 'article',
       title: post.meta_title || post.title,
       description: post.meta_description || post.excerpt || '',
       url: canonical,
+      locale: post.language === 'es' ? 'es_ES' : 'en_US',
       publishedTime: post.published_at || undefined,
       authors: post.author?.name ? [post.author.name] : undefined,
       tags: post.tags || undefined,
-      images: post.banner_url ? [{ url: post.banner_url, alt: post.banner_alt || post.title }] : undefined,
+      images: post.banner_url
+        ? [{ url: post.banner_url, alt: post.banner_alt || post.title }]
+        : [{ url: `${siteUrl}/api/og?type=blog&title=${encodeURIComponent(post.title)}&author=${encodeURIComponent(post.author?.name || '')}&lang=${post.language || 'en'}`, width: 1200, height: 630, alt: post.title }],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.meta_title || post.title,
       description: post.meta_description || post.excerpt || '',
-      images: post.banner_url ? [post.banner_url] : undefined,
+      images: post.banner_url
+        ? [post.banner_url]
+        : [`${siteUrl}/api/og?type=blog&title=${encodeURIComponent(post.title)}&author=${encodeURIComponent(post.author?.name || '')}&lang=${post.language || 'en'}`],
     },
   };
 }
@@ -106,6 +123,7 @@ export default async function BlogPostPage({ params }: Props) {
           : `https://playoneword.app/blog/${slug}`,
     },
     keywords: typedPost.tags?.join(', ') || undefined,
+    inLanguage: typedPost.language === 'es' ? 'es' : 'en',
   };
 
   const breadcrumbSchema = {
@@ -326,6 +344,14 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
           </div>
         )}
+
+        <RelatedPosts
+          currentPostId={typedPost.id}
+          tags={typedPost.tags}
+          language={typedPost.language}
+          locale={locale}
+          heading={locale === 'es' ? 'Art\u00edculos relacionados' : 'Related Posts'}
+        />
 
         <BlogPostTracker slug={slug} language={typedPost.language} />
       </main>
