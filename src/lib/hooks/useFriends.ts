@@ -102,7 +102,7 @@ export function useFriends(userId: string | undefined) {
     setFriends(friendsList);
     friendsRef.current = friendsList;
     setLoading(false);
-  }, [userId]);
+  }, [userId, supabase]);
 
   const fetchFriendsDescriptions = useCallback(async (wordId: string) => {
     if (!userId) return;
@@ -170,7 +170,7 @@ export function useFriends(userId: string | undefined) {
       });
       setFriendsDescriptions(mapped);
     }
-  }, [userId]);
+  }, [userId, supabase]);
 
   return { friends, friendsDescriptions, loading, fetchFriends, fetchFriendsDescriptions };
 }

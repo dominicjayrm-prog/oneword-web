@@ -349,7 +349,6 @@ export default async function BlogPostPage({ params }: Props) {
           currentPostId={typedPost.id}
           tags={typedPost.tags}
           language={typedPost.language}
-          locale={locale}
           heading={locale === 'es' ? 'Art\u00edculos relacionados' : 'Related Posts'}
         />
 

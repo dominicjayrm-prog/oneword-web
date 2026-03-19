@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Link, useRouter, usePathname } from '@/i18n/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -11,7 +11,6 @@ import { cn } from '@/lib/utils';
 export default function PlayLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const locale = useLocale();
   const { user, profile, loading } = useAuth();
   const t = useTranslations('play_nav');
 

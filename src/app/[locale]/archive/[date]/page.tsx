@@ -36,7 +36,7 @@ export default function ArchiveDayPage({
 }: {
   params: Promise<{ date: string; locale: string }>;
 }) {
-  const { date, locale: paramLocale } = use(params);
+  const { date } = use(params);
   const t = useTranslations('archive');
   const locale = useLocale();
   const lang = locale === 'es' ? 'es' : 'en';

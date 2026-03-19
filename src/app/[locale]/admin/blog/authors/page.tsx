@@ -49,10 +49,6 @@ export default function AuthorsPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchAuthors();
-  }, []);
-
   async function fetchAuthors() {
     setLoading(true);
     const { data, error: fetchError } = await supabase
@@ -65,6 +61,9 @@ export default function AuthorsPage() {
     setAuthors((data as BlogAuthor[]) ?? []);
     setLoading(false);
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchAuthors(); }, []);
 
   function openNew() {
     setForm(emptyForm);
@@ -293,6 +292,7 @@ export default function AuthorsPage() {
                 <label className="block text-xs font-medium text-[#8B8697] mb-1.5">Avatar</label>
                 {form.avatar_url ? (
                   <div className="flex items-center gap-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={form.avatar_url}
                       alt={form.name || 'Avatar'}
@@ -393,6 +393,7 @@ export default function AuthorsPage() {
             >
               <div className="flex items-start gap-4">
                 {author.avatar_url ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={author.avatar_url}
                     alt={author.name}

@@ -88,7 +88,7 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
   // Auto-slug
   useEffect(() => {
     if (!slugManual) {
-      setSlug(slugify(title));
+      setSlug(slugify(title)); // eslint-disable-line react-hooks/set-state-in-effect
     }
   }, [title, slugManual]);
 
@@ -96,7 +96,7 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
   useEffect(() => {
     const text = contentHtml.replace(/<[^>]*>/g, ' ');
     const words = text.split(/\s+/).filter(Boolean).length;
-    setReadTime(Math.max(1, Math.round(words / 200)));
+    setReadTime(Math.max(1, Math.round(words / 200))); // eslint-disable-line react-hooks/set-state-in-effect
   }, [contentHtml]);
 
   // Banner upload
@@ -322,6 +322,7 @@ export default function PostEditor({ initialPost }: PostEditorProps) {
             </label>
             {bannerUrl ? (
               <div className="relative group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={bannerUrl}
                   alt={bannerAlt || 'Banner preview'}

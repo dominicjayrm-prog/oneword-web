@@ -58,6 +58,7 @@ export default function PlayPage() {
     if (user && word) {
       fetchUserDescription(user.id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, word]);
 
   useEffect(() => {
@@ -128,7 +129,7 @@ export default function PlayPage() {
     }
 
     loadInterstitials();
-  }, [user, profile, loading, lang]);
+  }, [user, profile, loading, lang, supabase]);
 
   function dismissWeekly() {
     localStorage.setItem('recap_dismissed_week', getGameMonday());

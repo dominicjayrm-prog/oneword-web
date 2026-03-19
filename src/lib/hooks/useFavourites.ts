@@ -22,6 +22,7 @@ export function useFavourites(userId: string | undefined) {
   }, [userId, supabase]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchFavouritedIds();
   }, [fetchFavouritedIds]);
 
@@ -178,6 +179,7 @@ export function useFavouritePhrases(userId: string | undefined) {
   }, [userId, supabase]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPhrases();
   }, [fetchPhrases]);
 

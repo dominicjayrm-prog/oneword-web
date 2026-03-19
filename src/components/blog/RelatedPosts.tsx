@@ -7,11 +7,10 @@ interface RelatedPostsProps {
   currentPostId: string;
   tags: string[] | null;
   language: string;
-  locale: string;
   heading: string;
 }
 
-export async function RelatedPosts({ currentPostId, tags, language, locale, heading }: RelatedPostsProps) {
+export async function RelatedPosts({ currentPostId, tags, language, heading }: RelatedPostsProps) {
   const supabase = await createClient();
 
   let related: BlogPost[] = [];

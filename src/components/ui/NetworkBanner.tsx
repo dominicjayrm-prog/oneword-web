@@ -11,7 +11,7 @@ export function NetworkBanner() {
   useEffect(() => {
     function handleOnline() { setOffline(false); }
     function handleOffline() { setOffline(true); }
-    setOffline(!navigator.onLine);
+    setOffline(!navigator.onLine); // eslint-disable-line react-hooks/set-state-in-effect
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     return () => {

@@ -80,7 +80,7 @@ export function useLeaderboard(wordId: string | undefined) {
     }
 
     setLoading(false);
-  }, [wordId]);
+  }, [wordId, supabase]);
 
   return { entries, loading, fetchLeaderboard };
 }

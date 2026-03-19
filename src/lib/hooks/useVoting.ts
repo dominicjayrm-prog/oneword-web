@@ -88,6 +88,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
     seenPairs.current = new Set();
     seenDescriptions.current = wordId ? loadSeenDescriptions(wordId) : new Set();
     batchExhaustedRef.current = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset state on word/voter change
     setBatchExhausted(false);
     setVotesCount(0);
     setRestoring(true);
@@ -131,7 +132,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
     }
 
     restoreFromDB();
-  }, [wordId, voterId]);
+  }, [wordId, voterId, supabase]);
 
   const fetchPairFallback = useCallback(async (): Promise<VotePairData | null> => {
     if (!wordId || !voterId) return null;
@@ -160,7 +161,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
       option_b_description: shuffled[1].description,
       option_b_user_id: shuffled[1].user_id,
     };
-  }, [wordId, voterId]);
+  }, [wordId, voterId, supabase]);
 
   const fetchPair = useCallback(async () => {
     if (!wordId || !voterId) return;
@@ -222,7 +223,7 @@ export function useVoting(wordId: string | undefined, voterId: string | undefine
 
     setNoMorePairs(true);
     setLoading(false);
-  }, [wordId, voterId, fetchPairFallback]);
+  }, [wordId, voterId, fetchPairFallback, supabase]);
 
   async function submitVote(winnerId: string, loserId: string): Promise<'ok' | 'rate_limited' | 'error'> {
     if (!wordId || !voterId) return 'error';

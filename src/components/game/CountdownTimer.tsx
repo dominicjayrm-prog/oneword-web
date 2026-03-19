@@ -10,6 +10,7 @@ export function CountdownTimer() {
   const t = useTranslations('game');
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial hydration sync
     setRemaining(msUntilNextWord());
     setMounted(true);
     const interval = setInterval(() => {
