@@ -24,7 +24,7 @@ function localeUrl(locale: string, page: string) {
 }
 
 export async function GET() {
-  const now = new Date().toISOString();
+  const staticLastmod = '2026-03-01';
 
   // Static pages with xhtml:link hreflang alternates
   const staticUrls = pages.flatMap((page) =>
@@ -33,7 +33,7 @@ export async function GET() {
       const esUrl = localeUrl('es', page.path);
       return `  <url>
     <loc>${localeUrl(locale, page.path)}</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${staticLastmod}</lastmod>
     <changefreq>${page.changeFrequency}</changefreq>
     <priority>${page.priority}</priority>
     <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
@@ -56,15 +56,37 @@ export async function GET() {
         .eq('status', 'published');
 
       if (posts) {
+        // Group posts by slug to pair EN/ES versions for hreflang
+        const postsBySlug = new Map<string, typeof posts>();
+        for (const post of posts) {
+          const existing = postsBySlug.get(post.slug) || [];
+          existing.push(post);
+          postsBySlug.set(post.slug, existing);
+        }
+
         blogUrls = posts.map((post) => {
           const loc = post.language === 'es'
             ? `${BASE_URL}/es/blog/${post.slug}`
             : `${BASE_URL}/blog/${post.slug}`;
+          const enUrl = `${BASE_URL}/blog/${post.slug}`;
+          const esUrl = `${BASE_URL}/es/blog/${post.slug}`;
+          const siblings = postsBySlug.get(post.slug) || [];
+          const hasEnVersion = siblings.some((p) => p.language !== 'es');
+          const hasEsVersion = siblings.some((p) => p.language === 'es');
+
+          // Only include hreflang links for languages that actually have published posts
+          const hreflangLinks = [
+            hasEnVersion ? `    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />` : '',
+            hasEsVersion ? `    <xhtml:link rel="alternate" hreflang="es" href="${esUrl}" />` : '',
+            hasEnVersion ? `    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />` : '',
+          ].filter(Boolean).join('\n');
+
           return `  <url>
     <loc>${loc}</loc>
-    <lastmod>${post.updated_at || post.published_at || now}</lastmod>
+    <lastmod>${post.updated_at || post.published_at || staticLastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+${hreflangLinks}
   </url>`;
         });
       }
@@ -82,7 +104,7 @@ export async function GET() {
             const loc = locale === 'en' ? enUrl : esUrl;
             blogUrls.push(`  <url>
     <loc>${loc}</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${staticLastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
