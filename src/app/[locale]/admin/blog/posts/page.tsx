@@ -13,10 +13,6 @@ export default function PostsListPage() {
   const [langFilter, setLangFilter] = useState<'all' | 'en' | 'es'>('all');
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
   async function fetchPosts() {
     setLoading(true);
     const { data, error } = await supabase
@@ -29,6 +25,9 @@ export default function PostsListPage() {
     setPosts((data as BlogPost[]) ?? []);
     setLoading(false);
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchPosts(); }, []);
 
   async function handleDelete(id: string) {
     if (!window.confirm('Are you sure you want to delete this post?')) return;

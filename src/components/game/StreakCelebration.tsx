@@ -22,6 +22,7 @@ function Confetti({ count }: { count: number }) {
       duration: 1.5 + Math.random() * 1.5,
       color: ['#FF6B4A', '#FFD700', '#4A9BFF', '#88E5FF', '#FF8A6B'][i % 5],
       size: 4 + Math.random() * 6,
+      rotateDir: Math.random() > 0.5 ? 1 : -1,
     }))
   );
 
@@ -31,7 +32,7 @@ function Confetti({ count }: { count: number }) {
         <motion.div
           key={p.id}
           initial={{ opacity: 1, y: -20, x: `${p.x}vw`, scale: 0 }}
-          animate={{ opacity: 0, y: '100vh', rotate: 360 * (Math.random() > 0.5 ? 1 : -1), scale: 1 }}
+          animate={{ opacity: 0, y: '100vh', rotate: 360 * p.rotateDir, scale: 1 }}
           transition={{ delay: p.delay, duration: p.duration, ease: 'easeOut' }}
           className="absolute rounded-sm"
           style={{ width: p.size, height: p.size, backgroundColor: p.color }}
@@ -46,8 +47,14 @@ export function StreakCelebration({ badge, streak, locale = 'en', onDismiss }: S
   const nextBadge = getNextBadge(streak);
   const progress = getProgressToNext(streak);
   const isEternal = badge.streak === 365;
-  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const confettiCount = prefersReducedMotion ? 0 : isEternal ? 50 : 35;
+  const [confettiCount, setConfettiCount] = useState(0);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reducedMotion) {
+      setConfettiCount(isEternal ? 50 : 35); // eslint-disable-line react-hooks/set-state-in-effect
+    }
+  }, [isEternal]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {

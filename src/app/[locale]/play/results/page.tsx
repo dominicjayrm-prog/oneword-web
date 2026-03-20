@@ -27,7 +27,7 @@ export default function ResultsPage() {
   const tGame = useTranslations('game');
   const { word, userDescription, loading: wordLoading, error: wordError, fetchUserDescription } = useWord(lang);
   const { entries, loading: lbLoading, fetchLeaderboard } = useLeaderboard(word?.id);
-  const { friends, friendsDescriptions, fetchFriends, fetchFriendsDescriptions } = useFriends(user?.id);
+  const { friendsDescriptions, fetchFriends, fetchFriendsDescriptions } = useFriends(user?.id);
   const { isFavourited, toggleFavourite } = useFavourites(user?.id);
   const [tab, setTab] = useState<Tab>('global');
   const [hasPlayed, setHasPlayed] = useState<boolean | null>(null);

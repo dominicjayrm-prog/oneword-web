@@ -52,9 +52,10 @@ export function useWord(language = 'en') {
     }
     gameDateRef.current = getGameDate();
     setLoading(false);
-  }, [language]);
+  }, [language, supabase]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchWord();
   }, [fetchWord]);
 

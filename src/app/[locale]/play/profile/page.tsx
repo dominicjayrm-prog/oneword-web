@@ -35,7 +35,7 @@ export default function ProfilePage() {
   const tFav = useTranslations('favourites');
 
   useEffect(() => {
-    if (profile?.language) setLanguage(profile.language);
+    if (profile?.language) setLanguage(profile.language); // eslint-disable-line react-hooks/set-state-in-effect
   }, [profile?.language]);
 
   const router = useRouter();
