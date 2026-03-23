@@ -27,7 +27,7 @@ export function Nav() {
             {t('blog')}
           </Link>
           <LanguageSwitcher />
-          <Button variant="dark" size="sm" as="a" href="https://apps.apple.com/app/oneword-say-it-in-five/id6746268182" onClick={() => track('download_click', { platform: 'ios', page: 'nav' })}>
+          <Button variant="dark" size="sm" as="a" href="https://apps.apple.com/us/app/oneword-daily-word-game/id6760566728" onClick={() => track('download_click', { platform: 'ios', page: 'nav' })}>
             {t('download')}
           </Button>
           <Link href="/play" onClick={() => track('play_web_click', { page: 'nav' })}>
@@ -66,7 +66,7 @@ export function Nav() {
             {t('blog')}
           </Link>
           <LanguageSwitcher />
-          <Button variant="dark" size="sm" as="a" href="https://apps.apple.com/app/oneword-say-it-in-five/id6746268182" onClick={() => track('download_click', { platform: 'ios', page: 'nav' })}>
+          <Button variant="dark" size="sm" as="a" href="https://apps.apple.com/us/app/oneword-daily-word-game/id6760566728" onClick={() => track('download_click', { platform: 'ios', page: 'nav' })}>
             {t('download')}
           </Button>
           <Link href="/play" onClick={() => track('play_web_click', { page: 'nav' })}>
