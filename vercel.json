@@ -1,0 +1,10 @@
+{
+  "redirects": [
+    {
+      "source": "/:path(.*)",
+      "has": [{ "type": "host", "value": "www.playoneword.app" }],
+      "destination": "https://playoneword.app/:path",
+      "permanent": true
+    }
+  ]
+}

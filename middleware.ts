@@ -10,6 +10,16 @@ const intlMiddleware = createIntlMiddleware(routing);
 const AUTH_REQUIRED_PATTERNS = [/^\/play(\/|$)/, /^\/admin(\/|$)/];
 
 export async function middleware(request: NextRequest) {
+  // Redirect www → non-www with a permanent 301 redirect
+  const host = request.headers.get('host') || '';
+  if (host.startsWith('www.')) {
+    const url = request.nextUrl.clone();
+    url.host = host.replace(/^www\./, '');
+    url.protocol = 'https';
+    url.port = '';
+    return NextResponse.redirect(url, 301);
+  }
+
   // Run next-intl middleware first (handles locale detection + redirect)
   const intlResponse = intlMiddleware(request);
 
