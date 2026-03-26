@@ -117,21 +117,21 @@ ${hreflangLinks}
 
       // Archive date pages (recent words)
       const { data: words } = await supabase
-        .from('words')
-        .select('word_date')
-        .lte('word_date', new Date().toISOString().split('T')[0])
-        .order('word_date', { ascending: false })
+        .from('daily_words')
+        .select('date')
+        .lte('date', new Date().toISOString().split('T')[0])
+        .order('date', { ascending: false })
         .limit(90);
 
       if (words) {
         for (const word of words) {
           for (const locale of locales) {
-            const enUrl = `${BASE_URL}/archive/${word.word_date}`;
-            const esUrl = `${BASE_URL}/es/archive/${word.word_date}`;
+            const enUrl = `${BASE_URL}/archive/${word.date}`;
+            const esUrl = `${BASE_URL}/es/archive/${word.date}`;
             const loc = locale === 'en' ? enUrl : esUrl;
             blogUrls.push(`  <url>
     <loc>${loc}</loc>
-    <lastmod>${word.word_date}</lastmod>
+    <lastmod>${word.date}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
     <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
