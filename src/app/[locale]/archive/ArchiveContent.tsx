@@ -29,17 +29,29 @@ function formatMonthLabel(monthKey: string, locale: string): string {
   });
 }
 
-export default function ArchiveContent() {
+export interface ArchiveEntry {
+  word_date: string;
+  word: string;
+  category: string;
+  player_count: number;
+}
+
+export default function ArchiveContent({ initialEntries }: { initialEntries?: ArchiveEntry[] }) {
   const t = useTranslations('archive');
   const locale = useLocale();
   const { entries, loading, hasMore, loadMore, fetchCalendar, months, categories, filterByMonth } =
     useArchiveCalendar(locale === 'es' ? 'es' : 'en');
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    fetchCalendar();
+    fetchCalendar().then(() => setHydrated(true));
   }, [fetchCalendar]);
+
+  // Use server-provided data until client-side data loads
+  const displayEntries = hydrated ? entries : (initialEntries || entries);
+  const isLoading = hydrated ? loading : (!initialEntries || initialEntries.length === 0) && loading;
 
   function handleMonthFilter(monthKey: string | null) {
     setSelectedMonth(monthKey);
@@ -142,14 +154,14 @@ export default function ArchiveContent() {
         )}
 
         {/* Loading state */}
-        {loading && (
+        {isLoading && (
           <div className="flex min-h-[40vh] items-center justify-center">
             <LoadingSpinner size="lg" />
           </div>
         )}
 
         {/* Empty state */}
-        {!loading && entries.length === 0 && (
+        {!isLoading && displayEntries.length === 0 && (
           <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
             <p className="font-serif text-2xl text-text">{t('empty_title')}</p>
             <p className="mt-2 text-text-muted">{t('empty_subtitle')}</p>
@@ -157,9 +169,9 @@ export default function ArchiveContent() {
         )}
 
         {/* Card list */}
-        {!loading && entries.length > 0 && (
+        {!isLoading && displayEntries.length > 0 && (
           <div className="flex flex-col gap-4">
-            {entries.map((entry, i) => (
+            {displayEntries.map((entry, i) => (
               <motion.div
                 key={entry.word_date}
                 initial={{ opacity: 0, y: 12 }}

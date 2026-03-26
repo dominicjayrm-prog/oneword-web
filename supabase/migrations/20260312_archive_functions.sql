@@ -73,7 +73,7 @@ BEGIN
   JOIN daily_words dw ON d.word_id = dw.id
   JOIN profiles p ON d.user_id = p.id
   WHERE d.word_id = v_word_id
-  ORDER BY d.elo_rating DESC
+  ORDER BY d.vote_count DESC, d.elo_rating DESC
   LIMIT 10;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

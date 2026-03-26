@@ -7,6 +7,27 @@ import { Nav } from '@/components/ui/Nav';
 import { Footer } from '@/components/ui/Footer';
 import type { BlogPost, BlogAuthor } from '@/lib/blog/types';
 import type { Metadata } from 'next';
+import { createClient as createDirectClient } from '@supabase/supabase-js';
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
+
+  const supabase = createDirectClient(url, key);
+  const { data: authors } = await supabase
+    .from('blog_authors')
+    .select('slug');
+
+  if (!authors) return [];
+
+  return authors.flatMap((author) => [
+    { locale: 'en', slug: author.slug },
+    { locale: 'es', slug: author.slug },
+  ]);
+}
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
