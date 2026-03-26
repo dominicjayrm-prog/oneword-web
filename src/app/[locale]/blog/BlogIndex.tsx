@@ -29,13 +29,16 @@ function SkeletonCard() {
   );
 }
 
-export default function BlogIndex() {
+export default function BlogIndex({ initialPosts }: { initialPosts?: BlogPost[] }) {
   const t = useTranslations('blog');
   const locale = useLocale();
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState<BlogPost[]>(initialPosts || []);
+  const [loading, setLoading] = useState(!initialPosts);
 
   useEffect(() => {
+    // Skip client fetch if we already have server-rendered data
+    if (initialPosts && initialPosts.length > 0) return;
+
     async function fetchPosts() {
       const supabase = createClient();
       const { data } = await supabase
@@ -49,7 +52,7 @@ export default function BlogIndex() {
       setLoading(false);
     }
     fetchPosts();
-  }, [locale]);
+  }, [locale, initialPosts]);
 
   function formatDate(date: string) {
     return new Date(date).toLocaleDateString(

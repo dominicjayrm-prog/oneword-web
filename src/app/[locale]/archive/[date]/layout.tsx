@@ -1,5 +1,27 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { createClient as createDirectClient } from '@supabase/supabase-js';
+
+export async function generateStaticParams() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
+
+  const supabase = createDirectClient(url, key);
+  const { data: words } = await supabase
+    .from('words')
+    .select('word_date')
+    .lte('word_date', new Date().toISOString().split('T')[0])
+    .order('word_date', { ascending: false })
+    .limit(90);
+
+  if (!words) return [];
+
+  return words.flatMap((w) => [
+    { locale: 'en', date: w.word_date },
+    { locale: 'es', date: w.word_date },
+  ]);
+}
 
 function formatDateForTitle(dateStr: string, locale: string): string {
   const d = new Date(dateStr + 'T12:00:00Z');

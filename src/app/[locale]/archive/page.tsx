@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { createClient } from '@/lib/supabase/server';
 import ArchiveContent from './ArchiveContent';
+
+export const revalidate = 3600;
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -25,6 +28,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function ArchivePage() {
-  return <ArchiveContent />;
+export default async function ArchivePage({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const language = locale === 'es' ? 'es' : 'en';
+  const supabase = await createClient();
+  const { data } = await supabase.rpc('get_archive_calendar', {
+    p_language: language,
+  });
+
+  const initialEntries = (data as { word_date: string; word: string; category: string; player_count: number }[]) || [];
+
+  return <ArchiveContent initialEntries={initialEntries} />;
 }
