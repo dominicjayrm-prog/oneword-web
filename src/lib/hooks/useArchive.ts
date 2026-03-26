@@ -121,7 +121,11 @@ export function useArchiveDay(language: string) {
       });
 
       if (!error && rows && (rows as ArchiveDayEntry[]).length > 0) {
-        setData(rows as ArchiveDayEntry[]);
+        // Re-sort by vote_count so ranking matches what users see
+        const sorted = (rows as ArchiveDayEntry[]).slice().sort(
+          (a, b) => b.vote_count - a.vote_count || b.elo_rating - a.elo_rating
+        );
+        setData(sorted);
         setLoading(false);
         return;
       }
@@ -154,6 +158,7 @@ export function useArchiveDay(language: string) {
         .from('descriptions')
         .select('description, vote_count, elo_rating, rank, user_id, profiles!inner(username)')
         .eq('word_id', wordData.id)
+        .order('vote_count', { ascending: false })
         .order('elo_rating', { ascending: false })
         .limit(10);
 

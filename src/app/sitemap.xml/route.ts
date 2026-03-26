@@ -24,7 +24,7 @@ function localeUrl(locale: string, page: string) {
 }
 
 export async function GET() {
-  const staticLastmod = '2026-03-01';
+  const staticLastmod = new Date().toISOString().split('T')[0];
 
   // Static pages with xhtml:link hreflang alternates
   const staticUrls = pages.flatMap((page) =>

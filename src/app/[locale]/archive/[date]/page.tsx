@@ -20,7 +20,11 @@ async function fetchArchiveDay(date: string, language: string): Promise<ArchiveD
   });
 
   if (!error && rows && (rows as ArchiveDayEntry[]).length > 0) {
-    return rows as ArchiveDayEntry[];
+    // RPC sorts by elo_rating; re-sort by vote_count so ranking matches what users see
+    const sorted = (rows as ArchiveDayEntry[]).slice().sort(
+      (a, b) => b.vote_count - a.vote_count || b.elo_rating - a.elo_rating
+    );
+    return sorted;
   }
 
   // Fallback: query tables directly
@@ -46,6 +50,7 @@ async function fetchArchiveDay(date: string, language: string): Promise<ArchiveD
     .from('descriptions')
     .select('description, vote_count, elo_rating, rank, user_id, profiles!inner(username)')
     .eq('word_id', wordData.id)
+    .order('vote_count', { ascending: false })
     .order('elo_rating', { ascending: false })
     .limit(10);
 

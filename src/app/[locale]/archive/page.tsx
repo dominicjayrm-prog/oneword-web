@@ -14,16 +14,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'archive' });
   const siteUrl = 'https://playoneword.app';
 
+  const title = `${t('title')} — OneWord`;
+  const description = t('subtitle');
+  const pageUrl = locale === 'es' ? `${siteUrl}/es/archive` : `${siteUrl}/archive`;
+
   return {
-    title: `${t('title')} — OneWord`,
-    description: t('subtitle'),
+    title,
+    description,
     alternates: {
-      canonical: locale === 'es' ? `${siteUrl}/es/archive` : `${siteUrl}/archive`,
+      canonical: pageUrl,
       languages: {
         en: `${siteUrl}/archive`,
         es: `${siteUrl}/es/archive`,
         'x-default': `${siteUrl}/archive`,
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url: pageUrl,
+      type: 'website',
+      locale: locale === 'es' ? 'es_ES' : 'en_US',
+      siteName: 'OneWord',
     },
   };
 }
