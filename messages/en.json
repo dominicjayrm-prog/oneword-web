@@ -83,6 +83,11 @@
     "title": "Real words. Real descriptions.",
     "winner_label": "\ud83e\udd47 WINNING DESCRIPTION"
   },
+  "latest_blog": {
+    "label": "FROM THE BLOG",
+    "title": "Latest articles",
+    "view_all": "View all posts"
+  },
   "cta": {
     "title": "Today's word is waiting.",
     "tagline": "Say it in five.",

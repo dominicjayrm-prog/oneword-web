@@ -51,5 +51,5 @@ export default async function BlogPage({ params }: Props) {
     .eq('language', locale === 'es' ? 'es' : 'en')
     .order('published_at', { ascending: false });
 
-  return <BlogIndex initialPosts={(data as BlogPost[]) || []} />;
+  return <BlogIndex posts={(data as BlogPost[]) || []} locale={locale} />;
 }

@@ -83,6 +83,11 @@
     "title": "Palabras reales. Descripciones reales.",
     "winner_label": "\ud83e\udd47 DESCRIPCI\u00d3N GANADORA"
   },
+  "latest_blog": {
+    "label": "DEL BLOG",
+    "title": "\u00daltimos art\u00edculos",
+    "view_all": "Ver todas las publicaciones"
+  },
   "cta": {
     "title": "La palabra de hoy te espera.",
     "tagline": "Dilo en cinco.",
