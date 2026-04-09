@@ -7,6 +7,7 @@ import { LiveLeaderboard } from '@/components/landing/LiveLeaderboard';
 import { Features } from '@/components/landing/Features';
 import { Examples } from '@/components/landing/Examples';
 import { CTA } from '@/components/landing/CTA';
+import { LatestBlogPosts } from '@/components/landing/LatestBlogPosts';
 import PromoVideo from '@/components/landing/PromoVideo';
 
 export default async function Home() {
@@ -66,6 +67,7 @@ export default async function Home() {
         <LiveLeaderboard />
         <Features />
         <Examples />
+        <LatestBlogPosts />
         <CTA />
       </main>
       <Footer />
